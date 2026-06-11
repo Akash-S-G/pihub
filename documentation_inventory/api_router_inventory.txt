@@ -1,0 +1,176 @@
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:    def __init__(self, router: "APIRouter") -> None:
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:class APIRouter(routing.Router):
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:    `APIRouter` class, used to group *path operations*, for example to structure
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:    in another `APIRouter` (ultimately included in the app).
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:    from fastapi import APIRouter, FastAPI
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:    router = APIRouter()
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI, WebSocket
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:        router: Annotated["APIRouter", Doc("The `APIRouter` to include.")],
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:        Include another `APIRouter` in the same current `APIRouter`.
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:        internal_router = APIRouter()
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:        users_router = APIRouter()
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:            "Cannot include the same APIRouter instance into itself. "
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./backend/.venv/lib/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./backend/.venv/lib/python3.12/site-packages/fastapi/__init__.py:from .routing import APIRouter as APIRouter
+./backend/.venv/lib/python3.12/site-packages/fastapi/applications.py:            routing.APIRouter | None,
+./backend/.venv/lib/python3.12/site-packages/fastapi/applications.py:            routing.APIRouter,
+./backend/.venv/lib/python3.12/site-packages/fastapi/applications.py:                The `app.webhooks` attribute is an `APIRouter` with the *path
+./backend/.venv/lib/python3.12/site-packages/fastapi/applications.py:        ] = webhooks or routing.APIRouter()
+./backend/.venv/lib/python3.12/site-packages/fastapi/applications.py:        self.router: routing.APIRouter = routing.APIRouter(
+./backend/.venv/lib/python3.12/site-packages/fastapi/applications.py:        router: Annotated[routing.APIRouter, Doc("The `APIRouter` to include.")],
+./backend/.venv/lib/python3.12/site-packages/fastapi/applications.py:        Include an `APIRouter` in the same app.
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:    def __init__(self, router: "APIRouter") -> None:
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:class APIRouter(routing.Router):
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:    `APIRouter` class, used to group *path operations*, for example to structure
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:    in another `APIRouter` (ultimately included in the app).
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:    from fastapi import APIRouter, FastAPI
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:    router = APIRouter()
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI, WebSocket
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:        router: Annotated["APIRouter", Doc("The `APIRouter` to include.")],
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:        Include another `APIRouter` in the same current `APIRouter`.
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:        internal_router = APIRouter()
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:        users_router = APIRouter()
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:            "Cannot include the same APIRouter instance into itself. "
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./backend/.venv/lib64/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./backend/.venv/lib64/python3.12/site-packages/fastapi/__init__.py:from .routing import APIRouter as APIRouter
+./backend/.venv/lib64/python3.12/site-packages/fastapi/applications.py:            routing.APIRouter | None,
+./backend/.venv/lib64/python3.12/site-packages/fastapi/applications.py:            routing.APIRouter,
+./backend/.venv/lib64/python3.12/site-packages/fastapi/applications.py:                The `app.webhooks` attribute is an `APIRouter` with the *path
+./backend/.venv/lib64/python3.12/site-packages/fastapi/applications.py:        ] = webhooks or routing.APIRouter()
+./backend/.venv/lib64/python3.12/site-packages/fastapi/applications.py:        self.router: routing.APIRouter = routing.APIRouter(
+./backend/.venv/lib64/python3.12/site-packages/fastapi/applications.py:        router: Annotated[routing.APIRouter, Doc("The `APIRouter` to include.")],
+./backend/.venv/lib64/python3.12/site-packages/fastapi/applications.py:        Include an `APIRouter` in the same app.
+./backend/pack-service/app/api/pdf_routes.py:from fastapi import APIRouter, HTTPException, Query, Request
+./backend/pack-service/app/api/pdf_routes.py:router = APIRouter(prefix="/api/v1/pdf", tags=["PDF Reader API"])
+./backend/pack-service/app/api/preview_routes.py:from fastapi import APIRouter, HTTPException, Query, Request
+./backend/pack-service/app/api/preview_routes.py:router = APIRouter(tags=["Internal Debug"])
+./backend/pack-service/app/api/pack_routes.py:from fastapi import APIRouter, HTTPException, Query, Request
+./backend/pack-service/app/api/pack_routes.py:router = APIRouter(tags=["Pack API"])
+./backend/pihub/cache/debug_routes.py:from fastapi import APIRouter, HTTPException
+./backend/pihub/cache/debug_routes.py:router = APIRouter(prefix="/debug", tags=["Debug & Monitoring"])
+./backend/experiment-service/api/routes.py:from fastapi import APIRouter, HTTPException, Query
+./backend/experiment-service/api/routes.py:router = APIRouter(tags=["Experiment Engine"])
+./backend/experiment-service/app/maintenance/routes.py:from fastapi import APIRouter
+./backend/experiment-service/app/maintenance/routes.py:router = APIRouter(tags=["Experiment Maintenance"])
+./backend/experiment-service/app/builder/routes.py:from fastapi import APIRouter, HTTPException, Query
+./backend/experiment-service/app/builder/routes.py:router = APIRouter(tags=["Experiment Builder"])
+./backend/experiment-service/app/classroom/routes.py:from fastapi import APIRouter, HTTPException
+./backend/experiment-service/app/classroom/routes.py:router = APIRouter(tags=["Classroom Distribution"])
+./backend/experiment-service/app/ai/routes.py:from fastapi import APIRouter, HTTPException
+./backend/experiment-service/app/ai/routes.py:router = APIRouter(tags=["AI Experiment Authoring"])
+./backend/experiment-service/app/experiment_content/routes.py:from fastapi import APIRouter
+./backend/experiment-service/app/experiment_content/routes.py:router = APIRouter(tags=["Experiment Content"])
+./backend/experiment-service/app/sharing/routes.py:from fastapi import APIRouter, HTTPException
+./backend/experiment-service/app/sharing/routes.py:router = APIRouter(tags=["Experiment Sharing"])
+./backend/experiment-service/app/manifest/routes.py:from fastapi import APIRouter, HTTPException
+./backend/experiment-service/app/manifest/routes.py:router = APIRouter(tags=["Experiment Manifest"])
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:    def __init__(self, router: "APIRouter") -> None:
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:class APIRouter(routing.Router):
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:    `APIRouter` class, used to group *path operations*, for example to structure
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:    in another `APIRouter` (ultimately included in the app).
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:    from fastapi import APIRouter, FastAPI
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:    router = APIRouter()
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI, WebSocket
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:        router: Annotated["APIRouter", Doc("The `APIRouter` to include.")],
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:        Include another `APIRouter` in the same current `APIRouter`.
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:        internal_router = APIRouter()
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:        users_router = APIRouter()
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:            "Cannot include the same APIRouter instance into itself. "
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./.venv/lib/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./.venv/lib/python3.12/site-packages/fastapi/__init__.py:from .routing import APIRouter as APIRouter
+./.venv/lib/python3.12/site-packages/fastapi/applications.py:            routing.APIRouter | None,
+./.venv/lib/python3.12/site-packages/fastapi/applications.py:            routing.APIRouter,
+./.venv/lib/python3.12/site-packages/fastapi/applications.py:                The `app.webhooks` attribute is an `APIRouter` with the *path
+./.venv/lib/python3.12/site-packages/fastapi/applications.py:        ] = webhooks or routing.APIRouter()
+./.venv/lib/python3.12/site-packages/fastapi/applications.py:        self.router: routing.APIRouter = routing.APIRouter(
+./.venv/lib/python3.12/site-packages/fastapi/applications.py:        router: Annotated[routing.APIRouter, Doc("The `APIRouter` to include.")],
+./.venv/lib/python3.12/site-packages/fastapi/applications.py:        Include an `APIRouter` in the same app.
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:    def __init__(self, router: "APIRouter") -> None:
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:class APIRouter(routing.Router):
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:    `APIRouter` class, used to group *path operations*, for example to structure
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:    in another `APIRouter` (ultimately included in the app).
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:    from fastapi import APIRouter, FastAPI
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:    router = APIRouter()
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI, WebSocket
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:        router: Annotated["APIRouter", Doc("The `APIRouter` to include.")],
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:        Include another `APIRouter` in the same current `APIRouter`.
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:        internal_router = APIRouter()
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:        users_router = APIRouter()
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:            "Cannot include the same APIRouter instance into itself. "
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:        from fastapi import APIRouter, FastAPI
+./.venv/lib64/python3.12/site-packages/fastapi/routing.py:        router = APIRouter()
+./.venv/lib64/python3.12/site-packages/fastapi/__init__.py:from .routing import APIRouter as APIRouter
+./.venv/lib64/python3.12/site-packages/fastapi/applications.py:            routing.APIRouter | None,
+./.venv/lib64/python3.12/site-packages/fastapi/applications.py:            routing.APIRouter,
+./.venv/lib64/python3.12/site-packages/fastapi/applications.py:                The `app.webhooks` attribute is an `APIRouter` with the *path
+./.venv/lib64/python3.12/site-packages/fastapi/applications.py:        ] = webhooks or routing.APIRouter()
+./.venv/lib64/python3.12/site-packages/fastapi/applications.py:        self.router: routing.APIRouter = routing.APIRouter(
+./.venv/lib64/python3.12/site-packages/fastapi/applications.py:        router: Annotated[routing.APIRouter, Doc("The `APIRouter` to include.")],
+./.venv/lib64/python3.12/site-packages/fastapi/applications.py:        Include an `APIRouter` in the same app.

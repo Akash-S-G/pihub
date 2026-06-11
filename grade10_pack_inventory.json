@@ -1,0 +1,1301 @@
+{
+  "chapter_count": 55,
+  "chapters": [
+    "acids, bases and salts",
+    "answers",
+    "areas related to circles",
+    "arithmetic progressions",
+    "carbon and its compounds",
+    "chapter 1 development",
+    "chapter 1 power sharing",
+    "chapter 1 resources and development",
+    "chapter 1 the rise of nationalism in europe",
+    "chapter 2 federalism",
+    "chapter 2 forest and wildlife resources",
+    "chapter 2 nationalism in india",
+    "chapter 2 sectors of the indian economy",
+    "chapter 3 gender religion and caste",
+    "chapter 3 money and credit",
+    "chapter 3 the making of a global world",
+    "chapter 3 water resources",
+    "chapter 4 agriculture",
+    "chapter 4 globalisation and the indian economy",
+    "chapter 4 political parties",
+    "chapter 4 the age of industrialisation",
+    "chapter 5 consumer rights",
+    "chapter 5 minerals and energy resources",
+    "chapter 5 outcomes of democracy",
+    "chapter 5 print culture and the modern world",
+    "chapter 6 manufacturing industries",
+    "chapter 7 lifelines of national economy",
+    "chemical reactions and equations",
+    "circles",
+    "contemporary india",
+    "control and coordination",
+    "coordinate geometry",
+    "democratic politics ii",
+    "electricity",
+    "heredity",
+    "how do organisms reproduce",
+    "india and the contemporary world - ii",
+    "introduction",
+    "introduction to trigonometry",
+    "life processes",
+    "light - reflection and refraction",
+    "magnetic effects of electric current",
+    "metals and non metals",
+    "our environment",
+    "pair of linear equations in two variables",
+    "polynomials",
+    "probability",
+    "quadratic equations",
+    "real numbers",
+    "some applications of trigonometry",
+    "statistics",
+    "surface areas and volumes",
+    "the human eye and the colourful world",
+    "triangles",
+    "understanding economic development"
+  ],
+  "grade": 10,
+  "pack_count": 82,
+  "rows": [
+    {
+      "artifact_counts": {
+        "content": 1221,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "areas related to circles",
+      "language": "english",
+      "pack_id": "chapter_10_maths_areas_related_to_circles_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 2664,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "arithmetic progressions",
+      "language": "english",
+      "pack_id": "chapter_10_maths_arithmetic_progressions_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 2107,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "circles",
+      "language": "english",
+      "pack_id": "chapter_10_maths_circles_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 2184,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "coordinate geometry",
+      "language": "english",
+      "pack_id": "chapter_10_maths_coordinate_geometry_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 1444,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "introduction",
+      "language": "english",
+      "pack_id": "chapter_10_maths_introduction_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 6006,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "introduction to trigonometry",
+      "language": "english",
+      "pack_id": "chapter_10_maths_introduction_to_trigonometry_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 1880,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "pair of linear equations in two variables",
+      "language": "english",
+      "pack_id": "chapter_10_maths_pair_of_linear_equations_in_two_variables_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 1100,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "polynomials",
+      "language": "english",
+      "pack_id": "chapter_10_maths_polynomials_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 2300,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "probability",
+      "language": "english",
+      "pack_id": "chapter_10_maths_probability_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 1410,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "quadratic equations",
+      "language": "english",
+      "pack_id": "chapter_10_maths_quadratic_equations_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 1395,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "real numbers",
+      "language": "english",
+      "pack_id": "chapter_10_maths_real_numbers_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 1681,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "some applications of trigonometry",
+      "language": "english",
+      "pack_id": "chapter_10_maths_some_applications_of_trigonometry_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 3069,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "statistics",
+      "language": "english",
+      "pack_id": "chapter_10_maths_statistics_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 875,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "surface areas and volumes",
+      "language": "english",
+      "pack_id": "chapter_10_maths_surface_areas_and_volumes_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 6358,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "triangles",
+      "language": "english",
+      "pack_id": "chapter_10_maths_triangles_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 369,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "acids, bases and salts",
+      "language": "english",
+      "pack_id": "chapter_10_science_acids_bases_and_salts_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 161,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "answers",
+      "language": "english",
+      "pack_id": "chapter_10_science_answers_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 192,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "carbon and its compounds",
+      "language": "english",
+      "pack_id": "chapter_10_science_carbon_and_its_compounds_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 50,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 1 development",
+      "language": "english",
+      "pack_id": "chapter_10_science_chapter_1_development_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 14,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 1 power sharing",
+      "language": "english",
+      "pack_id": "chapter_10_science_chapter_1_power_sharing_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 21,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 1 resources and development",
+      "language": "english",
+      "pack_id": "chapter_10_science_chapter_1_resources_and_development_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 92,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 1 the rise of nationalism in europe",
+      "language": "english",
+      "pack_id": "chapter_10_science_chapter_1_the_rise_of_nationalism_in_europe_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 36,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 2 federalism",
+      "language": "english",
+      "pack_id": "chapter_10_science_chapter_2_federalism_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 18,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 4,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 2 forest and wildlife resources",
+      "language": "english",
+      "pack_id": "chapter_10_science_chapter_2_forest_and_wildlife_resources_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 84,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 2 nationalism in india",
+      "language": "english",
+      "pack_id": "chapter_10_science_chapter_2_nationalism_in_india_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 132,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 2 sectors of the indian economy",
+      "language": "english",
+      "pack_id": "chapter_10_science_chapter_2_sectors_of_the_indian_economy_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 95,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 3 gender religion and caste",
+      "language": "english",
+      "pack_id": "chapter_10_science_chapter_3_gender_religion_and_caste_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 155,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 3 money and credit",
+      "language": "english",
+      "pack_id": "chapter_10_science_chapter_3_money_and_credit_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 24,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 3 the making of a global world",
+      "language": "english",
+      "pack_id": "chapter_10_science_chapter_3_the_making_of_a_global_world_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 84,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 3 water resources",
+      "language": "english",
+      "pack_id": "chapter_10_science_chapter_3_water_resources_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 231,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 4 agriculture",
+      "language": "english",
+      "pack_id": "chapter_10_science_chapter_4_agriculture_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 96,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 4 globalisation and the indian economy",
+      "language": "english",
+      "pack_id": "chapter_10_science_chapter_4_globalisation_and_the_indian_economy_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 54,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 4 political parties",
+      "language": "english",
+      "pack_id": "chapter_10_science_chapter_4_political_parties_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 38,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 4 the age of industrialisation",
+      "language": "english",
+      "pack_id": "chapter_10_science_chapter_4_the_age_of_industrialisation_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 216,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 5 consumer rights",
+      "language": "english",
+      "pack_id": "chapter_10_science_chapter_5_consumer_rights_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 232,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 5 minerals and energy resources",
+      "language": "english",
+      "pack_id": "chapter_10_science_chapter_5_minerals_and_energy_resources_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 96,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 5 outcomes of democracy",
+      "language": "english",
+      "pack_id": "chapter_10_science_chapter_5_outcomes_of_democracy_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 110,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 5 print culture and the modern world",
+      "language": "english",
+      "pack_id": "chapter_10_science_chapter_5_print_culture_and_the_modern_world_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 155,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 6 manufacturing industries",
+      "language": "english",
+      "pack_id": "chapter_10_science_chapter_6_manufacturing_industries_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 132,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 7 lifelines of national economy",
+      "language": "english",
+      "pack_id": "chapter_10_science_chapter_7_lifelines_of_national_economy_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 351,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chemical reactions and equations",
+      "language": "english",
+      "pack_id": "chapter_10_science_chemical_reactions_and_equations_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 0,
+        "enrichment": 2,
+        "flashcards": 0,
+        "glossary": 0,
+        "quizzes": 0,
+        "retrieval_index": 2,
+        "summaries": 0
+      },
+      "chapter": "contemporary india",
+      "language": "english",
+      "pack_id": "chapter_10_science_contemporary_india_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 45,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "control and coordination",
+      "language": "english",
+      "pack_id": "chapter_10_science_control_and_coordination_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 0,
+        "enrichment": 2,
+        "flashcards": 0,
+        "glossary": 0,
+        "quizzes": 0,
+        "retrieval_index": 2,
+        "summaries": 0
+      },
+      "chapter": "democratic politics ii",
+      "language": "english",
+      "pack_id": "chapter_10_science_democratic_politics_ii_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 642,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "electricity",
+      "language": "english",
+      "pack_id": "chapter_10_science_electricity_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 323,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "heredity",
+      "language": "english",
+      "pack_id": "chapter_10_science_heredity_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 345,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "how do organisms reproduce",
+      "language": "english",
+      "pack_id": "chapter_10_science_how_do_organisms_reproduce_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 33,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "india and the contemporary world - ii",
+      "language": "english",
+      "pack_id": "chapter_10_science_india_and_the_contemporary_world_ii_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 304,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "introduction",
+      "language": "english",
+      "pack_id": "chapter_10_science_introduction_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 322,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "life processes",
+      "language": "english",
+      "pack_id": "chapter_10_science_life_processes_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 448,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "light - reflection and refraction",
+      "language": "english",
+      "pack_id": "chapter_10_science_light_reflection_and_refraction_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 160,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "magnetic effects of electric current",
+      "language": "english",
+      "pack_id": "chapter_10_science_magnetic_effects_of_electric_current_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 0,
+        "enrichment": 2,
+        "flashcards": 0,
+        "glossary": 0,
+        "quizzes": 0,
+        "retrieval_index": 2,
+        "summaries": 0
+      },
+      "chapter": "metals and non metals",
+      "language": "english",
+      "pack_id": "chapter_10_science_metals_and_non_metals_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 70,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "our environment",
+      "language": "english",
+      "pack_id": "chapter_10_science_our_environment_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 192,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "the human eye and the colourful world",
+      "language": "english",
+      "pack_id": "chapter_10_science_the_human_eye_and_the_colourful_world_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 120,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "understanding economic development",
+      "language": "english",
+      "pack_id": "chapter_10_science_understanding_economic_development_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 150,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 1 development",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_chapter_1_development_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 42,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 1 power sharing",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_chapter_1_power_sharing_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 63,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 1 resources and development",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_chapter_1_resources_and_development_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 138,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 1 the rise of nationalism in europe",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_chapter_1_the_rise_of_nationalism_in_europe_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 72,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 2 federalism",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_chapter_2_federalism_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 30,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 4,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 2 forest and wildlife resources",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_chapter_2_forest_and_wildlife_resources_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 112,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 2 nationalism in india",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_chapter_2_nationalism_in_india_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 220,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 2 sectors of the indian economy",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_chapter_2_sectors_of_the_indian_economy_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 133,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 3 gender religion and caste",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_chapter_3_gender_religion_and_caste_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 217,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 3 money and credit",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_chapter_3_money_and_credit_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 72,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 3 the making of a global world",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_chapter_3_the_making_of_a_global_world_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 126,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 3 water resources",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_chapter_3_water_resources_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 297,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 4 agriculture",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_chapter_4_agriculture_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 192,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 4 globalisation and the indian economy",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_chapter_4_globalisation_and_the_indian_economy_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 90,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 4 political parties",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_chapter_4_political_parties_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 76,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 4 the age of industrialisation",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_chapter_4_the_age_of_industrialisation_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 288,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 5 consumer rights",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_chapter_5_consumer_rights_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 290,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 5 minerals and energy resources",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_chapter_5_minerals_and_energy_resources_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 128,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 5 outcomes of democracy",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_chapter_5_outcomes_of_democracy_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 154,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 5 print culture and the modern world",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_chapter_5_print_culture_and_the_modern_world_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 217,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 6 manufacturing industries",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_chapter_6_manufacturing_industries_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 176,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 7 lifelines of national economy",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_chapter_7_lifelines_of_national_economy_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 0,
+        "enrichment": 2,
+        "flashcards": 0,
+        "glossary": 0,
+        "quizzes": 0,
+        "retrieval_index": 2,
+        "summaries": 0
+      },
+      "chapter": "contemporary india",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_contemporary_india_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 0,
+        "enrichment": 2,
+        "flashcards": 0,
+        "glossary": 0,
+        "quizzes": 0,
+        "retrieval_index": 2,
+        "summaries": 0
+      },
+      "chapter": "democratic politics ii",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_democratic_politics_ii_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 55,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "india and the contemporary world - ii",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_india_and_the_contemporary_world_ii_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 180,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "understanding economic development",
+      "language": "english",
+      "pack_id": "chapter_10_social_science_understanding_economic_development_english",
+      "subject": "social_science"
+    }
+  ],
+  "source_pdfs": [],
+  "subject_count": 3,
+  "subjects": {
+    "maths": 15,
+    "science": 41,
+    "social_science": 26
+  }
+}

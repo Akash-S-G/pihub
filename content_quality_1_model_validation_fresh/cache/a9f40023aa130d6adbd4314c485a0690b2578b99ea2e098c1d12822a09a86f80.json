@@ -1,0 +1,15 @@
+{
+  "items": [
+    {
+      "question": "string",
+      "options": [
+        "string",
+        "string",
+        "string",
+        "string"
+      ],
+      "answer": "string",
+      "explanation": "string"
+    }
+  ]
+}

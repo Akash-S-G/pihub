@@ -1,0 +1,5 @@
+./backend/pihub/storage/pihub.sqlite3
+./backend/experiment-service/app/storage/builder_manifests.sqlite3
+./backend/experiment-service/app/storage/sharing.sqlite3
+./backend/experiment-service/app/storage/classroom.sqlite3
+./backend/experiment-service/storage/experiment_service.sqlite3

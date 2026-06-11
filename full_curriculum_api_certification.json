@@ -1,0 +1,1124 @@
+{
+  "base_url": "http://localhost",
+  "final_verdict": "APPROVED_FOR_PRODUCTION",
+  "blocking_reasons": [],
+  "health": {
+    "http": 200,
+    "status": "healthy",
+    "pack_count": 403,
+    "chunk_count": 203170
+  },
+  "sync": {
+    "http": 200,
+    "pack_count": 399,
+    "required_field_failures": [],
+    "missing_content_packs": [],
+    "sample": {
+      "pack_id": "chapter_8_maths_proportional_reasoning_english",
+      "version": "1.0.0",
+      "grade": 8,
+      "subject": "maths",
+      "chapter": "proportional reasoning",
+      "language": "english",
+      "checksum": "sha256:08fa0235aa16630cdee29c9ebc961e97544a9a148f54e808fce0219d5c7f0488",
+      "hash": "sha256:08fa0235aa16630cdee29c9ebc961e97544a9a148f54e808fce0219d5c7f0488",
+      "content_checksum": "sha256:b9c46f5cd4efdf2dec7e0aace39fe7662a9ae5096965c4a97775c6cdd09c5561",
+      "size_bytes": 228173,
+      "compressed_size_mb": 0.2176,
+      "artifact_counts": {
+        "activities": 6,
+        "concepts": 0,
+        "content": 105,
+        "enrichment": 7,
+        "examples": 2,
+        "flashcards": 30,
+        "formulas": 6,
+        "glossary": 30,
+        "questions": 10,
+        "quizzes": 10,
+        "retrieval_index": 3,
+        "summaries": 1,
+        "tutor_contexts": 31,
+        "worked_examples": 10
+      },
+      "chunk_count": 105,
+      "quality_scores": {
+        "average_chunk_length": 236.08,
+        "duplicate_ratio": 0.0,
+        "quality_gate_passed": 1.0,
+        "retrieval_precision": 1.0
+      },
+      "archive_exists": true,
+      "manifest_exists": true,
+      "installable": true,
+      "updated_at": null,
+      "manifest_url": "/packs/chapter_8_maths_proportional_reasoning_english/manifest",
+      "download_url": "/packs/chapter_8_maths_proportional_reasoning_english/download",
+      "source": "pack_service"
+    }
+  },
+  "coverage": {
+    "grades": {
+      "1": {
+        "subjects": [
+          "maths"
+        ],
+        "pack_count": 13,
+        "chapter_count": 13
+      },
+      "2": {
+        "subjects": [
+          "maths"
+        ],
+        "pack_count": 12,
+        "chapter_count": 12
+      },
+      "3": {
+        "subjects": [
+          "maths"
+        ],
+        "pack_count": 15,
+        "chapter_count": 15
+      },
+      "4": {
+        "subjects": [
+          "maths"
+        ],
+        "pack_count": 15,
+        "chapter_count": 15
+      },
+      "5": {
+        "subjects": [
+          "maths",
+          "science"
+        ],
+        "pack_count": 26,
+        "chapter_count": 26
+      },
+      "6": {
+        "subjects": [
+          "maths",
+          "science",
+          "social_science"
+        ],
+        "pack_count": 55,
+        "chapter_count": 55
+      },
+      "7": {
+        "subjects": [
+          "maths",
+          "science",
+          "social_science"
+        ],
+        "pack_count": 73,
+        "chapter_count": 73
+      },
+      "8": {
+        "subjects": [
+          "maths",
+          "science",
+          "social_science"
+        ],
+        "pack_count": 46,
+        "chapter_count": 46
+      },
+      "9": {
+        "subjects": [
+          "maths",
+          "science",
+          "social_science"
+        ],
+        "pack_count": 62,
+        "chapter_count": 62
+      },
+      "10": {
+        "subjects": [
+          "maths",
+          "science",
+          "social_science"
+        ],
+        "pack_count": 82,
+        "chapter_count": 82
+      }
+    },
+    "duplicate_entries": [],
+    "duplicate_count": 0
+  },
+  "catalog": {
+    "grades": [
+      {
+        "grade": 1,
+        "subjects": [
+          {
+            "subject": "maths",
+            "pack_count": 13,
+            "chapter_count": 13,
+            "chunk_count": 485,
+            "download_size_bytes": 381117,
+            "download_size_mb": 0.36
+          }
+        ]
+      },
+      {
+        "grade": 2,
+        "subjects": [
+          {
+            "subject": "maths",
+            "pack_count": 12,
+            "chapter_count": 12,
+            "chunk_count": 502,
+            "download_size_bytes": 443524,
+            "download_size_mb": 0.42
+          }
+        ]
+      },
+      {
+        "grade": 3,
+        "subjects": [
+          {
+            "subject": "maths",
+            "pack_count": 15,
+            "chapter_count": 15,
+            "chunk_count": 719,
+            "download_size_bytes": 687251,
+            "download_size_mb": 0.66
+          }
+        ]
+      },
+      {
+        "grade": 4,
+        "subjects": [
+          {
+            "subject": "maths",
+            "pack_count": 15,
+            "chapter_count": 15,
+            "chunk_count": 837,
+            "download_size_bytes": 858123,
+            "download_size_mb": 0.82
+          }
+        ]
+      },
+      {
+        "grade": 5,
+        "subjects": [
+          {
+            "subject": "maths",
+            "pack_count": 15,
+            "chapter_count": 15,
+            "chunk_count": 750,
+            "download_size_bytes": 866154,
+            "download_size_mb": 0.83
+          },
+          {
+            "subject": "science",
+            "pack_count": 11,
+            "chapter_count": 11,
+            "chunk_count": 552,
+            "download_size_bytes": 574273,
+            "download_size_mb": 0.55
+          }
+        ]
+      },
+      {
+        "grade": 6,
+        "subjects": [
+          {
+            "subject": "maths",
+            "pack_count": 10,
+            "chapter_count": 10,
+            "chunk_count": 854,
+            "download_size_bytes": 1699086,
+            "download_size_mb": 1.62
+          },
+          {
+            "subject": "science",
+            "pack_count": 29,
+            "chapter_count": 29,
+            "chunk_count": 1832,
+            "download_size_bytes": 2466073,
+            "download_size_mb": 2.35
+          },
+          {
+            "subject": "social_science",
+            "pack_count": 16,
+            "chapter_count": 16,
+            "chunk_count": 1054,
+            "download_size_bytes": 1457410,
+            "download_size_mb": 1.39
+          }
+        ]
+      },
+      {
+        "grade": 7,
+        "subjects": [
+          {
+            "subject": "maths",
+            "pack_count": 16,
+            "chapter_count": 16,
+            "chunk_count": 1408,
+            "download_size_bytes": 3106411,
+            "download_size_mb": 2.96
+          },
+          {
+            "subject": "science",
+            "pack_count": 35,
+            "chapter_count": 35,
+            "chunk_count": 2856,
+            "download_size_bytes": 4416885,
+            "download_size_mb": 4.21
+          },
+          {
+            "subject": "social_science",
+            "pack_count": 22,
+            "chapter_count": 22,
+            "chunk_count": 1925,
+            "download_size_bytes": 3173268,
+            "download_size_mb": 3.03
+          }
+        ]
+      },
+      {
+        "grade": 8,
+        "subjects": [
+          {
+            "subject": "maths",
+            "pack_count": 14,
+            "chapter_count": 14,
+            "chunk_count": 1201,
+            "download_size_bytes": 2020205,
+            "download_size_mb": 1.93
+          },
+          {
+            "subject": "science",
+            "pack_count": 23,
+            "chapter_count": 23,
+            "chunk_count": 1806,
+            "download_size_bytes": 2593199,
+            "download_size_mb": 2.47
+          },
+          {
+            "subject": "social_science",
+            "pack_count": 9,
+            "chapter_count": 9,
+            "chunk_count": 760,
+            "download_size_bytes": 1143099,
+            "download_size_mb": 1.09
+          }
+        ]
+      },
+      {
+        "grade": 9,
+        "subjects": [
+          {
+            "subject": "maths",
+            "pack_count": 13,
+            "chapter_count": 13,
+            "chunk_count": 1056,
+            "download_size_bytes": 2153504,
+            "download_size_mb": 2.05
+          },
+          {
+            "subject": "science",
+            "pack_count": 31,
+            "chapter_count": 31,
+            "chunk_count": 2721,
+            "download_size_bytes": 5150963,
+            "download_size_mb": 4.91
+          },
+          {
+            "subject": "social_science",
+            "pack_count": 18,
+            "chapter_count": 18,
+            "chunk_count": 1498,
+            "download_size_bytes": 2521839,
+            "download_size_mb": 2.41
+          }
+        ]
+      },
+      {
+        "grade": 10,
+        "subjects": [
+          {
+            "subject": "maths",
+            "pack_count": 15,
+            "chapter_count": 15,
+            "chunk_count": 1233,
+            "download_size_bytes": 2836235,
+            "download_size_mb": 2.7
+          },
+          {
+            "subject": "science",
+            "pack_count": 41,
+            "chapter_count": 41,
+            "chunk_count": 3309,
+            "download_size_bytes": 5427500,
+            "download_size_mb": 5.18
+          },
+          {
+            "subject": "social_science",
+            "pack_count": 26,
+            "chapter_count": 26,
+            "chunk_count": 2080,
+            "download_size_bytes": 3460426,
+            "download_size_mb": 3.3
+          }
+        ]
+      }
+    ],
+    "total_packs": 399,
+    "total_chunks": 29438,
+    "total_download_size_bytes": 47436545,
+    "total_download_size_mb": 45.24
+  },
+  "manifest_download_rows": [
+    {
+      "pack_id": "chapter_1_maths_finding_the_furry_cat_pre_number_concepts_english",
+      "manifest_http": 200,
+      "manifest_pack_id_match": true,
+      "download_http": 200,
+      "download_content_type": "application/gzip",
+      "download_content_length": 37740
+    },
+    {
+      "pack_id": "chapter_3_maths_double_century_english",
+      "manifest_http": 200,
+      "manifest_pack_id_match": true,
+      "download_http": 200,
+      "download_content_type": "application/gzip",
+      "download_content_length": 43128
+    },
+    {
+      "pack_id": "chapter_5_maths_angles_as_turns_english",
+      "manifest_http": 200,
+      "manifest_pack_id_match": true,
+      "download_http": 200,
+      "download_content_type": "application/gzip",
+      "download_content_length": 40320
+    },
+    {
+      "pack_id": "chapter_5_science_chapter_1_water_the_essence_of_life_english",
+      "manifest_http": 200,
+      "manifest_pack_id_match": true,
+      "download_http": 200,
+      "download_content_type": "application/gzip",
+      "download_content_length": 42864
+    },
+    {
+      "pack_id": "chapter_6_maths_data_handling_and_presentation_english",
+      "manifest_http": 200,
+      "manifest_pack_id_match": true,
+      "download_http": 200,
+      "download_content_type": "application/gzip",
+      "download_content_length": 229224
+    },
+    {
+      "pack_id": "chapter_6_science_chapter_1_locating_places_on_the_earth_english",
+      "manifest_http": 200,
+      "manifest_pack_id_match": true,
+      "download_http": 200,
+      "download_content_type": "application/gzip",
+      "download_content_length": 169843
+    },
+    {
+      "pack_id": "chapter_6_social_science_chapter_1_locating_places_on_the_earth_english",
+      "manifest_http": 200,
+      "manifest_pack_id_match": true,
+      "download_http": 200,
+      "download_content_type": "application/gzip",
+      "download_content_length": 168015
+    },
+    {
+      "pack_id": "chapter_8_maths_proportional_reasoning_english",
+      "manifest_http": 200,
+      "manifest_pack_id_match": true,
+      "download_http": 200,
+      "download_content_type": "application/gzip",
+      "download_content_length": 228173
+    },
+    {
+      "pack_id": "chapter_8_science_chapter_10_light_mirrors_and_lenses_english",
+      "manifest_http": 200,
+      "manifest_pack_id_match": true,
+      "download_http": 200,
+      "download_content_type": "application/gzip",
+      "download_content_length": 61771
+    },
+    {
+      "pack_id": "chapter_8_social_science_chapter_1_natural_resources_and_their_use_english",
+      "manifest_http": 200,
+      "manifest_pack_id_match": true,
+      "download_http": 200,
+      "download_content_type": "application/gzip",
+      "download_content_length": 148591
+    },
+    {
+      "pack_id": "chapter_10_maths_areas_related_to_circles_english",
+      "manifest_http": 200,
+      "manifest_pack_id_match": true,
+      "download_http": 200,
+      "download_content_type": "application/gzip",
+      "download_content_length": 109473
+    },
+    {
+      "pack_id": "chapter_10_science_acids_bases_and_salts_english",
+      "manifest_http": 200,
+      "manifest_pack_id_match": true,
+      "download_http": 200,
+      "download_content_type": "application/gzip",
+      "download_content_length": 111692
+    },
+    {
+      "pack_id": "chapter_10_social_science_chapter_1_development_english",
+      "manifest_http": 200,
+      "manifest_pack_id_match": true,
+      "download_http": 200,
+      "download_content_type": "application/gzip",
+      "download_content_length": 186263
+    }
+  ],
+  "pdf": {
+    "catalog_http": 200,
+    "catalog_total_entries": 254,
+    "samples_checked": 12,
+    "success_rate": 100.0,
+    "rows": [
+      {
+        "grade": 1,
+        "subject": "maths",
+        "chapter": "Finding the Furry Cat! (Pre-number Concepts)",
+        "resolve_http": 200,
+        "required_metadata": true,
+        "file_http": 200,
+        "file_bytes": 3444468,
+        "file_ok": true,
+        "failure_preview": ""
+      },
+      {
+        "grade": 3,
+        "subject": "maths",
+        "chapter": "Double Century",
+        "resolve_http": 200,
+        "required_metadata": true,
+        "file_http": 200,
+        "file_bytes": 6635675,
+        "file_ok": true,
+        "failure_preview": ""
+      },
+      {
+        "grade": 5,
+        "subject": "maths",
+        "chapter": "Angles as Turns",
+        "resolve_http": 200,
+        "required_metadata": true,
+        "file_http": 200,
+        "file_bytes": 2433784,
+        "file_ok": true,
+        "failure_preview": ""
+      },
+      {
+        "grade": 5,
+        "subject": "science",
+        "chapter": "Chapter 1 Water—The Essence of Life",
+        "resolve_http": 200,
+        "required_metadata": true,
+        "file_http": 200,
+        "file_bytes": 6144756,
+        "file_ok": true,
+        "failure_preview": ""
+      },
+      {
+        "grade": 6,
+        "subject": "maths",
+        "chapter": "Data Handling and Presentation",
+        "resolve_http": 200,
+        "required_metadata": true,
+        "file_http": 200,
+        "file_bytes": 7036766,
+        "file_ok": true,
+        "failure_preview": ""
+      },
+      {
+        "grade": 6,
+        "subject": "science",
+        "chapter": "Chapter 1 The Wonderful World of Science",
+        "resolve_http": 200,
+        "required_metadata": true,
+        "file_http": 200,
+        "file_bytes": 2415474,
+        "file_ok": true,
+        "failure_preview": ""
+      },
+      {
+        "grade": 8,
+        "subject": "maths",
+        "chapter": "A Square and A Cube",
+        "resolve_http": 200,
+        "required_metadata": true,
+        "file_http": 200,
+        "file_bytes": 2675871,
+        "file_ok": true,
+        "failure_preview": ""
+      },
+      {
+        "grade": 8,
+        "subject": "science",
+        "chapter": "Chapter 1 Exploring the Investigative World of Science",
+        "resolve_http": 200,
+        "required_metadata": true,
+        "file_http": 200,
+        "file_bytes": 1638090,
+        "file_ok": true,
+        "failure_preview": ""
+      },
+      {
+        "grade": 8,
+        "subject": "social_science",
+        "chapter": "Social Science Textbook for class 8",
+        "resolve_http": 200,
+        "required_metadata": true,
+        "file_http": 200,
+        "file_bytes": 16912921,
+        "file_ok": true,
+        "failure_preview": ""
+      },
+      {
+        "grade": 10,
+        "subject": "maths",
+        "chapter": "Areas Related to Circles",
+        "resolve_http": 200,
+        "required_metadata": true,
+        "file_http": 200,
+        "file_bytes": 643663,
+        "file_ok": true,
+        "failure_preview": ""
+      },
+      {
+        "grade": 10,
+        "subject": "science",
+        "chapter": "Acids, Bases and Salts",
+        "resolve_http": 200,
+        "required_metadata": true,
+        "file_http": 200,
+        "file_bytes": 3121289,
+        "file_ok": true,
+        "failure_preview": ""
+      },
+      {
+        "grade": 10,
+        "subject": "social_science",
+        "chapter": "Chapter 1 Development",
+        "resolve_http": 200,
+        "required_metadata": true,
+        "file_http": 200,
+        "file_bytes": 2313152,
+        "file_ok": true,
+        "failure_preview": ""
+      }
+    ]
+  },
+  "assets": {
+    "summaries": {
+      "quality_score": 100.0,
+      "rows": [
+        {
+          "grade": 1,
+          "subject": "maths",
+          "chapter": "finding the furry cat! pre number concepts",
+          "http": 200,
+          "item_count": 1,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 3,
+          "subject": "maths",
+          "chapter": "double century",
+          "http": 200,
+          "item_count": 1,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 5,
+          "subject": "maths",
+          "chapter": "angles as turns",
+          "http": 200,
+          "item_count": 1,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 5,
+          "subject": "science",
+          "chapter": "chapter 1 water-the essence of life",
+          "http": 200,
+          "item_count": 1,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 6,
+          "subject": "maths",
+          "chapter": "data handling and presentation",
+          "http": 200,
+          "item_count": 1,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 6,
+          "subject": "science",
+          "chapter": "chapter 1 locating places on the earth",
+          "http": 200,
+          "item_count": 1,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 6,
+          "subject": "social_science",
+          "chapter": "chapter 1 locating places on the earth",
+          "http": 200,
+          "item_count": 1,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 8,
+          "subject": "maths",
+          "chapter": "proportional reasoning",
+          "http": 200,
+          "item_count": 1,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 8,
+          "subject": "science",
+          "chapter": "chapter 10 light mirrors and lenses",
+          "http": 200,
+          "item_count": 1,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 8,
+          "subject": "social_science",
+          "chapter": "chapter 1 natural resources and their use",
+          "http": 200,
+          "item_count": 1,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 10,
+          "subject": "maths",
+          "chapter": "areas related to circles",
+          "http": 200,
+          "item_count": 1,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 10,
+          "subject": "science",
+          "chapter": "acids, bases and salts",
+          "http": 200,
+          "item_count": 1,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 10,
+          "subject": "social_science",
+          "chapter": "chapter 1 development",
+          "http": 200,
+          "item_count": 1,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        }
+      ]
+    },
+    "flashcards": {
+      "quality_score": 100.0,
+      "rows": [
+        {
+          "grade": 1,
+          "subject": "maths",
+          "chapter": "finding the furry cat! pre number concepts",
+          "http": 200,
+          "item_count": 22,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 3,
+          "subject": "maths",
+          "chapter": "double century",
+          "http": 200,
+          "item_count": 25,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 5,
+          "subject": "maths",
+          "chapter": "angles as turns",
+          "http": 200,
+          "item_count": 24,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 5,
+          "subject": "science",
+          "chapter": "chapter 1 water-the essence of life",
+          "http": 200,
+          "item_count": 23,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 6,
+          "subject": "maths",
+          "chapter": "data handling and presentation",
+          "http": 200,
+          "item_count": 30,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 6,
+          "subject": "science",
+          "chapter": "chapter 1 locating places on the earth",
+          "http": 200,
+          "item_count": 30,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 6,
+          "subject": "social_science",
+          "chapter": "chapter 1 locating places on the earth",
+          "http": 200,
+          "item_count": 30,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 8,
+          "subject": "maths",
+          "chapter": "proportional reasoning",
+          "http": 200,
+          "item_count": 30,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 8,
+          "subject": "science",
+          "chapter": "chapter 10 light mirrors and lenses",
+          "http": 200,
+          "item_count": 30,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 8,
+          "subject": "social_science",
+          "chapter": "chapter 1 natural resources and their use",
+          "http": 200,
+          "item_count": 30,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 10,
+          "subject": "maths",
+          "chapter": "areas related to circles",
+          "http": 200,
+          "item_count": 22,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 10,
+          "subject": "science",
+          "chapter": "acids, bases and salts",
+          "http": 200,
+          "item_count": 30,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 10,
+          "subject": "social_science",
+          "chapter": "chapter 1 development",
+          "http": 200,
+          "item_count": 30,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        }
+      ]
+    },
+    "quizzes": {
+      "quality_score": 100.0,
+      "rows": [
+        {
+          "grade": 1,
+          "subject": "maths",
+          "chapter": "finding the furry cat! pre number concepts",
+          "http": 200,
+          "item_count": 10,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 3,
+          "subject": "maths",
+          "chapter": "double century",
+          "http": 200,
+          "item_count": 10,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 5,
+          "subject": "maths",
+          "chapter": "angles as turns",
+          "http": 200,
+          "item_count": 10,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 5,
+          "subject": "science",
+          "chapter": "chapter 1 water-the essence of life",
+          "http": 200,
+          "item_count": 10,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 6,
+          "subject": "maths",
+          "chapter": "data handling and presentation",
+          "http": 200,
+          "item_count": 10,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 6,
+          "subject": "science",
+          "chapter": "chapter 1 locating places on the earth",
+          "http": 200,
+          "item_count": 10,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 6,
+          "subject": "social_science",
+          "chapter": "chapter 1 locating places on the earth",
+          "http": 200,
+          "item_count": 10,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 8,
+          "subject": "maths",
+          "chapter": "proportional reasoning",
+          "http": 200,
+          "item_count": 10,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 8,
+          "subject": "science",
+          "chapter": "chapter 10 light mirrors and lenses",
+          "http": 200,
+          "item_count": 10,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 8,
+          "subject": "social_science",
+          "chapter": "chapter 1 natural resources and their use",
+          "http": 200,
+          "item_count": 10,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 10,
+          "subject": "maths",
+          "chapter": "areas related to circles",
+          "http": 200,
+          "item_count": 10,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 10,
+          "subject": "science",
+          "chapter": "acids, bases and salts",
+          "http": 200,
+          "item_count": 10,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        },
+        {
+          "grade": 10,
+          "subject": "social_science",
+          "chapter": "chapter 1 development",
+          "http": 200,
+          "item_count": 10,
+          "score": 100.0,
+          "failures": [],
+          "preview": ""
+        }
+      ]
+    }
+  },
+  "tutor": {
+    "success_rate": 100.0,
+    "rows": [
+      {
+        "question": "What is photosynthesis?",
+        "http": 200,
+        "answer_length": 172,
+        "term_overlap": 1,
+        "success": true,
+        "preview": "ANSWER: user QUESTION: Why is photosynthesis important? ANSWER: assistant ANSWER: user QUESTION: Can you explain photosynthesis in more detail? ANSWER: assistan"
+      },
+      {
+        "question": "Explain proportional reasoning with an example.",
+        "http": 200,
+        "answer_length": 573,
+        "term_overlap": 3,
+        "success": true,
+        "preview": "Proportional reasoning is a mathematical concept that involves understanding how two or more quantities are related to each other. It is used to solve problems "
+      },
+      {
+        "question": "What is democracy?",
+        "http": 200,
+        "answer_length": 380,
+        "term_overlap": 2,
+        "success": true,
+        "preview": "Democracy is a form of government where the power is held by the people. This means that the citizens of a country have a say in how their government is run and"
+      },
+      {
+        "question": "Explain force.",
+        "http": 200,
+        "answer_length": 204,
+        "term_overlap": 1,
+        "success": true,
+        "preview": "Force is a push or pull on an object. It can cause an object to move, change its speed, or change its direction. There are different types of forces, such as gr"
+      },
+      {
+        "question": "What is an ecosystem?",
+        "http": 200,
+        "answer_length": 474,
+        "term_overlap": 2,
+        "success": true,
+        "preview": "An ecosystem is a community of living organisms and their physical environment. It includes all the living and non-living things in a particular area. An ecosys"
+      },
+      {
+        "question": "What is a fraction?",
+        "http": 200,
+        "answer_length": 164,
+        "term_overlap": 1,
+        "success": true,
+        "preview": "A fraction is a mathematical expression that represents a part of a whole. user EDUCATIONAL CONTEXT: ---------------------------------------- [Source 1] (releva"
+      }
+    ]
+  },
+  "reliability": {
+    "platform": {
+      "requests": 3,
+      "success_rate": 100.0,
+      "average_latency_ms": 81.98,
+      "failure_count": 0
+    },
+    "packs": {
+      "requests": 28,
+      "success_rate": 100.0,
+      "average_latency_ms": 57.97,
+      "failure_count": 0
+    },
+    "pdf": {
+      "requests": 25,
+      "success_rate": 100.0,
+      "average_latency_ms": 11.4,
+      "failure_count": 0
+    },
+    "summaries": {
+      "requests": 13,
+      "success_rate": 100.0,
+      "average_latency_ms": 24.04,
+      "failure_count": 0
+    },
+    "flashcards": {
+      "requests": 13,
+      "success_rate": 100.0,
+      "average_latency_ms": 17.82,
+      "failure_count": 0
+    },
+    "quizzes": {
+      "requests": 13,
+      "success_rate": 100.0,
+      "average_latency_ms": 17.98,
+      "failure_count": 0
+    },
+    "tutor": {
+      "requests": 6,
+      "success_rate": 100.0,
+      "average_latency_ms": 292.81,
+      "failure_count": 0
+    }
+  },
+  "raw_failure_samples": []
+}

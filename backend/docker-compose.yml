@@ -1,0 +1,186 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.13.4
+    container_name: pihub-qdrant
+    restart: unless-stopped
+    environment:
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__SERVICE__GRPC_PORT: 6334
+    volumes:
+      - qdrant_data:/qdrant/storage
+      - backend_logs:/var/log/qdrant
+    expose:
+      - "6333"
+      - "6334"
+
+  inference-service:
+    build:
+      context: .
+      dockerfile: inference-service/Dockerfile
+      network: host
+    container_name: pihub-inference-service
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      CONTENT_PIPELINE_URL: ${CONTENT_PIPELINE_URL:-http://content-pipeline:8001}
+      LLAMA_SERVER_HOST: ${LLAMA_SERVER_HOST:-127.0.0.1}
+      LLAMA_SERVER_PORT: ${LLAMA_SERVER_PORT:-8081}
+      LLAMA_MODEL_PATH: ${LLAMA_MODEL_PATH:-/models/model.gguf}
+      LLAMA_CONTEXT_SIZE: ${LLAMA_CONTEXT_SIZE:-2048}
+      LLAMA_MAX_TOKENS: ${LLAMA_MAX_TOKENS:-256}
+      LLAMA_TEMPERATURE: ${LLAMA_TEMPERATURE:-0.4}
+      LLAMA_TOP_P: ${LLAMA_TOP_P:-0.9}
+      LLAMA_PROMPT_CACHE_SIZE: ${LLAMA_PROMPT_CACHE_SIZE:-128}
+      CONTENT_GENERATION_BACKEND: ${CONTENT_GENERATION_BACKEND:-ollama}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
+      GEMMA_CONTENT_MODEL: ${GEMMA_CONTENT_MODEL:-gemma4}
+      CONTENT_GENERATION_TEMPERATURE: ${CONTENT_GENERATION_TEMPERATURE:-0.2}
+      CONTENT_GENERATION_TOP_P: ${CONTENT_GENERATION_TOP_P:-0.9}
+      CONTENT_GENERATION_RETRIES: ${CONTENT_GENERATION_RETRIES:-3}
+    depends_on:
+      - content-pipeline
+    volumes:
+      - shared_storage:/shared
+      - backend_logs:/logs
+      - ./inference-service/models:/models
+    expose:
+      - "8010"
+
+  pihub:
+    build:
+      context: .
+      dockerfile: pihub/Dockerfile
+      network: host
+    container_name: pihub-node
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      PIHUB_DB_PATH: ${PIHUB_DB_PATH:-/storage/pihub.sqlite3}
+      PIHUB_ADMIN_TOKEN: ${PIHUB_ADMIN_TOKEN:-change-me}
+      PIHUB_DEVICE_TOKEN_SECRET: ${PIHUB_DEVICE_TOKEN_SECRET:-change-me-too}
+      PIHUB_CLASSROOM_NAME: ${PIHUB_CLASSROOM_NAME:-Classroom A}
+    volumes:
+      - ./pihub/packs:/packs
+      - ./pihub/storage:/storage
+      - ./pihub/cache:/cache
+      - ./pihub/logs:/logs
+    expose:
+      - "8020"
+
+  content-pipeline:
+    build:
+      context: .
+      dockerfile: content-pipeline/Dockerfile
+      network: host
+    container_name: pihub-content-pipeline
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      QDRANT_URL: ${QDRANT_URL:-http://qdrant:6333}
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-educational_chunks}
+      EMBEDDING_MODEL_NAME: ${EMBEDDING_MODEL_NAME:-BAAI/bge-small-en-v1.5}
+      EMBEDDING_DEVICE: ${EMBEDDING_DEVICE:-cpu}
+      UPLOAD_DIR: ${UPLOAD_DIR:-/shared/uploads}
+      WORK_DIR: ${WORK_DIR:-/shared/work}
+    depends_on:
+      - qdrant
+    volumes:
+      - shared_storage:/shared
+      - backend_logs:/logs
+    expose:
+      - "8001"
+
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+      network: host
+    container_name: pihub-gateway
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      CONTENT_PIPELINE_URL: ${CONTENT_PIPELINE_URL:-http://content-pipeline:8001}
+      INFERENCE_SERVICE_URL: ${INFERENCE_SERVICE_URL:-http://inference-service:8010}
+      PIHUB_URL: ${PIHUB_URL:-http://pihub:8020}
+      QDRANT_URL: ${QDRANT_URL:-http://qdrant:6333}
+      PACK_SERVICE_URL: ${PACK_SERVICE_URL:-http://pack-service:8030}
+      EXPERIMENT_SERVICE_URL: ${EXPERIMENT_SERVICE_URL:-http://experiment-service:8040}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    depends_on:
+      - content-pipeline
+      - inference-service
+      - pihub
+      - qdrant
+      - pack-service
+      - experiment-service
+    volumes:
+      - shared_storage:/shared
+      - backend_logs:/logs
+    expose:
+      - "8000"
+
+  pack-service:
+    build:
+      context: .
+      dockerfile: pack-service/Dockerfile
+      network: host
+    container_name: pihub-pack-service
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      QDRANT_URL: ${QDRANT_URL:-http://qdrant:6333}
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-educational_chunks}
+      PACK_STORAGE_PATH: ${PACK_STORAGE_PATH:-/shared/packs}
+      CURRICULUM_GRAPH_PATH: ${CURRICULUM_GRAPH_PATH:-/shared/work/curriculum_graph.json}
+      PDF_LIBRARY_PATH: ${PDF_LIBRARY_PATH:-/shared/textbooks}
+      PDF_MANIFEST_PATH: ${PDF_MANIFEST_PATH:-/shared/packs/pdf_manifests/pdf_manifest.json}
+      INFERENCE_SERVICE_URL: ${INFERENCE_SERVICE_URL:-http://inference-service:8010}
+      ENABLE_GEMMA_CONTENT_GENERATION: ${ENABLE_GEMMA_CONTENT_GENERATION:-true}
+      CONTENT_GENERATION_TIMEOUT_SECONDS: ${CONTENT_GENERATION_TIMEOUT_SECONDS:-20}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    depends_on:
+      - qdrant
+    volumes:
+      - shared_storage:/shared
+      - ../TEXTBOOKS:/shared/textbooks:ro
+      - backend_logs:/logs
+    expose:
+      - "8030"
+
+  experiment-service:
+    build:
+      context: .
+      dockerfile: experiment-service/Dockerfile
+      network: host
+    container_name: pihub-experiment-service
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      - backend_logs:/logs
+    expose:
+      - "8040"
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: pihub-nginx
+    restart: unless-stopped
+    depends_on:
+      - gateway
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - backend_logs:/var/log/nginx
+    ports:
+      - "${NGINX_PORT:-80}:80"
+
+volumes:
+  qdrant_data:
+  backend_logs:
+  shared_storage:

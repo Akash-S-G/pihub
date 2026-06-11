@@ -1,0 +1,1 @@
+"""PiHub backend coordination package."""

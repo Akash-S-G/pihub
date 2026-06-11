@@ -1,0 +1,7 @@
+./backend/inference-service/Dockerfile
+./backend/docker-compose.yml
+./backend/gateway/Dockerfile
+./backend/pack-service/Dockerfile
+./backend/pihub/Dockerfile
+./backend/experiment-service/Dockerfile
+./backend/content-pipeline/Dockerfile

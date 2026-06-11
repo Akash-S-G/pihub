@@ -1,0 +1,1677 @@
+from __future__ import annotations
+
+import asyncio
+import json
+import logging
+import re
+import socket
+import time
+from collections import deque
+from contextlib import asynccontextmanager, suppress
+from datetime import datetime, timezone
+from typing import Any
+from urllib.parse import quote, urlparse
+
+import httpx
+from fastapi import FastAPI, File, Form, HTTPException, Query, Request, UploadFile
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse, StreamingResponse
+from starlette.background import BackgroundTask
+
+from shared.config import get_settings
+from shared.schemas import HealthResponse, IngestResponse, Metadata, SearchRequest, SearchResponse
+from shared.topic_normalization import normalize_subject, normalize_topic, should_use_planner, topic_aliases
+from app.services.experiment_service_client import ExperimentGatewayMetrics, ExperimentServiceClient
+
+
+settings = get_settings()
+logging.basicConfig(level=getattr(logging, settings.log_level.upper(), logging.INFO))
+logger = logging.getLogger(__name__)
+retrieval_metrics: deque[dict[str, Any]] = deque(maxlen=200)
+experiment_gateway_metrics = ExperimentGatewayMetrics()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.http = httpx.AsyncClient(timeout=120.0)
+    app.state.experiment_client = ExperimentServiceClient(
+        app.state.http,
+        settings.experiment_service_url,
+        experiment_gateway_metrics,
+    )
+    app.state.started_at = time.time()
+    app.state.discovery_task = asyncio.create_task(_discovery_beacon_loop())
+    try:
+        yield
+    finally:
+        app.state.discovery_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await app.state.discovery_task
+        await app.state.http.aclose()
+
+
+app = FastAPI(title=settings.app_name, lifespan=lifespan)
+
+
+def _log_tag(path: str) -> str:
+    if path.startswith("/discovery"):
+        return "DISCOVERY"
+    if path.startswith("/sync") or path.startswith("/packs/sync"):
+        return "SYNC"
+    if path.startswith("/packs") or path in {"/flashcards", "/quizzes", "/glossary", "/summaries"}:
+        return "PACK"
+    if path.startswith("/rag"):
+        return "RAG"
+    if path.startswith("/experiments") or path.startswith("/experiment-templates") or path.startswith("/experiment-runs") or path.startswith("/analytics") or path.startswith("/experiment-metrics"):
+        return "EXPERIMENT_GATEWAY"
+    if path.startswith("/ai") or path.startswith("/tutor") or path.startswith("/planner") or path.startswith("/metrics/tutor") or path.startswith("/metrics/retrieval"):
+        return "TUTOR"
+    if path.startswith("/progress"):
+        return "PROGRESS"
+    if path.startswith("/quiz-sessions"):
+        return "PROGRESS"
+    return "REQUEST"
+
+
+@app.middleware("http")
+async def structured_logging(request: Request, call_next):
+    started = time.perf_counter()
+    tag = _log_tag(request.url.path)
+    if request.url.path == "/ai/tutor":
+        body = await request.body()
+        logger.info("[TUTOR] RAW_REQUEST=%s", body.decode("utf-8", errors="ignore"))
+
+        async def receive():
+            return {"type": "http.request", "body": body, "more_body": False}
+
+        request = Request(request.scope, receive)
+
+    if tag == "DISCOVERY":
+        logger.info("[DISCOVERY] REQUEST_RECEIVED method=%s path=%s", request.method, request.url.path)
+    logger.info("[%s] REQUEST_START method=%s path=%s", tag, request.method, request.url.path)
+    try:
+        response = await call_next(request)
+    except Exception as exc:
+        duration_ms = (time.perf_counter() - started) * 1000
+        logger.exception(
+            "[%s] REQUEST_ERROR method=%s path=%s duration_ms=%.2f error=%s",
+            tag,
+            request.method,
+            request.url.path,
+            duration_ms,
+            exc,
+        )
+        raise
+    duration_ms = (time.perf_counter() - started) * 1000
+    logger.info(
+        "[%s] REQUEST_END method=%s path=%s status=%s duration_ms=%.2f",
+        tag,
+        request.method,
+        request.url.path,
+        response.status_code,
+        duration_ms,
+    )
+    if tag == "DISCOVERY":
+        logger.info("[DISCOVERY] REQUEST_COMPLETED method=%s path=%s", request.method, request.url.path)
+    return response
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+    logger.error("[TUTOR] VALIDATION_ERROR=%s", exc.errors())
+    return JSONResponse(
+        status_code=400,
+        content={"detail": exc.errors()},
+    )
+
+
+async def _proxy_json(path: str, payload: dict[str, Any]) -> dict[str, Any]:
+    response = await app.state.http.post(f"{settings.content_pipeline_url}{path}", json=payload)
+    if response.is_error:
+        raise HTTPException(status_code=response.status_code, detail=response.text)
+    return response.json()
+
+
+async def _proxy_get(path: str, params: dict[str, Any]) -> dict[str, Any]:
+    response = await app.state.http.get(f"{settings.content_pipeline_url}{path}", params=params)
+    if response.is_error:
+        raise HTTPException(status_code=response.status_code, detail=response.text)
+    return response.json()
+
+
+async def _get_json(base_url: str, path: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
+    response = await app.state.http.get(f"{base_url}{path}", params=params)
+    if response.is_error:
+        raise HTTPException(status_code=response.status_code, detail=response.text)
+    return response.json()
+
+
+async def _post_json(base_url: str, path: str, payload: dict[str, Any]) -> dict[str, Any]:
+    response = await app.state.http.post(f"{base_url}{path}", json=payload)
+    if response.is_error:
+        raise HTTPException(status_code=response.status_code, detail=response.text)
+    return response.json()
+
+
+def _iso_from_epoch(value: Any) -> str | None:
+    if value is None:
+        return None
+    try:
+        return datetime.fromtimestamp(int(value), tz=timezone.utc).isoformat()
+    except (TypeError, ValueError, OSError):
+        return str(value)
+
+
+def _pack_path(pack_id: Any, suffix: str) -> str:
+    return f"/packs/{quote(str(pack_id), safe='')}/{suffix.lstrip('/')}"
+
+
+def _pdf_path(*parts: Any) -> str:
+    encoded = "/".join(quote(str(part), safe="") for part in parts if part is not None)
+    return f"/api/v1/pdf/{encoded}" if encoded else "/api/v1/pdf"
+
+
+def _pack_checksum(pack: dict[str, Any]) -> str:
+    return str(pack.get("checksum") or pack.get("hash") or pack.get("content_checksum") or "")
+
+
+def _normalize_pack_public_id(pack_id: Any) -> str:
+    normalized = str(pack_id or "").lower()
+    normalized = normalized.replace("\u2013", "_").replace("\u2014", "_")
+    normalized = re.sub(r"[^a-z0-9]+", "_", normalized)
+    normalized = re.sub(r"_+", "_", normalized).strip("_")
+    return normalized or "pack"
+
+
+def _pack_id_suffix(pack: dict[str, Any]) -> str:
+    checksum = _pack_checksum(pack).replace("sha256:", "")
+    checksum = re.sub(r"[^a-zA-Z0-9]", "", checksum)
+    if checksum:
+        return checksum[:8].lower()
+    return str(abs(hash(str(pack.get("pack_id") or ""))))[:8]
+
+
+def _public_pack_id(raw_pack_id: Any, pack: dict[str, Any], used_ids: set[str]) -> str:
+    base_id = _normalize_pack_public_id(raw_pack_id)
+    public_id = base_id
+    if public_id in used_ids:
+        public_id = f"{base_id}_{_pack_id_suffix(pack)}"
+    counter = 2
+    while public_id in used_ids:
+        public_id = f"{base_id}_{_pack_id_suffix(pack)}_{counter}"
+        counter += 1
+    used_ids.add(public_id)
+    return public_id
+
+
+def _canonical_pack_entry(pack: dict[str, Any], public_pack_id: str, source: str | None = None) -> dict[str, Any]:
+    checksum = _pack_checksum(pack)
+    size_bytes = int(pack.get("size_bytes") or 0)
+    artifact_counts = pack.get("artifact_counts", {}) or {}
+    archive_exists = bool(pack.get("archive_exists", size_bytes > 0))
+    manifest_exists = bool(pack.get("manifest_exists", bool(artifact_counts)))
+    entry = {
+        "pack_id": public_pack_id,
+        "version": pack.get("version", "1.0.0"),
+        "grade": pack.get("grade"),
+        "subject": pack.get("subject"),
+        "chapter": pack.get("chapter"),
+        "language": pack.get("language"),
+        "checksum": checksum,
+        "hash": checksum,
+        "content_checksum": pack.get("content_checksum"),
+        "size_bytes": size_bytes,
+        "compressed_size_mb": pack.get("compressed_size_mb"),
+        "artifact_counts": artifact_counts,
+        "chunk_count": int(artifact_counts.get("content") or 0),
+        "quality_scores": pack.get("quality_scores", {}) or {},
+        "archive_exists": archive_exists,
+        "manifest_exists": manifest_exists,
+        "installable": archive_exists and manifest_exists and bool(checksum) and size_bytes > 0,
+        "updated_at": pack.get("generated_at") or pack.get("updated_at") or pack.get("cached_at"),
+        "manifest_url": _pack_path(public_pack_id, "manifest"),
+        "download_url": _pack_path(public_pack_id, "download"),
+    }
+    if source:
+        entry["source"] = source
+    return entry
+
+
+def _canonical_pack_entries(
+    packs: list[dict[str, Any]],
+    source: str,
+    used_ids: set[str] | None = None,
+) -> tuple[list[dict[str, Any]], dict[str, str]]:
+    used = used_ids if used_ids is not None else set()
+    entries: list[dict[str, Any]] = []
+    source_ids: dict[str, str] = {}
+    for pack in packs:
+        raw_pack_id = str(pack.get("pack_id") or "")
+        if not raw_pack_id:
+            continue
+        public_pack_id = _public_pack_id(raw_pack_id, pack, used)
+        entries.append(_canonical_pack_entry(pack, public_pack_id, source))
+        source_ids[public_pack_id] = raw_pack_id
+    return entries, source_ids
+
+
+def _curriculum_pack_key(pack: dict[str, Any]) -> tuple[str, str, str, str]:
+    return (
+        str(pack.get("grade") or "").strip(),
+        _filter_value(pack.get("subject")),
+        _filter_value(pack.get("chapter")),
+        _filter_value(pack.get("language") or "english"),
+    )
+
+
+def _pack_publication_rank(pack: dict[str, Any]) -> tuple[int, int, int, int, str]:
+    counts = pack.get("artifact_counts") or {}
+    quality_scores = pack.get("quality_scores") or {}
+    quality_passed = quality_scores.get("quality_gate_passed")
+    if quality_passed is None:
+        quality_passed = quality_scores.get("retrieval_precision")
+    content_count = int(counts.get("content") or 0)
+    score = (
+        1 if pack.get("installable") else 0,
+        1 if quality_passed else 0,
+        content_count,
+        int(pack.get("size_bytes") or 0),
+        str(pack.get("updated_at") or ""),
+    )
+    return score
+
+
+def _pack_quality_passed(pack: dict[str, Any]) -> bool:
+    quality_scores = pack.get("quality_scores") or {}
+    return bool(quality_scores.get("quality_gate_passed") or quality_scores.get("retrieval_precision"))
+
+
+def _is_certified_curriculum_pack(pack: dict[str, Any]) -> bool:
+    counts = pack.get("artifact_counts") or {}
+    subject = _filter_value(pack.get("subject"))
+    return (
+        subject in {"maths", "science", "social_science"}
+        and bool(pack.get("installable"))
+        and int(counts.get("content") or 0) > 0
+        and _pack_quality_passed(pack)
+    )
+
+
+def _dedupe_curriculum_packs(packs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    selected: dict[tuple[str, str, str, str], dict[str, Any]] = {}
+    passthrough: list[dict[str, Any]] = []
+    for pack in packs:
+        if not _is_certified_curriculum_pack(pack):
+            continue
+        key = _curriculum_pack_key(pack)
+        if not all(key):
+            passthrough.append(pack)
+            continue
+        existing = selected.get(key)
+        if existing is None or _pack_publication_rank(pack) > _pack_publication_rank(existing):
+            selected[key] = pack
+    return [*selected.values(), *passthrough]
+
+
+async def _resolve_pack_service_pack_id(pack_id: str) -> str:
+    packs = await _pack_service_packs()
+    used_ids: set[str] = set()
+    _, source_ids = _canonical_pack_entries(packs, "pack_service", used_ids)
+    if pack_id in source_ids:
+        return source_ids[pack_id]
+    for pack in packs:
+        raw_pack_id = str(pack.get("pack_id") or "")
+        if pack_id == raw_pack_id:
+            return raw_pack_id
+    return pack_id
+
+
+async def _canonical_pack_records() -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
+    records: dict[str, dict[str, Any]] = {}
+    used_ids: set[str] = set()
+    cached: list[dict[str, Any]] = []
+
+    pack_service_packs = await _pack_service_packs()
+    pack_service_entries, _ = _canonical_pack_entries(pack_service_packs, "pack_service", used_ids)
+    pack_service_entries = _dedupe_curriculum_packs(pack_service_entries)
+    for entry in pack_service_entries:
+        records[entry["pack_id"]] = entry
+
+    pihub_count = 0
+    try:
+        pihub_packs = await _get_json(settings.pihub_url, "/packs")
+        pihub_entries, _ = _canonical_pack_entries(pihub_packs.get("packs", []), "pihub", used_ids)
+        pihub_entries = _dedupe_curriculum_packs(pihub_entries)
+        for entry in pihub_entries:
+            if entry["pack_id"] not in records:
+                pihub_count += 1
+            records.setdefault(entry["pack_id"], entry)
+        cached, _ = _canonical_pack_entries(pihub_packs.get("cached", []), "pihub_cache", used_ids)
+    except HTTPException as exc:
+        logger.warning("[PACK] PIHUB_PACK_LIST_UNAVAILABLE status=%s detail=%s", exc.status_code, exc.detail)
+
+    return list(records.values()), cached, {
+        "pack_service": len(pack_service_packs),
+        "pihub": pihub_count,
+        "pihub_cache": len(cached),
+    }
+
+
+def _pack_stat(pack: dict[str, Any]) -> dict[str, Any]:
+    counts = pack.get("artifact_counts") or {}
+    return {
+        "pack_id": pack.get("pack_id"),
+        "grade": pack.get("grade"),
+        "subject": pack.get("subject"),
+        "chapter": pack.get("chapter"),
+        "language": pack.get("language"),
+        "size_bytes": int(pack.get("size_bytes") or 0),
+        "chunk_count": int(counts.get("content") or 0),
+        "installable": bool(pack.get("installable")),
+    }
+
+
+def _filter_value(value: Any) -> str:
+    return str(value or "").strip().lower()
+
+
+def _pack_matches_filters(
+    pack: dict[str, Any],
+    grade: int | None = None,
+    subject: str | None = None,
+    language: str | None = None,
+) -> bool:
+    if grade is not None:
+        try:
+            if int(pack.get("grade")) != grade:
+                return False
+        except (TypeError, ValueError):
+            return False
+    if subject is not None and _filter_value(pack.get("subject")) != _filter_value(subject):
+        return False
+    if language is not None and _filter_value(pack.get("language")) != _filter_value(language):
+        return False
+    return True
+
+
+def _matches_topic(item: dict[str, Any], topic: str | None) -> bool:
+    if not topic:
+        return True
+    topic_lower = topic.lower()
+    candidates = [
+        item.get("topic"),
+        item.get("title"),
+        item.get("term"),
+        item.get("question"),
+        item.get("front"),
+    ]
+    return any(isinstance(value, str) and topic_lower in value.lower() for value in candidates)
+
+
+def _error_detail(text: str) -> Any:
+    try:
+        body = json.loads(text)
+    except json.JSONDecodeError:
+        return text
+    if isinstance(body, dict) and "detail" in body:
+        return body["detail"]
+    return body
+
+
+def _node_ip() -> str:
+    configured_host = urlparse(settings.host_url).hostname
+    if configured_host and configured_host not in {"0.0.0.0", "localhost"}:
+        return configured_host
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as probe:
+            probe.connect(("8.8.8.8", 80))
+            return probe.getsockname()[0]
+    except OSError:
+        try:
+            return socket.gethostbyname(socket.gethostname())
+        except OSError:
+            return "0.0.0.0"
+
+
+def _capabilities() -> dict[str, bool]:
+    return {
+        "rag": True,
+        "sync": True,
+        "assets": True,
+        "streaming": True,
+        "planner": True,
+        "progress": True,
+        "metrics": True,
+        "experiments": True,
+    }
+
+
+def _record_retrieval_metric(metric: dict[str, Any]) -> None:
+    retrieval_metrics.appendleft({
+        "recorded_at": datetime.now(tz=timezone.utc).isoformat(),
+        **metric,
+    })
+
+
+def _retrieval_summary() -> dict[str, Any]:
+    metrics = list(retrieval_metrics)
+    if not metrics:
+        return {
+            "count": 0,
+            "averages": {},
+            "recent": [],
+            "topic_aliases": topic_aliases(),
+        }
+    numeric_keys = ("asset_ms", "rag_ms", "total_ms", "asset_matches", "chunks_retrieved", "chunks_used")
+    averages = {
+        key: round(sum(float(metric.get(key, 0.0)) for metric in metrics) / len(metrics), 2)
+        for key in numeric_keys
+    }
+    return {
+        "count": len(metrics),
+        "averages": averages,
+        "recent": metrics[:40],
+        "topic_aliases": topic_aliases(),
+    }
+
+
+def _discovery_payload() -> dict[str, Any]:
+    return {
+        "name": "PIHUB",
+        "service": "PIHUB",
+        "version": "1.0",
+        "node_type": "hub",
+        "ip": _node_ip(),
+        "api_port": settings.gateway_port,
+        "health": "/health",
+        "discovery": "/discovery",
+        "capabilities": _capabilities(),
+        "supports_rag": True,
+        "supports_sync": True,
+        "supports_assets": True,
+    }
+
+
+async def _discovery_beacon_loop() -> None:
+    port = 47890
+    while True:
+        payload = json.dumps(_discovery_payload(), separators=(",", ":")).encode("utf-8")
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as beacon:
+                beacon.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+                beacon.sendto(payload, ("255.255.255.255", port))
+        except OSError as exc:
+            logger.debug("[DISCOVERY] BEACON_ERROR=%s", exc)
+        await asyncio.sleep(15)
+
+
+def _asset_metadata(asset_name: str, item: dict[str, Any], manifest: dict[str, Any]) -> dict[str, Any]:
+    source_title = item.get("title") or item.get("term") or item.get("front") or item.get("question") or manifest.get("chapter")
+    difficulty = item.get("difficulty") or manifest.get("generation_metadata", {}).get("difficulty")
+    source_types = {
+        "flashcards": "flashcard",
+        "quizzes": "quiz",
+        "glossary": "glossary",
+        "summaries": "summary",
+    }
+    return {
+        "source_type": source_types.get(asset_name, asset_name),
+        "source_title": source_title,
+        "chapter": manifest.get("chapter"),
+        "subject": manifest.get("subject"),
+        "difficulty": difficulty,
+        "version": manifest.get("version", "1.0.0"),
+        "pack_id": manifest.get("pack_id"),
+    }
+
+
+async def _pack_service_packs(params: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+    try:
+        data = await _get_json(settings.pack_service_url, "/packs/search" if params else "/packs", params=params)
+    except HTTPException:
+        return []
+    packs = data.get("packs", [])
+    return packs if isinstance(packs, list) else []
+
+
+async def _asset_response(asset_name: str, filters: dict[str, Any]) -> dict[str, Any]:
+    topic = filters.pop("topic", None)
+    filters["subject"] = normalize_subject(filters.get("subject"))
+    params = {key: value for key, value in filters.items() if value is not None}
+    packs = await _pack_service_packs(params)
+    items: list[dict[str, Any]] = []
+    for pack in packs:
+        pack_id = pack.get("pack_id")
+        if not pack_id:
+            continue
+        try:
+            preview = await _get_json(settings.pack_service_url, f"/packs/{pack_id}/preview")
+        except HTTPException:
+            continue
+        manifest = preview.get("manifest", {})
+        for item in preview.get(asset_name, []) or []:
+            if isinstance(item, dict) and _matches_topic(item, topic):
+                metadata = _asset_metadata(asset_name, item, manifest)
+                items.append({
+                    "pack_id": pack_id,
+                    "manifest": manifest,
+                    "metadata": metadata,
+                    **metadata,
+                    **item,
+                })
+    return {"items": items, "total": len(items), "filters": {**params, "topic": topic}}
+
+
+async def _asset_search_bundle(payload: dict[str, Any], normalized_topic: str | None) -> dict[str, Any]:
+    filters = {
+        "grade": payload.get("grade"),
+        "subject": normalize_subject(payload.get("subject")),
+        "chapter": payload.get("chapter"),
+        "topic": normalized_topic or payload.get("topic") or payload.get("question"),
+    }
+    summaries = await _asset_response("summaries", dict(filters))
+    flashcards = await _asset_response("flashcards", dict(filters))
+    quizzes = await _asset_response("quizzes", dict(filters))
+    glossary = await _asset_response("glossary", dict(filters))
+    return {
+        "filters": filters,
+        "summaries": summaries.get("items", [])[:3],
+        "flashcards": flashcards.get("items", [])[:5],
+        "quizzes": quizzes.get("items", [])[:5],
+        "glossary": glossary.get("items", [])[:5],
+    }
+
+
+def _asset_bundle_count(bundle: dict[str, Any]) -> int:
+    return sum(len(bundle.get(key, [])) for key in ("summaries", "flashcards", "quizzes", "glossary"))
+
+
+def _asset_context(bundle: dict[str, Any]) -> list[dict[str, Any]]:
+    context: list[dict[str, Any]] = []
+    for item in bundle.get("summaries", []):
+        context.append({
+            "source_type": "summary",
+            "title": item.get("source_title") or item.get("title"),
+            "text": item.get("text"),
+            "metadata": item.get("metadata", {}),
+        })
+    for item in bundle.get("glossary", []):
+        context.append({
+            "source_type": "glossary",
+            "title": item.get("term") or item.get("source_title"),
+            "text": item.get("definition"),
+            "metadata": item.get("metadata", {}),
+        })
+    for item in bundle.get("flashcards", []):
+        context.append({
+            "source_type": "flashcard",
+            "title": item.get("front") or item.get("source_title"),
+            "text": item.get("back") or item.get("answer"),
+            "metadata": item.get("metadata", {}),
+        })
+    for item in bundle.get("quizzes", []):
+        context.append({
+            "source_type": "quiz",
+            "title": item.get("question") or item.get("source_title"),
+            "text": item.get("answer") or item.get("explanation"),
+            "metadata": item.get("metadata", {}),
+        })
+    return [item for item in context if item.get("text") or item.get("title")]
+
+
+async def _proxy_stream(
+    base_url: str,
+    method: str,
+    path: str,
+    payload: dict[str, Any] | None = None,
+) -> StreamingResponse:
+    request = app.state.http.build_request(
+        method,
+        f"{base_url}{path}",
+        json=payload,
+    )
+    response = await app.state.http.send(request, stream=True)
+
+    if response.is_error:
+        body = await response.aread()
+        body_text = body.decode("utf-8", errors="replace")
+        await response.aclose()
+        raise HTTPException(
+            status_code=response.status_code,
+            detail=_error_detail(body_text),
+        )
+
+    content_type = response.headers.get("content-type", "application/octet-stream")
+    passthrough_headers = {
+        key: value
+        for key in ("content-length", "content-disposition", "etag", "last-modified", "accept-ranges")
+        if (value := response.headers.get(key)) is not None
+    }
+    return StreamingResponse(
+        response.aiter_raw(),
+        status_code=response.status_code,
+        media_type=content_type,
+        headers=passthrough_headers,
+        background=BackgroundTask(response.aclose),
+    )
+
+
+async def _proxy_to(base_url: str, method: str, path: str, payload: dict[str, Any] | None = None) -> Any:
+    if isinstance(payload, dict) and payload.get("stream") is True:
+        return await _proxy_stream(base_url, method, path, payload)
+
+    response = await app.state.http.request(
+        method,
+        f"{base_url}{path}",
+        json=payload
+    )
+
+    if response.is_error:
+        raise HTTPException(
+            status_code=response.status_code,
+            detail=_error_detail(response.text)
+        )
+
+    content_type = response.headers.get("content-type", "")
+
+    if "application/json" in content_type:
+        return response.json()
+
+    logger.error(
+        "Unexpected content type: %s",
+        content_type
+    )
+
+    logger.error(
+        "Response body: %s",
+        response.text[:2000]
+    )
+
+    raise HTTPException(
+        status_code=502,
+        detail=f"Unexpected response type from inference service: {content_type}"
+    )
+
+
+async def _planner_tutor_response(payload: dict[str, Any], normalized_topic: str | None) -> dict[str, Any]:
+    planner_payload = dict(payload)
+    if normalized_topic:
+        planner_payload["topic"] = normalized_topic
+    lesson = await planner_lesson(planner_payload)
+    summary = lesson.get("summary", {})
+    answer = str(summary.get("text") or "")
+    return {
+        "answer": answer,
+        "model": "planner",
+        "context": [],
+        "response_source": "planner",
+        "planner": lesson,
+    }
+
+
+def _planner_stream(response: dict[str, Any]) -> StreamingResponse:
+    async def stream() -> Any:
+        yield f"data: {json.dumps({'chunk': response.get('answer', ''), 'done': True})}\n\n"
+        yield "data: [DONE]\n\n"
+
+    return StreamingResponse(stream(), media_type="text/event-stream")
+
+
+@app.get("/discovery")
+async def discovery() -> dict[str, Any]:
+    return _discovery_payload()
+
+
+@app.get("/discovery/beacon")
+async def discovery_beacon() -> dict[str, Any]:
+    return {
+        "protocol": "udp-broadcast",
+        "port": 47890,
+        "interval_seconds": 15,
+        "payload": _discovery_payload(),
+    }
+
+
+@app.get("/tutor/capabilities")
+async def tutor_capabilities() -> dict[str, bool]:
+    return {
+        "streaming": True,
+        "rag": True,
+        "flashcards": True,
+        "quizzes": True,
+        "glossary": True,
+        "summaries": True,
+        "planner": True,
+        "metrics": True,
+    }
+
+
+@app.get("/health")
+async def health() -> dict[str, Any]:
+    checks: dict[str, Any] = {"gateway": "ok"}
+    status = "healthy"
+    inference_ok = False
+    experiment_ok = False
+    database_ok = False
+    pack_count = 0
+    chunk_count = 0
+
+    try:
+        content = await app.state.http.get(f"{settings.content_pipeline_url}/health")
+        checks["content_pipeline"] = content.json()
+        if content.is_error:
+            status = "degraded"
+    except Exception as exc:  # pragma: no cover - network failure path
+        checks["content_pipeline"] = {"status": "error", "detail": str(exc)}
+        status = "degraded"
+
+    try:
+        qdrant = await app.state.http.get(f"{settings.qdrant_url}/healthz")
+        checks["qdrant"] = {"status_code": qdrant.status_code, "body": qdrant.text}
+        if qdrant.is_error:
+            status = "degraded"
+    except Exception as exc:  # pragma: no cover - network failure path
+        checks["qdrant"] = {"status": "error", "detail": str(exc)}
+        status = "degraded"
+
+    try:
+        collection = await app.state.http.get(f"{settings.qdrant_url}/collections/{settings.qdrant_collection}")
+        collection_body = collection.json()
+        checks["qdrant_collection"] = collection_body
+        if collection.is_success:
+            result = collection_body.get("result", {})
+            chunk_count = int(result.get("points_count") or result.get("vectors_count") or 0)
+    except Exception as exc:  # pragma: no cover - network failure path
+        checks["qdrant_collection"] = {"status": "error", "detail": str(exc)}
+
+    try:
+        inference = await app.state.http.get(f"{settings.inference_service_url}/ai/health")
+        checks["inference_service"] = inference.json()
+        inference_ok = inference.is_success
+        if inference.is_error:
+            status = "degraded"
+    except Exception as exc:  # pragma: no cover - network failure path
+        checks["inference_service"] = {"status": "error", "detail": str(exc)}
+        status = "degraded"
+
+    try:
+        experiment_health = await app.state.experiment_client.health()
+        checks["experiment_service"] = experiment_health
+        experiment_ok = bool(experiment_health.get("healthy"))
+        if not experiment_ok and settings.experiment_service_required:
+            status = "degraded"
+    except Exception as exc:  # pragma: no cover - defensive path
+        checks["experiment_service"] = {"healthy": False, "error": str(exc)}
+        if settings.experiment_service_required:
+            status = "degraded"
+
+    try:
+        pihub = await app.state.http.get(f"{settings.pihub_url}/health")
+        checks["pihub"] = pihub.json()
+        database_ok = pihub.is_success
+        if pihub.is_error:
+            status = "degraded"
+    except Exception as exc:  # pragma: no cover - network failure path
+        checks["pihub"] = {"status": "error", "detail": str(exc)}
+        status = "degraded"
+
+    try:
+        packs = await app.state.http.get(f"{settings.pihub_url}/packs")
+        if packs.is_success:
+            body = packs.json()
+            pack_count = len(body.get("packs", [])) + len(body.get("cached", []))
+    except Exception as exc:  # pragma: no cover - network failure path
+        checks["packs"] = {"status": "error", "detail": str(exc)}
+
+    try:
+        pack_service = await app.state.http.get(f"{settings.pack_service_url}/packs")
+        if pack_service.is_success:
+            body = pack_service.json()
+            pack_count = max(pack_count, len(body.get("packs", [])))
+            checks["pack_service"] = {"status": "ok", "pack_count": len(body.get("packs", []))}
+        elif pack_service.is_error:
+            checks["pack_service"] = {"status": "degraded", "status_code": pack_service.status_code}
+    except Exception as exc:  # pragma: no cover - network failure path
+        checks["pack_service"] = {"status": "error", "detail": str(exc)}
+
+    return {
+        "status": status,
+        "version": "1.0",
+        "service": "gateway",
+        "inference_service": inference_ok,
+        "experiment_service": {"healthy": experiment_ok},
+        "database": database_ok,
+        "pack_count": pack_count,
+        "chunk_count": chunk_count,
+        "uptime_seconds": int(time.time() - getattr(app.state, "started_at", time.time())),
+        "checks": checks,
+    }
+
+
+@app.post("/content/upload", response_model=IngestResponse)
+@app.post("/upload", response_model=IngestResponse)
+async def upload_content(
+    file: UploadFile = File(...),
+    grade: int | None = Form(default=None),
+    subject: str | None = Form(default=None),
+    chapter: str | None = Form(default=None),
+    topic: str | None = Form(default=None),
+    language: str | None = Form(default=None),
+) -> dict[str, Any]:
+    metadata = Metadata(grade=grade, subject=subject, chapter=chapter, topic=topic, language=language)
+    content = await file.read()
+    response = await app.state.http.post(
+        f"{settings.content_pipeline_url}/ingest/pdf",
+        data={"metadata": metadata.model_dump_json()},
+        files={"file": (file.filename or "upload.pdf", content, file.content_type or "application/pdf")},
+    )
+    if response.is_error:
+        raise HTTPException(status_code=response.status_code, detail=response.text)
+    return response.json()
+
+
+@app.post("/ingest/textbook", response_model=IngestResponse)
+async def ingest_textbook(
+    file: UploadFile = File(...),
+    metadata: str = Form(default="{}"),
+    source: str | None = Form(default="textbook"),
+) -> dict[str, Any]:
+    content = await file.read()
+    response = await app.state.http.post(
+        f"{settings.content_pipeline_url}/ingest/textbook",
+        data={"metadata": metadata, "source": source or "textbook"},
+        files={"file": (file.filename or "textbook.pdf", content, file.content_type or "application/pdf")},
+    )
+    if response.is_error:
+        raise HTTPException(status_code=response.status_code, detail=response.text)
+    return response.json()
+
+
+@app.post("/rag/search", response_model=SearchResponse)
+async def rag_search(request: SearchRequest) -> dict[str, Any]:
+    return await _proxy_json("/rag/search", request.model_dump())
+
+
+@app.get("/rag/chapter", response_model=SearchResponse)
+async def rag_chapter(chapter: str, limit: int = 5) -> dict[str, Any]:
+    return await _proxy_get("/rag/chapter", {"chapter": chapter, "limit": limit})
+
+
+@app.get("/rag/subject", response_model=SearchResponse)
+async def rag_subject(subject: str, limit: int = 5) -> dict[str, Any]:
+    return await _proxy_get("/rag/subject", {"subject": subject, "limit": limit})
+
+
+@app.post("/ai/chat")
+async def ai_chat(payload: dict[str, Any]) -> Any:
+    return await _proxy_to(settings.inference_service_url, "POST", "/ai/chat", payload)
+
+
+@app.post("/ai/tutor")
+async def ai_tutor(payload: dict[str, Any]) -> Any:
+    started = time.perf_counter()
+    query = str(payload.get("question") or payload.get("query") or "").strip()
+    normalization = normalize_topic(payload.get("topic"), query)
+    normalized_topic = normalization.normalized_topic
+    intent = payload.get("intent")
+
+    if should_use_planner(intent, query):
+        response = await _planner_tutor_response(payload, normalized_topic)
+        total_ms = (time.perf_counter() - started) * 1000
+        _record_retrieval_metric({
+            "query": query,
+            "intent": intent,
+            "topic": payload.get("topic"),
+            "normalized_topic": normalized_topic,
+            "matched_alias": normalization.matched_alias,
+            "response_source": "planner",
+            "fallback_reason": "planner_trigger",
+            "asset_matches": len(response.get("planner", {}).get("flashcards", [])) + len(response.get("planner", {}).get("quiz", [])),
+            "chunks_retrieved": 0,
+            "chunks_used": 0,
+            "asset_ms": round(total_ms, 2),
+            "rag_ms": 0.0,
+            "total_ms": round(total_ms, 2),
+        })
+        logger.info(
+            "[RAG] RETRIEVAL query=%s normalized_topic=%s intent=%s chunks_retrieved=%s chunks_used=%s fallback_reason=%s",
+            query,
+            normalized_topic,
+            intent,
+            0,
+            0,
+            "planner_trigger",
+        )
+        if payload.get("stream") is True:
+            return _planner_stream(response)
+        return response
+
+    asset_start = time.perf_counter()
+    bundle = await _asset_search_bundle(payload, normalized_topic)
+    asset_ms = (time.perf_counter() - asset_start) * 1000
+    asset_matches = _asset_bundle_count(bundle)
+
+    enriched_payload = dict(payload)
+    if normalized_topic:
+        enriched_payload["topic"] = normalized_topic
+        enriched_payload["normalized_topic"] = normalized_topic
+    enriched_payload["original_topic"] = normalization.original_topic
+    enriched_payload["topic_alias"] = normalization.matched_alias
+    enriched_payload["asset_context"] = _asset_context(bundle)
+    enriched_payload["asset_search"] = {
+        "filters": bundle.get("filters", {}),
+        "counts": {
+            "summaries": len(bundle.get("summaries", [])),
+            "flashcards": len(bundle.get("flashcards", [])),
+            "quizzes": len(bundle.get("quizzes", [])),
+            "glossary": len(bundle.get("glossary", [])),
+        },
+    }
+
+    result = await _proxy_to(settings.inference_service_url, "POST", "/ai/tutor", enriched_payload)
+    total_ms = (time.perf_counter() - started) * 1000
+    if isinstance(result, StreamingResponse):
+        _record_retrieval_metric({
+            "query": query,
+            "intent": intent,
+            "topic": payload.get("topic"),
+            "normalized_topic": normalized_topic,
+            "matched_alias": normalization.matched_alias,
+            "response_source": "inference_service",
+            "fallback_reason": None if asset_matches else "no_asset_match",
+            "asset_matches": asset_matches,
+            "chunks_retrieved": 0,
+            "chunks_used": 0,
+            "asset_ms": round(asset_ms, 2),
+            "rag_ms": 0.0,
+            "total_ms": round(total_ms, 2),
+            "stream": True,
+        })
+        logger.info(
+            "[RAG] RETRIEVAL query=%s normalized_topic=%s intent=%s chunks_retrieved=%s chunks_used=%s fallback_reason=%s",
+            query,
+            normalized_topic,
+            intent,
+            0,
+            0,
+            None if asset_matches else "no_asset_match",
+        )
+        return result
+
+    chunks_retrieved = len(result.get("context", [])) if isinstance(result, dict) else 0
+    chunks_used = chunks_retrieved
+    fallback_reason = None
+    if asset_matches == 0 and chunks_retrieved == 0:
+        fallback_reason = "no_asset_or_rag_match"
+    elif asset_matches == 0:
+        fallback_reason = "no_asset_match"
+    elif chunks_retrieved == 0:
+        fallback_reason = "no_rag_match"
+    _record_retrieval_metric({
+        "query": query,
+        "intent": intent,
+        "topic": payload.get("topic"),
+        "normalized_topic": normalized_topic,
+        "matched_alias": normalization.matched_alias,
+        "response_source": "inference_service",
+        "fallback_reason": fallback_reason,
+        "asset_matches": asset_matches,
+        "chunks_retrieved": chunks_retrieved,
+        "chunks_used": chunks_used,
+        "asset_ms": round(asset_ms, 2),
+        "rag_ms": 0.0,
+        "total_ms": round(total_ms, 2),
+        "stream": False,
+    })
+    logger.info(
+        "[RAG] RETRIEVAL query=%s normalized_topic=%s intent=%s chunks_retrieved=%s chunks_used=%s fallback_reason=%s",
+        query,
+        normalized_topic,
+        intent,
+        chunks_retrieved,
+        chunks_used,
+        fallback_reason,
+    )
+    return result
+
+
+@app.get("/ai/health")
+async def ai_health() -> dict[str, Any]:
+    return await _proxy_to(settings.inference_service_url, "GET", "/ai/health")
+
+
+@app.get("/sync")
+async def sync_get() -> dict[str, Any]:
+    response = await app.state.http.get(f"{settings.pihub_url}/sync")
+    if response.is_error:
+        raise HTTPException(status_code=response.status_code, detail=response.text)
+    return response.json()
+
+
+@app.post("/sync")
+async def sync_post(payload: dict[str, Any]) -> dict[str, Any]:
+    return await _proxy_to(settings.pihub_url, "POST", "/sync", payload)
+
+
+@app.get("/packs")
+async def packs_get() -> dict[str, Any]:
+    packs, cached, sources = await _canonical_pack_records()
+    return {
+        "packs": packs,
+        "cached": cached,
+        "total_count": len(packs) + len(cached),
+        "sources": sources,
+    }
+
+
+@app.get("/packs/sync")
+async def packs_sync(
+    known_hashes: str | None = Query(default=None),
+    grade: int | None = Query(default=None),
+    subject: str | None = Query(default=None),
+    language: str | None = Query(default=None),
+) -> dict[str, Any]:
+    client_hashes: dict[str, str] = {}
+    if known_hashes:
+        try:
+            decoded_hashes = json.loads(known_hashes)
+            if isinstance(decoded_hashes, dict):
+                client_hashes = {str(key): str(value) for key, value in decoded_hashes.items()}
+        except json.JSONDecodeError:
+            logger.warning("[SYNC] INVALID_KNOWN_HASHES=%s", known_hashes[:500])
+
+    all_packs, _, _ = await _canonical_pack_records()
+    all_records = {str(pack["pack_id"]): pack for pack in all_packs}
+    packs = [
+        pack
+        for pack in all_packs
+        if _pack_matches_filters(pack, grade=grade, subject=subject, language=language)
+    ]
+    records = {str(pack["pack_id"]): pack for pack in packs}
+    changed_packs = [
+        pack
+        for pack in packs
+        if not client_hashes or client_hashes.get(str(pack["pack_id"])) != str(pack.get("hash", ""))
+    ]
+    deleted_packs = [
+        {"pack_id": pack_id}
+        for pack_id in client_hashes
+        if pack_id not in all_records
+    ]
+    asset_updates = [
+        {
+            "pack_id": pack["pack_id"],
+            "version": pack.get("version", "1.0.0"),
+            "hash": pack.get("hash", ""),
+            "checksum": pack.get("checksum", ""),
+            "size_bytes": pack.get("size_bytes", 0),
+            "manifest_url": pack.get("manifest_url"),
+            "download_url": pack.get("download_url"),
+            "artifact_counts": pack.get("artifact_counts", {}),
+            "assets": pack.get("artifact_counts", {}),
+            "installable": pack.get("installable", False),
+            "archive_exists": pack.get("archive_exists", False),
+            "manifest_exists": pack.get("manifest_exists", False),
+        }
+        for pack in changed_packs
+    ]
+
+    return {
+        "version": "1.0",
+        "server_version": "1.0",
+        "count": len(packs),
+        "filters": {
+            "grade": grade,
+            "subject": subject,
+            "language": language,
+        },
+        "packs": packs,
+        "changed_packs": changed_packs,
+        "deleted_packs": deleted_packs,
+        "asset_updates": asset_updates,
+    }
+
+
+@app.get("/packs/catalog")
+async def packs_catalog() -> dict[str, Any]:
+    packs, _, _ = await _canonical_pack_records()
+    grouped: dict[int, dict[str, Any]] = {}
+    for pack in packs:
+        try:
+            grade = int(pack.get("grade"))
+        except (TypeError, ValueError):
+            continue
+        subject = str(pack.get("subject") or "unknown")
+        grade_group = grouped.setdefault(grade, {"grade": grade, "subjects": {}})
+        subject_group = grade_group["subjects"].setdefault(
+            subject,
+            {
+                "subject": subject,
+                "pack_count": 0,
+                "chunk_count": 0,
+                "download_size_bytes": 0,
+                "chapters": set(),
+            },
+        )
+        stat = _pack_stat(pack)
+        subject_group["pack_count"] += 1
+        subject_group["chunk_count"] += stat["chunk_count"]
+        subject_group["download_size_bytes"] += stat["size_bytes"]
+        if pack.get("chapter"):
+            subject_group["chapters"].add(str(pack.get("chapter")))
+
+    grades: list[dict[str, Any]] = []
+    for grade in sorted(grouped):
+        subjects: list[dict[str, Any]] = []
+        for subject_group in sorted(grouped[grade]["subjects"].values(), key=lambda item: item["subject"]):
+            size_bytes = int(subject_group["download_size_bytes"])
+            subjects.append({
+                "subject": subject_group["subject"],
+                "pack_count": subject_group["pack_count"],
+                "chapter_count": len(subject_group["chapters"]),
+                "chunk_count": subject_group["chunk_count"],
+                "download_size_bytes": size_bytes,
+                "download_size_mb": round(size_bytes / (1024 * 1024), 2),
+            })
+        grades.append({"grade": grade, "subjects": subjects})
+
+    total_size = sum(int(pack.get("size_bytes") or 0) for pack in packs)
+    return {
+        "grades": grades,
+        "total_packs": len(packs),
+        "total_chunks": sum(int((pack.get("artifact_counts") or {}).get("content") or 0) for pack in packs),
+        "total_download_size_bytes": total_size,
+        "total_download_size_mb": round(total_size / (1024 * 1024), 2),
+    }
+
+
+@app.get("/packs/recommended")
+async def packs_recommended(
+    grade: int | None = Query(default=None),
+    subject: str | None = Query(default=None),
+    language: str | None = Query(default=None),
+    installed_pack_ids: str | None = Query(default=None),
+    limit: int = Query(default=10, ge=1, le=50),
+) -> dict[str, Any]:
+    installed = {
+        item.strip()
+        for item in (installed_pack_ids or "").split(",")
+        if item.strip()
+    }
+    packs, _, _ = await _canonical_pack_records()
+    candidates = [
+        pack
+        for pack in packs
+        if pack.get("installable")
+        and str(pack.get("pack_id")) not in installed
+        and _pack_matches_filters(pack, grade=grade, subject=subject, language=language)
+    ]
+    candidates.sort(key=lambda pack: (
+        int(pack.get("grade") or 0),
+        str(pack.get("subject") or ""),
+        str(pack.get("chapter") or ""),
+        str(pack.get("pack_id") or ""),
+    ))
+    recommended = candidates[:limit]
+    return {
+        "count": len(recommended),
+        "total_candidates": len(candidates),
+        "filters": {
+            "grade": grade,
+            "subject": subject,
+            "language": language,
+            "installed_pack_ids": sorted(installed),
+        },
+        "packs": recommended,
+        "pack_stats": [_pack_stat(pack) for pack in recommended],
+    }
+
+
+@app.post("/packs/generate")
+async def packs_generate(payload: dict[str, Any]) -> Any:
+    return await _post_json(settings.pack_service_url, "/packs/generate", payload)
+
+
+@app.get("/packs/{pack_id}/manifest")
+async def pack_manifest(pack_id: str) -> dict[str, Any]:
+    try:
+        source_pack_id = await _resolve_pack_service_pack_id(pack_id)
+        manifest = await _get_json(settings.pack_service_url, _pack_path(source_pack_id, "manifest"))
+        counts = manifest.get("artifact_counts", {})
+        return {
+            "pack_id": pack_id,
+            "version": manifest.get("version", "1.0.0"),
+            "metadata": {
+                "grade": manifest.get("grade"),
+                "subject": manifest.get("subject"),
+                "chapter": manifest.get("chapter"),
+                "language": manifest.get("language"),
+                "generated_at": manifest.get("generated_at"),
+                "checksum": manifest.get("checksum"),
+                "content_checksum": manifest.get("content_checksum"),
+                "quality_scores": manifest.get("quality_scores", {}),
+                "generation_metadata": manifest.get("generation_metadata", {}),
+            },
+            "chunk_count": int(counts.get("content", 0)),
+            "flashcard_count": int(counts.get("flashcards", 0)),
+            "quiz_count": int(counts.get("quizzes", 0)),
+            "glossary_count": int(counts.get("glossary", 0)),
+            "summary_count": int(counts.get("summaries", 0)),
+            "artifact_counts": counts,
+        }
+    except HTTPException as exc:
+        if exc.status_code != 404:
+            raise
+
+    pack = await _get_json(settings.pihub_url, f"/packs/{pack_id}")
+    return {
+        "pack_id": pack.get("pack_id", pack_id),
+        "version": pack.get("version", "1.0.0"),
+        "metadata": {
+            "pack_name": pack.get("pack_name"),
+            "grade": pack.get("grade"),
+            "subject": pack.get("subject"),
+            "chapter": pack.get("chapter"),
+            "checksum": pack.get("checksum"),
+            "size_bytes": pack.get("size_bytes"),
+            "updated_at": _iso_from_epoch(pack.get("updated_at")),
+            **(pack.get("metadata") or {}),
+        },
+        "chunk_count": 0,
+        "flashcard_count": 0,
+        "quiz_count": 0,
+        "glossary_count": 0,
+        "summary_count": 0,
+        "artifact_counts": {},
+    }
+
+
+@app.get("/packs/{pack_id}/download")
+async def pack_download(pack_id: str) -> StreamingResponse:
+    try:
+        source_pack_id = await _resolve_pack_service_pack_id(pack_id)
+        return await _proxy_stream(settings.pack_service_url, "GET", _pack_path(source_pack_id, "download"))
+    except HTTPException as exc:
+        if exc.status_code != 404:
+            raise
+
+    return await _proxy_stream(settings.pihub_url, "GET", _pack_path(pack_id, "download"))
+
+
+@app.get("/api/v1/pdf/catalog")
+async def pdf_catalog() -> Any:
+    return await _get_json(settings.pack_service_url, "/api/v1/pdf/catalog")
+
+
+@app.get("/api/v1/pdf/resolve")
+async def pdf_resolve(
+    grade: int = Query(...),
+    subject: str = Query(...),
+    chapter: str = Query(...),
+    language: str = Query(default="english"),
+) -> Any:
+    return await _get_json(
+        settings.pack_service_url,
+        "/api/v1/pdf/resolve",
+        params={"grade": grade, "subject": subject, "chapter": chapter, "language": language},
+    )
+
+
+@app.get("/api/v1/pdf/book/{grade}/{subject}")
+async def pdf_book(grade: int, subject: str, language: str = Query(default="english")) -> Any:
+    return await _get_json(
+        settings.pack_service_url,
+        _pdf_path("book", grade, subject),
+        params={"language": language},
+    )
+
+
+@app.get("/api/v1/pdf/chapter/{chapter_id}/metadata")
+async def pdf_chapter_metadata(chapter_id: str) -> Any:
+    return await _get_json(settings.pack_service_url, _pdf_path("chapter", chapter_id, "metadata"))
+
+
+@app.get("/api/v1/pdf/chapter/{chapter_id}")
+async def pdf_chapter(chapter_id: str) -> Any:
+    return await _get_json(settings.pack_service_url, _pdf_path("chapter", chapter_id))
+
+
+@app.get("/api/v1/pdf/file/{book_id}")
+async def pdf_file(book_id: str) -> StreamingResponse:
+    return await _proxy_stream(settings.pack_service_url, "GET", _pdf_path("file", book_id))
+
+
+def _query_params(**values: Any) -> dict[str, Any]:
+    params: dict[str, Any] = {}
+    for key, value in values.items():
+        if value is None:
+            continue
+        params[key] = value
+    return params
+
+
+@app.get("/experiments")
+async def experiments_get(
+    grade: int | None = Query(default=None),
+    subject: str | None = Query(default=None),
+    chapter: str | None = Query(default=None),
+    topic: str | None = Query(default=None),
+    difficulty: str | None = Query(default=None),
+    required_sensors: list[str] = Query(default=[]),
+    execution_modes: list[str] = Query(default=[]),
+    tags: list[str] = Query(default=[]),
+) -> Any:
+    params = _query_params(
+        grade=grade,
+        subject=subject,
+        chapter=chapter,
+        topic=topic,
+        difficulty=difficulty,
+        required_sensors=required_sensors,
+        execution_modes=execution_modes,
+        tags=tags,
+    )
+    return await app.state.experiment_client.get_experiments(params)
+
+
+@app.get("/experiments/catalog")
+async def experiments_catalog() -> Any:
+    return await app.state.experiment_client.get_catalog()
+
+
+@app.get("/experiments/search")
+async def experiments_search(
+    q: str | None = Query(default=None),
+    grade: int | None = Query(default=None),
+    subject: str | None = Query(default=None),
+    chapter: str | None = Query(default=None),
+    topic: str | None = Query(default=None),
+    difficulty: str | None = Query(default=None),
+    required_sensors: list[str] = Query(default=[]),
+    execution_modes: list[str] = Query(default=[]),
+    tags: list[str] = Query(default=[]),
+) -> Any:
+    params = _query_params(
+        q=q,
+        grade=grade,
+        subject=subject,
+        chapter=chapter,
+        topic=topic,
+        difficulty=difficulty,
+        required_sensors=required_sensors,
+        execution_modes=execution_modes,
+        tags=tags,
+    )
+    return await app.state.experiment_client.search_experiments(params)
+
+
+@app.get("/experiments/{experiment_id}/download")
+async def experiment_pack_download(experiment_id: str) -> StreamingResponse:
+    return await _proxy_stream(settings.experiment_service_url, "GET", f"/experiments/{quote(experiment_id, safe='')}/download")
+
+
+@app.get("/experiments/{experiment_id}/certification")
+async def experiment_certification(experiment_id: str) -> Any:
+    return await app.state.experiment_client.get_certification(experiment_id)
+
+
+@app.get("/experiments/{experiment_id}")
+async def experiment_get(experiment_id: str) -> Any:
+    return await app.state.experiment_client.get_experiment(experiment_id)
+
+
+@app.get("/chapters/{chapter_id}/experiments")
+async def chapter_experiments(chapter_id: str) -> Any:
+    return await app.state.experiment_client.get_chapter_experiments(chapter_id)
+
+
+@app.get("/experiment-templates")
+async def experiment_templates() -> Any:
+    return await app.state.experiment_client.get_templates()
+
+
+@app.post("/experiment-runs")
+async def experiment_run_create(payload: dict[str, Any]) -> Any:
+    return await app.state.experiment_client.create_run(payload)
+
+
+@app.get("/experiment-runs/student/{student_id}")
+async def experiment_runs_student(student_id: str) -> Any:
+    return await app.state.experiment_client.get_student_runs(student_id)
+
+
+@app.get("/experiment-runs/{run_id}")
+async def experiment_run_get(run_id: str) -> Any:
+    return await app.state.experiment_client.get_run(run_id)
+
+
+@app.post("/experiment-runs/{run_id}/events")
+async def experiment_run_event(run_id: str, payload: dict[str, Any]) -> Any:
+    return await app.state.experiment_client.append_event(run_id, payload)
+
+
+@app.post("/experiment-runs/{run_id}/complete")
+async def experiment_run_complete(run_id: str, payload: dict[str, Any]) -> Any:
+    return await app.state.experiment_client.complete_run(run_id, payload)
+
+
+@app.get("/analytics/student/{student_id}")
+async def experiment_student_analytics(student_id: str) -> Any:
+    return await app.state.experiment_client.get_student_analytics(student_id)
+
+
+@app.get("/analytics/experiment/{experiment_id}")
+async def experiment_analytics(experiment_id: str) -> Any:
+    return await app.state.experiment_client.get_experiment_analytics(experiment_id)
+
+
+@app.get("/analytics/system")
+async def experiment_system_analytics() -> Any:
+    return await app.state.experiment_client.get_system_analytics()
+
+
+@app.get("/analytics/top-experiments")
+async def experiment_top_analytics(limit: int = Query(default=10, ge=1, le=100)) -> Any:
+    return await app.state.experiment_client.get_top_experiments({"limit": limit})
+
+
+@app.get("/experiment-metrics")
+async def experiment_metrics() -> Any:
+    service_metrics = await app.state.experiment_client.get_metrics()
+    return {
+        "service": service_metrics,
+        "gateway": experiment_gateway_metrics.snapshot(),
+    }
+
+
+@app.get("/flashcards")
+async def flashcards(
+    grade: int | None = Query(default=None),
+    subject: str | None = Query(default=None),
+    chapter: str | None = Query(default=None),
+    topic: str | None = Query(default=None),
+) -> dict[str, Any]:
+    return await _asset_response("flashcards", {"grade": grade, "subject": subject, "chapter": chapter, "topic": topic})
+
+
+@app.get("/quizzes")
+async def quizzes(
+    grade: int | None = Query(default=None),
+    subject: str | None = Query(default=None),
+    chapter: str | None = Query(default=None),
+    topic: str | None = Query(default=None),
+) -> dict[str, Any]:
+    return await _asset_response("quizzes", {"grade": grade, "subject": subject, "chapter": chapter, "topic": topic})
+
+
+@app.get("/glossary")
+async def glossary(
+    grade: int | None = Query(default=None),
+    subject: str | None = Query(default=None),
+    chapter: str | None = Query(default=None),
+    topic: str | None = Query(default=None),
+) -> dict[str, Any]:
+    return await _asset_response("glossary", {"grade": grade, "subject": subject, "chapter": chapter, "topic": topic})
+
+
+@app.get("/summaries")
+async def summaries(
+    grade: int | None = Query(default=None),
+    subject: str | None = Query(default=None),
+    chapter: str | None = Query(default=None),
+    topic: str | None = Query(default=None),
+) -> dict[str, Any]:
+    return await _asset_response("summaries", {"grade": grade, "subject": subject, "chapter": chapter, "topic": topic})
+
+
+@app.post("/planner/lesson")
+async def planner_lesson(payload: dict[str, Any]) -> dict[str, Any]:
+    question = str(payload.get("question") or payload.get("topic") or payload.get("title") or "").strip()
+    filters = {
+        "grade": payload.get("grade"),
+        "subject": normalize_subject(payload.get("subject")),
+        "chapter": payload.get("chapter"),
+        "topic": normalize_topic(payload.get("topic"), question).normalized_topic or question,
+    }
+
+    summary_assets = await _asset_response("summaries", dict(filters))
+    flashcard_assets = await _asset_response("flashcards", dict(filters))
+    quiz_assets = await _asset_response("quizzes", dict(filters))
+
+    summaries = summary_assets.get("items", [])
+    flashcards = flashcard_assets.get("items", [])[:10]
+    quizzes = quiz_assets.get("items", [])[:8]
+    first_summary = summaries[0] if summaries else {}
+    summary_text = first_summary.get("text") or (
+        f"No prebuilt summary was found for {question or 'this lesson'}. Use tutor fallback for explanation."
+    )
+
+    return {
+        "request": payload,
+        "response_source": "planner",
+        "summary": {
+            "title": first_summary.get("title") or question or "Lesson",
+            "text": summary_text,
+            "metadata": first_summary.get("metadata", {}),
+        },
+        "flashcards": flashcards,
+        "practice_questions": quizzes,
+        "quiz": quizzes,
+        "asset_counts": {
+            "summaries": len(summaries),
+            "flashcards": len(flashcards),
+            "quizzes": len(quizzes),
+        },
+    }
+
+
+@app.get("/metrics/tutor")
+async def tutor_metrics() -> dict[str, Any]:
+    return await _get_json(settings.inference_service_url, "/metrics/tutor")
+
+
+@app.get("/metrics/retrieval")
+async def retrieval_metrics_endpoint() -> dict[str, Any]:
+    inference = {}
+    try:
+        inference = await _get_json(settings.inference_service_url, "/metrics/retrieval")
+    except HTTPException as exc:
+        inference = {"status": "unavailable", "detail": exc.detail}
+    return {
+        "gateway": _retrieval_summary(),
+        "inference": inference,
+    }
+
+
+@app.post("/progress")
+async def progress_post(payload: dict[str, Any]) -> dict[str, Any]:
+    return await _post_json(settings.pihub_url, "/progress", payload)
+
+
+@app.get("/progress/{student_id}")
+async def progress_get(student_id: str) -> dict[str, Any]:
+    return await _get_json(settings.pihub_url, f"/progress/{student_id}")
+
+
+@app.post("/quiz-sessions")
+async def quiz_session_create(payload: dict[str, Any]) -> dict[str, Any]:
+    return await _post_json(settings.pihub_url, "/quiz-sessions", payload)
+
+
+@app.get("/quiz-sessions/student/{student_id}")
+async def quiz_sessions_student(student_id: str, active_only: bool = Query(default=False)) -> dict[str, Any]:
+    return await _get_json(settings.pihub_url, f"/quiz-sessions/student/{student_id}", {"active_only": active_only})
+
+
+@app.get("/quiz-sessions/{quiz_session_id}")
+async def quiz_session_get(quiz_session_id: str) -> dict[str, Any]:
+    return await _get_json(settings.pihub_url, f"/quiz-sessions/{quiz_session_id}")
+
+
+@app.post("/quiz-sessions/{quiz_session_id}/answer")
+async def quiz_session_answer(quiz_session_id: str, payload: dict[str, Any]) -> dict[str, Any]:
+    return await _post_json(settings.pihub_url, f"/quiz-sessions/{quiz_session_id}/answer", payload)
+
+
+@app.get("/classroom")
+async def classroom_get() -> dict[str, Any]:
+    response = await app.state.http.get(f"{settings.pihub_url}/classroom")
+    if response.is_error:
+        raise HTTPException(status_code=response.status_code, detail=response.text)
+    return response.json()
+
+
+@app.post("/classroom")
+async def classroom_post(payload: dict[str, Any]) -> dict[str, Any]:
+    return await _proxy_to(settings.pihub_url, "POST", "/classroom", payload)
+
+
+@app.post("/ingest/directory")
+async def ingest_directory(payload: dict[str, Any]) -> dict[str, Any]:
+    return await _proxy_to(settings.content_pipeline_url, "POST", "/ingest/directory", payload)
+
+
+@app.get("/devices")
+async def devices_get() -> dict[str, Any]:
+    response = await app.state.http.get(f"{settings.pihub_url}/devices")
+    if response.is_error:
+        raise HTTPException(status_code=response.status_code, detail=response.text)
+    return response.json()
+
+
+@app.post("/devices")
+async def devices_post(payload: dict[str, Any]) -> dict[str, Any]:
+    return await _proxy_to(settings.pihub_url, "POST", "/devices", payload)
+
+
+@app.get("/debug/curriculum")
+async def debug_curriculum() -> dict[str, Any]:
+    response = await app.state.http.get(f"{settings.content_pipeline_url}/debug/curriculum")
+    if response.is_error:
+        raise HTTPException(status_code=response.status_code, detail=response.text)
+    return response.json()
+
+
+@app.get("/debug/metadata")
+async def debug_metadata(path: str) -> dict[str, Any]:
+    return await _proxy_get("/debug/metadata", {"path": path})
+
+
+@app.get("/debug/chunks")
+async def debug_chunks(path: str) -> dict[str, Any]:
+    return await _proxy_get("/debug/chunks", {"path": path})
+
+
+@app.post("/debug/retrieval")
+async def debug_retrieval(payload: dict[str, Any]) -> dict[str, Any]:
+    return await _proxy_json("/debug/retrieval", payload)
+
+
+@app.get("/debug/similarity")
+async def debug_similarity(left: str, right: str) -> dict[str, Any]:
+    return await _proxy_get("/debug/similarity", {"left": left, "right": right})
+
+
+@app.get("/debug/pack-preview")
+async def debug_pack_preview(path: str, pack_name: str = "curriculum_pack") -> dict[str, Any]:
+    return await _proxy_get("/debug/pack-preview", {"path": path, "pack_name": pack_name})

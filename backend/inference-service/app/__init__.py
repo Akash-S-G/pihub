@@ -1,0 +1,1 @@
+"""Inference service application package."""

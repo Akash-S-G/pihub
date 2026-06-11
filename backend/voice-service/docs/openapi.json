@@ -1,0 +1,587 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IDP Voice Service",
+    "description": "Voice questions, voice tutor, STT, TTS, pre-generated audio, streaming audio, and analytics.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/voice/query": {
+      "post": {
+        "tags": [
+          "voice"
+        ],
+        "summary": "Voice Query",
+        "operationId": "voice_query_voice_query_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoiceQueryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceQueryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/voice/tts": {
+      "post": {
+        "tags": [
+          "voice"
+        ],
+        "summary": "Voice Tts",
+        "operationId": "voice_tts_voice_tts_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TTSRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TTSResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/voice/stt": {
+      "post": {
+        "tags": [
+          "voice"
+        ],
+        "summary": "Voice Stt",
+        "operationId": "voice_stt_voice_stt_post",
+        "parameters": [
+          {
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Language"
+            },
+            "name": "language",
+            "in": "query"
+          },
+          {
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "title": "Enable Partial Transcripts",
+              "default": false
+            },
+            "name": "enable_partial_transcripts",
+            "in": "query"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_voice_stt_voice_stt_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/STTResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/audio/{asset_id}": {
+      "get": {
+        "tags": [
+          "audio"
+        ],
+        "summary": "Get Audio Asset",
+        "operationId": "get_audio_asset_audio__asset_id__get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Asset Id"
+            },
+            "name": "asset_id",
+            "in": "path"
+          },
+          {
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Range"
+            },
+            "name": "Range",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/voice/audio/{asset_id}": {
+      "get": {
+        "tags": [
+          "voice",
+          "audio"
+        ],
+        "summary": "Get Audio Asset",
+        "operationId": "get_audio_asset_voice_audio__asset_id__get",
+        "parameters": [
+          {
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Asset Id"
+            },
+            "name": "asset_id",
+            "in": "path"
+          },
+          {
+            "required": false,
+            "schema": {
+              "type": "string",
+              "title": "Range"
+            },
+            "name": "Range",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/voice/metrics": {
+      "get": {
+        "tags": [
+          "voice",
+          "analytics"
+        ],
+        "summary": "Voice Metrics",
+        "operationId": "voice_metrics_voice_metrics_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Voice Metrics Voice Metrics Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Body_voice_stt_voice_stt_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file"
+        ],
+        "title": "Body_voice_stt_voice_stt_post"
+      },
+      "CacheStatus": {
+        "type": "string",
+        "enum": [
+          "hit",
+          "miss",
+          "bypassed"
+        ],
+        "title": "CacheStatus",
+        "description": "An enumeration."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "STTResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "transcript": {
+            "type": "string",
+            "title": "Transcript"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language"
+          },
+          "partial_transcripts": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Partial Transcripts"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence"
+          },
+          "metrics": {
+            "type": "object",
+            "title": "Metrics"
+          }
+        },
+        "type": "object",
+        "required": [
+          "transcript",
+          "language"
+        ],
+        "title": "STTResponse"
+      },
+      "TTSRequest": {
+        "properties": {
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "voice": {
+            "type": "string",
+            "title": "Voice",
+            "default": "default"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language",
+            "default": "en"
+          },
+          "stream": {
+            "type": "boolean",
+            "title": "Stream",
+            "default": false
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "wav",
+              "mp3",
+              "ogg"
+            ],
+            "title": "Format",
+            "default": "wav"
+          },
+          "cache": {
+            "type": "boolean",
+            "title": "Cache",
+            "default": true
+          },
+          "model_config": {
+            "type": "object",
+            "title": "Model Config",
+            "default": {
+              "extra": "ignore"
+            }
+          }
+        },
+        "type": "object",
+        "required": [
+          "text"
+        ],
+        "title": "TTSRequest"
+      },
+      "TTSResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "audio_id": {
+            "type": "string",
+            "title": "Audio Id"
+          },
+          "audio_url": {
+            "type": "string",
+            "title": "Audio Url"
+          },
+          "cache_status": {
+            "$ref": "#/components/schemas/CacheStatus"
+          },
+          "format": {
+            "type": "string",
+            "title": "Format",
+            "default": "wav"
+          },
+          "duration_ms": {
+            "type": "integer",
+            "title": "Duration Ms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "audio_id",
+          "audio_url",
+          "cache_status"
+        ],
+        "title": "TTSResponse"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      },
+      "VoiceQueryRequest": {
+        "properties": {
+          "question": {
+            "type": "string",
+            "title": "Question"
+          },
+          "audio_asset_id": {
+            "type": "string",
+            "title": "Audio Asset Id"
+          },
+          "student_id": {
+            "type": "string",
+            "title": "Student Id"
+          },
+          "grade": {
+            "type": "integer",
+            "title": "Grade"
+          },
+          "subject": {
+            "type": "string",
+            "title": "Subject"
+          },
+          "chapter_id": {
+            "type": "string",
+            "title": "Chapter Id"
+          },
+          "topic": {
+            "type": "string",
+            "title": "Topic"
+          },
+          "language": {
+            "type": "string",
+            "title": "Language",
+            "default": "en"
+          },
+          "stream": {
+            "type": "boolean",
+            "title": "Stream",
+            "default": false
+          },
+          "prefer_cached_audio": {
+            "type": "boolean",
+            "title": "Prefer Cached Audio",
+            "default": true
+          },
+          "require_curriculum_context": {
+            "type": "boolean",
+            "title": "Require Curriculum Context",
+            "default": true
+          },
+          "model_config": {
+            "type": "object",
+            "title": "Model Config",
+            "default": {
+              "extra": "ignore"
+            }
+          }
+        },
+        "type": "object",
+        "title": "VoiceQueryRequest"
+      },
+      "VoiceQueryResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "default": true
+          },
+          "answer_text": {
+            "type": "string",
+            "title": "Answer Text"
+          },
+          "audio_id": {
+            "type": "string",
+            "title": "Audio Id"
+          },
+          "audio_url": {
+            "type": "string",
+            "title": "Audio Url"
+          },
+          "cache_status": {
+            "$ref": "#/components/schemas/CacheStatus"
+          },
+          "response_source": {
+            "type": "string",
+            "enum": [
+              "pre_generated_audio",
+              "cache",
+              "rag_tutor",
+              "tts_only"
+            ],
+            "title": "Response Source"
+          },
+          "context_used": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Context Used"
+          },
+          "metrics": {
+            "type": "object",
+            "title": "Metrics"
+          }
+        },
+        "type": "object",
+        "required": [
+          "answer_text",
+          "cache_status",
+          "response_source"
+        ],
+        "title": "VoiceQueryResponse"
+      }
+    }
+  }
+}

@@ -1,0 +1,3244 @@
+{
+  "chapter_8_proportional_reasoning_\u2013_1.pdf_proportional_reasoning_\u2013_english": {
+    "pack_id": "chapter_8_proportional_reasoning_\u2013_1.pdf_proportional_reasoning_\u2013_english",
+    "version": "1.0.0",
+    "valid": false,
+    "errors": [
+      "glossary[7]:duplicate-term"
+    ],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:12.699648"
+  },
+  "chapter_8_maths_proportional_reasoning_\u2013_english": {
+    "pack_id": "chapter_8_maths_proportional_reasoning_\u2013_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:13.212854"
+  },
+  "chapter_9_science_chapter_3_poverty_as_a_challenge_english": {
+    "pack_id": "chapter_9_science_chapter_3_poverty_as_a_challenge_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:13.607665"
+  },
+  "chapter_9_science_chapter_1_the_story_of_village_palampur_english": {
+    "pack_id": "chapter_9_science_chapter_1_the_story_of_village_palampur_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:13.932361"
+  },
+  "chapter_9_science_economics_english": {
+    "pack_id": "chapter_9_science_economics_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:14.230422"
+  },
+  "chapter_9_science_chapter_4_food_security_in_india_english": {
+    "pack_id": "chapter_9_science_chapter_4_food_security_in_india_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:14.518965"
+  },
+  "chapter_9_science_chapter_2_people_as_resource_english": {
+    "pack_id": "chapter_9_science_chapter_2_people_as_resource_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:14.804087"
+  },
+  "chapter_7_science_chapter_9_from_the_rulers_to_the_ruled_types_of_governments_english": {
+    "pack_id": "chapter_7_science_chapter_9_from_the_rulers_to_the_ruled_types_of_governments_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:15.095523"
+  },
+  "chapter_7_science_chapter_6_the_age_of_reorganisation_english": {
+    "pack_id": "chapter_7_science_chapter_6_the_age_of_reorganisation_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:15.373381"
+  },
+  "chapter_7_science_chapter_12_understanding_markets_english": {
+    "pack_id": "chapter_7_science_chapter_12_understanding_markets_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:15.651690"
+  },
+  "chapter_7_science_chapter_11_from_barter_to_money_english": {
+    "pack_id": "chapter_7_science_chapter_11_from_barter_to_money_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:15.956351"
+  },
+  "chapter_7_science_chapter_7_the_gupta_era_an_age_of_tireless_creativity_english": {
+    "pack_id": "chapter_7_science_chapter_7_the_gupta_era_an_age_of_tireless_creativity_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:16.253853"
+  },
+  "chapter_7_science_chapter_3_climates_of_india_english": {
+    "pack_id": "chapter_7_science_chapter_3_climates_of_india_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:16.547911"
+  },
+  "chapter_7_science_chapter_1_geographical_diversity_of_india_english": {
+    "pack_id": "chapter_7_science_chapter_1_geographical_diversity_of_india_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:16.832049"
+  },
+  "chapter_7_science_chapter_2_understanding_the_weather_english": {
+    "pack_id": "chapter_7_science_chapter_2_understanding_the_weather_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:17.164084"
+  },
+  "chapter_7_science_chapter_8_how_the_land_becomes_sacred_english": {
+    "pack_id": "chapter_7_science_chapter_8_how_the_land_becomes_sacred_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:17.453467"
+  },
+  "chapter_7_science_chapter_4_new_beginnings_cities_and_states_english": {
+    "pack_id": "chapter_7_science_chapter_4_new_beginnings_cities_and_states_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:17.748719"
+  },
+  "chapter_7_science_chapter_6_the_state_the_government_and_you_english": {
+    "pack_id": "chapter_7_science_chapter_6_the_state_the_government_and_you_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:18.038491"
+  },
+  "chapter_7_science_chapter_5_india_a_home_to_many_english": {
+    "pack_id": "chapter_7_science_chapter_5_india_a_home_to_many_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:18.332368"
+  },
+  "chapter_7_science_chapter_1_the_story_of_indian_farming_english": {
+    "pack_id": "chapter_7_science_chapter_1_the_story_of_indian_farming_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:18.640030"
+  },
+  "chapter_7_science_chapter_8_banks_and_the_magic_of_finance_english": {
+    "pack_id": "chapter_7_science_chapter_8_banks_and_the_magic_of_finance_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:18.919380"
+  },
+  "chapter_7_science_chapter_4_turning_tides_11th_and_12th_centuries_english": {
+    "pack_id": "chapter_7_science_chapter_4_turning_tides_11th_and_12th_centuries_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:19.222729"
+  },
+  "chapter_7_science_chapter_7_infrastructure_engine_of_indias_development_english": {
+    "pack_id": "chapter_7_science_chapter_7_infrastructure_engine_of_indias_development_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:19.517340"
+  },
+  "chapter_7_science_social_science_textbook_for_class_7_english": {
+    "pack_id": "chapter_7_science_social_science_textbook_for_class_7_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:19.811308"
+  },
+  "chapter_10_science_chapter_5_outcomes_of_democracy_english": {
+    "pack_id": "chapter_10_science_chapter_5_outcomes_of_democracy_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:20.099873"
+  },
+  "chapter_10_science_chapter_3_gender_religion_and_caste_english": {
+    "pack_id": "chapter_10_science_chapter_3_gender_religion_and_caste_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:20.395330"
+  },
+  "chapter_10_science_democratic_politics_ii_english": {
+    "pack_id": "chapter_10_science_democratic_politics_ii_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:20.674411"
+  },
+  "chapter_10_science_chapter_4_political_parties_english": {
+    "pack_id": "chapter_10_science_chapter_4_political_parties_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:20.957836"
+  },
+  "chapter_10_science_chapter_2_federalism_english": {
+    "pack_id": "chapter_10_science_chapter_2_federalism_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:21.285594"
+  },
+  "chapter_10_science_chapter_1_power_sharing_english": {
+    "pack_id": "chapter_10_science_chapter_1_power_sharing_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:21.573677"
+  },
+  "chapter_9_science_chapter_3_drainage_english": {
+    "pack_id": "chapter_9_science_chapter_3_drainage_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:21.849582"
+  },
+  "chapter_9_science_chapter_5_natural_vegetation_and_wildlife_english": {
+    "pack_id": "chapter_9_science_chapter_5_natural_vegetation_and_wildlife_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:22.143786"
+  },
+  "chapter_9_science_contemporary_india_i_english": {
+    "pack_id": "chapter_9_science_contemporary_india_i_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:22.444709"
+  },
+  "chapter_9_science_chapter_6_population_english": {
+    "pack_id": "chapter_9_science_chapter_6_population_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:22.719171"
+  },
+  "chapter_9_science_chapter_4_climate_english": {
+    "pack_id": "chapter_9_science_chapter_4_climate_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:22.998318"
+  },
+  "chapter_9_science_chapter_1_india_size_and_location_english": {
+    "pack_id": "chapter_9_science_chapter_1_india_size_and_location_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:23.339040"
+  },
+  "chapter_9_science_democratic_politics_class_english": {
+    "pack_id": "chapter_9_science_democratic_politics_class_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:23.651034"
+  },
+  "chapter_9_science_chapter_2_constitutional_design_english": {
+    "pack_id": "chapter_9_science_chapter_2_constitutional_design_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:23.946749"
+  },
+  "chapter_9_science_chapter_1_what_is_democracy_why_democracy_english": {
+    "pack_id": "chapter_9_science_chapter_1_what_is_democracy_why_democracy_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:24.229941"
+  },
+  "chapter_9_science_chapter_5_democratic_rights_english": {
+    "pack_id": "chapter_9_science_chapter_5_democratic_rights_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:24.516375"
+  },
+  "chapter_9_science_chapter_3_electoral_politics_english": {
+    "pack_id": "chapter_9_science_chapter_3_electoral_politics_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:24.791088"
+  },
+  "chapter_9_science_chapter_4_working_of_institutions_english": {
+    "pack_id": "chapter_9_science_chapter_4_working_of_institutions_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:25.079459"
+  },
+  "chapter_10_science_chapter_2_nationalism_in_india_english": {
+    "pack_id": "chapter_10_science_chapter_2_nationalism_in_india_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:25.382221"
+  },
+  "chapter_10_science_chapter_5_print_culture_and_the_modern_world_english": {
+    "pack_id": "chapter_10_science_chapter_5_print_culture_and_the_modern_world_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:25.656062"
+  },
+  "chapter_10_science_chapter_1_the_rise_of_nationalism_in_europe_english": {
+    "pack_id": "chapter_10_science_chapter_1_the_rise_of_nationalism_in_europe_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:25.927927"
+  },
+  "chapter_10_science_india_and_the_contemporary_world_ii_english": {
+    "pack_id": "chapter_10_science_india_and_the_contemporary_world_ii_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:26.224761"
+  },
+  "chapter_10_science_chapter_4_the_age_of_industrialisation_english": {
+    "pack_id": "chapter_10_science_chapter_4_the_age_of_industrialisation_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:26.545941"
+  },
+  "chapter_10_science_chapter_3_the_making_of_a_global_world_english": {
+    "pack_id": "chapter_10_science_chapter_3_the_making_of_a_global_world_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:26.827250"
+  },
+  "chapter_8_science_chapter_7_factors_of_production_english": {
+    "pack_id": "chapter_8_science_chapter_7_factors_of_production_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:27.223368"
+  },
+  "chapter_8_science_glossary_english": {
+    "pack_id": "chapter_8_science_glossary_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:27.497370"
+  },
+  "chapter_8_science_chapter_3_the_rise_of_the_marathas_english": {
+    "pack_id": "chapter_8_science_chapter_3_the_rise_of_the_marathas_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:27.812216"
+  },
+  "chapter_8_science_social_science_textbook_for_class_english": {
+    "pack_id": "chapter_8_science_social_science_textbook_for_class_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:28.105056"
+  },
+  "chapter_8_science_chapter_1_natural_resources_and_their_use_english": {
+    "pack_id": "chapter_8_science_chapter_1_natural_resources_and_their_use_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:28.383480"
+  },
+  "chapter_8_science_chapter_11_keeping_time_with_the_skies_english": {
+    "pack_id": "chapter_8_science_chapter_11_keeping_time_with_the_skies_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:28.667807"
+  },
+  "chapter_8_science_chapter_9_the_amazing_world_of_solutes_solvents_and_solutions_english": {
+    "pack_id": "chapter_8_science_chapter_9_the_amazing_world_of_solutes_solvents_and_solutions_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:28.951227"
+  },
+  "chapter_8_science_curiosity_english": {
+    "pack_id": "chapter_8_science_curiosity_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:29.241586"
+  },
+  "chapter_8_science_chapter_12_how_nature_works_in_harmony_english": {
+    "pack_id": "chapter_8_science_chapter_12_how_nature_works_in_harmony_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:29.513342"
+  },
+  "chapter_8_science_chapter_3_health_the_ultimate_treasure_english": {
+    "pack_id": "chapter_8_science_chapter_3_health_the_ultimate_treasure_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:29.800858"
+  },
+  "chapter_8_science_chapter_2_the_invisible_living_world_beyond_our_naked_eye_english": {
+    "pack_id": "chapter_8_science_chapter_2_the_invisible_living_world_beyond_our_naked_eye_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:30.090407"
+  },
+  "chapter_8_science_introduction_english": {
+    "pack_id": "chapter_8_science_introduction_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:30.377262"
+  },
+  "chapter_8_science_chapter_6_pressure_winds_storms_and_cyclones_english": {
+    "pack_id": "chapter_8_science_chapter_6_pressure_winds_storms_and_cyclones_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:30.651007"
+  },
+  "chapter_8_science_chapter_13_our_home_earth_a_unique_life_sustaining_planet_english": {
+    "pack_id": "chapter_8_science_chapter_13_our_home_earth_a_unique_life_sustaining_planet_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:30.938903"
+  },
+  "chapter_8_science_chapter_8_nature_of_matter_elements_compounds_and_mixtures_english": {
+    "pack_id": "chapter_8_science_chapter_8_nature_of_matter_elements_compounds_and_mixtures_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:31.224439"
+  },
+  "chapter_8_science_chapter_5_exploring_forces_english": {
+    "pack_id": "chapter_8_science_chapter_5_exploring_forces_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:31.508854"
+  },
+  "chapter_8_science_chapter_4_electricity_magnetic_and_heating_effects_english": {
+    "pack_id": "chapter_8_science_chapter_4_electricity_magnetic_and_heating_effects_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:31.795654"
+  },
+  "chapter_10_science_chapter_5_minerals_and_energy_resources_english": {
+    "pack_id": "chapter_10_science_chapter_5_minerals_and_energy_resources_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:32.090699"
+  },
+  "chapter_10_science_chapter_4_agriculture_english": {
+    "pack_id": "chapter_10_science_chapter_4_agriculture_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:32.401749"
+  },
+  "chapter_10_science_chapter_7_lifelines_of_national_economy_english": {
+    "pack_id": "chapter_10_science_chapter_7_lifelines_of_national_economy_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:32.708432"
+  },
+  "chapter_10_science_chapter_6_manufacturing_industries_english": {
+    "pack_id": "chapter_10_science_chapter_6_manufacturing_industries_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:33.015523"
+  },
+  "chapter_10_science_chapter_3_water_resources_english": {
+    "pack_id": "chapter_10_science_chapter_3_water_resources_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:33.345162"
+  },
+  "chapter_10_science_chapter_2_forest_and_wildlife_resources_english": {
+    "pack_id": "chapter_10_science_chapter_2_forest_and_wildlife_resources_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:33.650527"
+  },
+  "chapter_10_science_contemporary_india_english": {
+    "pack_id": "chapter_10_science_contemporary_india_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:33.957795"
+  },
+  "chapter_10_science_chapter_1_resources_and_development_english": {
+    "pack_id": "chapter_10_science_chapter_1_resources_and_development_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:34.271192"
+  },
+  "chapter_6_science_chapter_1_locating_places_on_the_earth_english": {
+    "pack_id": "chapter_6_science_chapter_1_locating_places_on_the_earth_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:34.575205"
+  },
+  "chapter_6_science_glossary_english": {
+    "pack_id": "chapter_6_science_glossary_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:34.867754"
+  },
+  "chapter_6_science_chapter_8_unity_in_diversity_or_many_in_the_one_english": {
+    "pack_id": "chapter_6_science_chapter_8_unity_in_diversity_or_many_in_the_one_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:35.174951"
+  },
+  "chapter_6_science_chapter_14_economic_activities_around_us_english": {
+    "pack_id": "chapter_6_science_chapter_14_economic_activities_around_us_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:35.479092"
+  },
+  "chapter_6_science_chapter_5_india_that_is_bharat_english": {
+    "pack_id": "chapter_6_science_chapter_5_india_that_is_bharat_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:35.789858"
+  },
+  "chapter_6_science_chapter_12_grassroots_democracy_local_government_in_urban_areas_english": {
+    "pack_id": "chapter_6_science_chapter_12_grassroots_democracy_local_government_in_urban_areas_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:36.083806"
+  },
+  "chapter_6_science_chapter_9_family_and_community_english": {
+    "pack_id": "chapter_6_science_chapter_9_family_and_community_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:36.387804"
+  },
+  "chapter_6_science_chapter_11_grassroots_democracy_local_government_in_rural_areas_english": {
+    "pack_id": "chapter_6_science_chapter_11_grassroots_democracy_local_government_in_rural_areas_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:36.683011"
+  },
+  "chapter_6_science_chapter_2_oceans_and_continents_english": {
+    "pack_id": "chapter_6_science_chapter_2_oceans_and_continents_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:36.977946"
+  },
+  "chapter_6_science_chapter_7_indias_cultural_roots_english": {
+    "pack_id": "chapter_6_science_chapter_7_indias_cultural_roots_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:37.261255"
+  },
+  "chapter_6_science_chapter_4_timeline_and_sources_of_history_english": {
+    "pack_id": "chapter_6_science_chapter_4_timeline_and_sources_of_history_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:37.538788"
+  },
+  "chapter_6_science_chapter_13_the_value_of_work_english": {
+    "pack_id": "chapter_6_science_chapter_13_the_value_of_work_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:37.816103"
+  },
+  "chapter_6_science_chapter_6_the_beginnings_of_indian_civilisation_english": {
+    "pack_id": "chapter_6_science_chapter_6_the_beginnings_of_indian_civilisation_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:38.102317"
+  },
+  "chapter_6_science_chapter_10_grassroots_democracy_governance_english": {
+    "pack_id": "chapter_6_science_chapter_10_grassroots_democracy_governance_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:38.400979"
+  },
+  "chapter_6_science_contents_english": {
+    "pack_id": "chapter_6_science_contents_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:38.703780"
+  },
+  "chapter_6_science_chapter_5_measurement_of_length_and_motion_english": {
+    "pack_id": "chapter_6_science_chapter_5_measurement_of_length_and_motion_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:38.998954"
+  },
+  "chapter_6_science_chapter_12_beyond_earth_english": {
+    "pack_id": "chapter_6_science_chapter_12_beyond_earth_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:39.288743"
+  },
+  "chapter_6_science_chapter_10_living_creatures_exploring_their_characteristics_english": {
+    "pack_id": "chapter_6_science_chapter_10_living_creatures_exploring_their_characteristics_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:39.573833"
+  },
+  "chapter_6_science_chapter_9_methods_of_separation_in_everyday_life_english": {
+    "pack_id": "chapter_6_science_chapter_9_methods_of_separation_in_everyday_life_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:39.861131"
+  },
+  "chapter_6_science_class_6_science_textbook_english": {
+    "pack_id": "chapter_6_science_class_6_science_textbook_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:40.142246"
+  },
+  "chapter_6_science_chapter_6_materials_around_us_english": {
+    "pack_id": "chapter_6_science_chapter_6_materials_around_us_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:40.434670"
+  },
+  "chapter_6_science_chapter_11_natures_treasures_english": {
+    "pack_id": "chapter_6_science_chapter_11_natures_treasures_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:40.738573"
+  },
+  "chapter_6_science_chapter_8_a_journey_through_states_of_water_english": {
+    "pack_id": "chapter_6_science_chapter_8_a_journey_through_states_of_water_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:41.022414"
+  },
+  "chapter_6_science_chapter_3_mindful_eating_a_path_to_a_healthy_body_english": {
+    "pack_id": "chapter_6_science_chapter_3_mindful_eating_a_path_to_a_healthy_body_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:41.316641"
+  },
+  "chapter_6_science_chapter_2_diversity_in_the_living_world_english": {
+    "pack_id": "chapter_6_science_chapter_2_diversity_in_the_living_world_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:41.608561"
+  },
+  "chapter_6_science_chapter_1_the_wonderful_world_of_science_english": {
+    "pack_id": "chapter_6_science_chapter_1_the_wonderful_world_of_science_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:41.882271"
+  },
+  "chapter_6_science_chapter_7_temperature_and_its_measurement_english": {
+    "pack_id": "chapter_6_science_chapter_7_temperature_and_its_measurement_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:42.176784"
+  },
+  "chapter_10_science_chapter_5_consumer_rights_english": {
+    "pack_id": "chapter_10_science_chapter_5_consumer_rights_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:42.462228"
+  },
+  "chapter_10_science_chapter_3_money_and_credit_english": {
+    "pack_id": "chapter_10_science_chapter_3_money_and_credit_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:42.750646"
+  },
+  "chapter_10_science_understanding_economic_development_english": {
+    "pack_id": "chapter_10_science_understanding_economic_development_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:43.056694"
+  },
+  "chapter_10_science_chapter_2_sectors_of_the_indian_economy_english": {
+    "pack_id": "chapter_10_science_chapter_2_sectors_of_the_indian_economy_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:43.356530"
+  },
+  "chapter_10_science_chapter_1_development_english": {
+    "pack_id": "chapter_10_science_chapter_1_development_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:43.649526"
+  },
+  "chapter_7_science_chapter_6_adolescence_a_stage_of_growth_and_change_english": {
+    "pack_id": "chapter_7_science_chapter_6_adolescence_a_stage_of_growth_and_change_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:43.955829"
+  },
+  "chapter_7_science_chapter_3_electricity_circuits_and_their_components_english": {
+    "pack_id": "chapter_7_science_chapter_3_electricity_circuits_and_their_components_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:44.282206"
+  },
+  "chapter_7_science_chapter_11_light_shadows_and_reflections_english": {
+    "pack_id": "chapter_7_science_chapter_11_light_shadows_and_reflections_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:44.578588"
+  },
+  "chapter_7_science_chapter_5_changes_around_us_physical_and_chemical_english": {
+    "pack_id": "chapter_7_science_chapter_5_changes_around_us_physical_and_chemical_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:44.847034"
+  },
+  "chapter_7_science_chapter_1_the_ever_evolving_world_of_science_english": {
+    "pack_id": "chapter_7_science_chapter_1_the_ever_evolving_world_of_science_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:45.140400"
+  },
+  "chapter_7_science_class_7_science_textbook_titled_curiosity_english": {
+    "pack_id": "chapter_7_science_class_7_science_textbook_titled_curiosity_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:45.429419"
+  },
+  "chapter_7_science_chapter_10_life_processes_in_plants_english": {
+    "pack_id": "chapter_7_science_chapter_10_life_processes_in_plants_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:45.714541"
+  },
+  "chapter_7_science_chapter_7_heat_transfer_in_nature_english": {
+    "pack_id": "chapter_7_science_chapter_7_heat_transfer_in_nature_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:45.997123"
+  },
+  "chapter_7_science_chapter_4_the_world_of_metals_and_non_metals_english": {
+    "pack_id": "chapter_7_science_chapter_4_the_world_of_metals_and_non_metals_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:46.290105"
+  },
+  "chapter_7_science_chapter_8_measurement_of_time_and_motion_english": {
+    "pack_id": "chapter_7_science_chapter_8_measurement_of_time_and_motion_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:46.573537"
+  },
+  "chapter_7_science_chapter_9_life_processes_in_animals_english": {
+    "pack_id": "chapter_7_science_chapter_9_life_processes_in_animals_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:46.850574"
+  },
+  "chapter_7_science_chapter_12_earth_moon_and_the_sun_english": {
+    "pack_id": "chapter_7_science_chapter_12_earth_moon_and_the_sun_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:47.135592"
+  },
+  "chapter_7_science_chapter_2_exploring_substances_acidic_basic_and_neutral_english": {
+    "pack_id": "chapter_7_science_chapter_2_exploring_substances_acidic_basic_and_neutral_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:47.430520"
+  },
+  "chapter_5_science_chapter_1_water_the_essence_of_life_english": {
+    "pack_id": "chapter_5_science_chapter_1_water_the_essence_of_life_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:47.721398"
+  },
+  "chapter_5_science_chapter_2_journey_of_a_river_english": {
+    "pack_id": "chapter_5_science_chapter_2_journey_of_a_river_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:48.005359"
+  },
+  "chapter_5_science_chapter_9_rhythms_of_nature_english": {
+    "pack_id": "chapter_5_science_chapter_9_rhythms_of_nature_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:48.315837"
+  },
+  "chapter_5_science_chapter_4_our_school_a_happy_place_english": {
+    "pack_id": "chapter_5_science_chapter_4_our_school_a_happy_place_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:48.631034"
+  },
+  "chapter_5_science_chapter_10_earth_our_shared_home_english": {
+    "pack_id": "chapter_5_science_chapter_10_earth_our_shared_home_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:48.932884"
+  },
+  "chapter_5_science_chapter_7_energy_how_things_work_english": {
+    "pack_id": "chapter_5_science_chapter_7_energy_how_things_work_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:49.217188"
+  },
+  "chapter_5_science_class_5_environmental_studies_evs_english": {
+    "pack_id": "chapter_5_science_class_5_environmental_studies_evs_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:49.511783"
+  },
+  "chapter_5_science_chapter_6_some_unique_places_english": {
+    "pack_id": "chapter_5_science_chapter_6_some_unique_places_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:49.809346"
+  },
+  "chapter_5_science_chapter_5_our_vibrant_country_english": {
+    "pack_id": "chapter_5_science_chapter_5_our_vibrant_country_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:50.108737"
+  },
+  "chapter_5_science_chapter_8_clothes_how_things_are_made_english": {
+    "pack_id": "chapter_5_science_chapter_8_clothes_how_things_are_made_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:50.397172"
+  },
+  "chapter_5_science_chapter_3_the_mystery_of_food_english": {
+    "pack_id": "chapter_5_science_chapter_3_the_mystery_of_food_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:50.695841"
+  },
+  "chapter_10_science_heredity_english": {
+    "pack_id": "chapter_10_science_heredity_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:50.985075"
+  },
+  "chapter_10_science_light_reflection_and_refraction_english": {
+    "pack_id": "chapter_10_science_light_reflection_and_refraction_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:51.276588"
+  },
+  "chapter_10_science_life_processes_english": {
+    "pack_id": "chapter_10_science_life_processes_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:51.555574"
+  },
+  "chapter_10_science_the_human_eye_and_the_colourful_world_english": {
+    "pack_id": "chapter_10_science_the_human_eye_and_the_colourful_world_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:51.839998"
+  },
+  "chapter_10_science_metals_and_non_metals_english": {
+    "pack_id": "chapter_10_science_metals_and_non_metals_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:52.139887"
+  },
+  "chapter_10_science_magnetic_effects_of_electric_current_english": {
+    "pack_id": "chapter_10_science_magnetic_effects_of_electric_current_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:52.424453"
+  },
+  "chapter_10_science_introduction_english": {
+    "pack_id": "chapter_10_science_introduction_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:52.701792"
+  },
+  "chapter_10_science_answers_english": {
+    "pack_id": "chapter_10_science_answers_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:52.989728"
+  },
+  "chapter_10_science_electricity_english": {
+    "pack_id": "chapter_10_science_electricity_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:53.339062"
+  },
+  "chapter_10_science_our_environment_english": {
+    "pack_id": "chapter_10_science_our_environment_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:53.668304"
+  },
+  "chapter_10_science_carbon_and_its_compounds_english": {
+    "pack_id": "chapter_10_science_carbon_and_its_compounds_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:53.956947"
+  },
+  "chapter_10_science_control_and_coordination_english": {
+    "pack_id": "chapter_10_science_control_and_coordination_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:54.288946"
+  },
+  "chapter_9_science_chapter_6_tissues_english": {
+    "pack_id": "chapter_9_science_chapter_6_tissues_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:54.617972"
+  },
+  "chapter_9_science_chapter_3_atoms_and_molecules_english": {
+    "pack_id": "chapter_9_science_chapter_3_atoms_and_molecules_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:54.939653"
+  },
+  "chapter_9_science_chapter_5_the_fundamental_unit_of_life_english": {
+    "pack_id": "chapter_9_science_chapter_5_the_fundamental_unit_of_life_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:55.267569"
+  },
+  "chapter_9_science_chapter_9_gravitation_english": {
+    "pack_id": "chapter_9_science_chapter_9_gravitation_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:55.576317"
+  },
+  "chapter_9_science_chapter_4_structure_of_the_atom_english": {
+    "pack_id": "chapter_9_science_chapter_4_structure_of_the_atom_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:55.869742"
+  },
+  "chapter_9_science_chapter_7_motion_english": {
+    "pack_id": "chapter_9_science_chapter_7_motion_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:56.163736"
+  },
+  "chapter_9_science_chapter_11_sound_english": {
+    "pack_id": "chapter_9_science_chapter_11_sound_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:56.478159"
+  },
+  "chapter_9_science_chapter_8_force_and_laws_of_motion_english": {
+    "pack_id": "chapter_9_science_chapter_8_force_and_laws_of_motion_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:56.769587"
+  },
+  "chapter_9_social_science_chapter_3_poverty_as_a_challenge_english": {
+    "pack_id": "chapter_9_social_science_chapter_3_poverty_as_a_challenge_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:57.077035"
+  },
+  "chapter_9_social_science_chapter_1_the_story_of_village_palampur_english": {
+    "pack_id": "chapter_9_social_science_chapter_1_the_story_of_village_palampur_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:57.368846"
+  },
+  "chapter_9_social_science_economics_english": {
+    "pack_id": "chapter_9_social_science_economics_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:57.645826"
+  },
+  "chapter_9_social_science_chapter_4_food_security_in_india_english": {
+    "pack_id": "chapter_9_social_science_chapter_4_food_security_in_india_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:57.918105"
+  },
+  "chapter_9_social_science_chapter_2_people_as_resource_english": {
+    "pack_id": "chapter_9_social_science_chapter_2_people_as_resource_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:58.221417"
+  },
+  "chapter_7_social_science_chapter_10_the_constitution_of_india_an_introduction_english": {
+    "pack_id": "chapter_7_social_science_chapter_10_the_constitution_of_india_an_introduction_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:58.520418"
+  },
+  "chapter_7_social_science_chapter_9_from_the_rulers_to_the_ruled_types_of_governments_english": {
+    "pack_id": "chapter_7_social_science_chapter_9_from_the_rulers_to_the_ruled_types_of_governments_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:58.814837"
+  },
+  "chapter_7_social_science_chapter_6_the_age_of_reorganisation_english": {
+    "pack_id": "chapter_7_social_science_chapter_6_the_age_of_reorganisation_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:59.101448"
+  },
+  "chapter_7_social_science_chapter_12_understanding_markets_english": {
+    "pack_id": "chapter_7_social_science_chapter_12_understanding_markets_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:59.420011"
+  },
+  "chapter_7_social_science_chapter_7_the_gupta_era_an_age_of_tireless_creativity_english": {
+    "pack_id": "chapter_7_social_science_chapter_7_the_gupta_era_an_age_of_tireless_creativity_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:28:59.709303"
+  },
+  "chapter_7_social_science_chapter_8_how_the_land_becomes_sacred_english": {
+    "pack_id": "chapter_7_social_science_chapter_8_how_the_land_becomes_sacred_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:00.004753"
+  },
+  "chapter_7_social_science_chapter_5_the_rise_of_empires_english": {
+    "pack_id": "chapter_7_social_science_chapter_5_the_rise_of_empires_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:00.309287"
+  },
+  "chapter_7_social_science_chapter_6_the_state_the_government_and_you_english": {
+    "pack_id": "chapter_7_social_science_chapter_6_the_state_the_government_and_you_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:00.595432"
+  },
+  "chapter_7_social_science_chapter_5_india_a_home_to_many_english": {
+    "pack_id": "chapter_7_social_science_chapter_5_india_a_home_to_many_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:00.888214"
+  },
+  "chapter_7_social_science_chapter_1_the_story_of_indian_farming_english": {
+    "pack_id": "chapter_7_social_science_chapter_1_the_story_of_indian_farming_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:01.182453"
+  },
+  "chapter_7_social_science_chapter_8_banks_and_the_magic_of_finance_english": {
+    "pack_id": "chapter_7_social_science_chapter_8_banks_and_the_magic_of_finance_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:01.511785"
+  },
+  "chapter_7_social_science_chapter_4_turning_tides_11th_and_12th_centuries_english": {
+    "pack_id": "chapter_7_social_science_chapter_4_turning_tides_11th_and_12th_centuries_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:01.810975"
+  },
+  "chapter_7_social_science_chapter_7_infrastructure_engine_of_indias_development_english": {
+    "pack_id": "chapter_7_social_science_chapter_7_infrastructure_engine_of_indias_development_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:02.102078"
+  },
+  "chapter_7_social_science_social_science_textbook_for_class_7_english": {
+    "pack_id": "chapter_7_social_science_social_science_textbook_for_class_7_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:02.385102"
+  },
+  "chapter_10_social_science_chapter_5_outcomes_of_democracy_english": {
+    "pack_id": "chapter_10_social_science_chapter_5_outcomes_of_democracy_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:02.679406"
+  },
+  "chapter_10_social_science_chapter_3_gender_religion_and_caste_english": {
+    "pack_id": "chapter_10_social_science_chapter_3_gender_religion_and_caste_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:02.963385"
+  },
+  "chapter_10_social_science_democratic_politics_ii_english": {
+    "pack_id": "chapter_10_social_science_democratic_politics_ii_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:03.262990"
+  },
+  "chapter_10_social_science_chapter_4_political_parties_english": {
+    "pack_id": "chapter_10_social_science_chapter_4_political_parties_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:03.559175"
+  },
+  "chapter_10_social_science_chapter_2_federalism_english": {
+    "pack_id": "chapter_10_social_science_chapter_2_federalism_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:03.843146"
+  },
+  "chapter_10_social_science_chapter_1_power_sharing_english": {
+    "pack_id": "chapter_10_social_science_chapter_1_power_sharing_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:04.132771"
+  },
+  "chapter_9_social_science_chapter_3_drainage_english": {
+    "pack_id": "chapter_9_social_science_chapter_3_drainage_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:04.430308"
+  },
+  "chapter_9_social_science_chapter_5_natural_vegetation_and_wildlife_english": {
+    "pack_id": "chapter_9_social_science_chapter_5_natural_vegetation_and_wildlife_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:04.724317"
+  },
+  "chapter_9_social_science_contemporary_india_i_english": {
+    "pack_id": "chapter_9_social_science_contemporary_india_i_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:05.015482"
+  },
+  "chapter_9_social_science_chapter_6_population_english": {
+    "pack_id": "chapter_9_social_science_chapter_6_population_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:05.310852"
+  },
+  "chapter_9_social_science_chapter_2_physical_features_of_india_english": {
+    "pack_id": "chapter_9_social_science_chapter_2_physical_features_of_india_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:05.606663"
+  },
+  "chapter_9_social_science_chapter_4_climate_english": {
+    "pack_id": "chapter_9_social_science_chapter_4_climate_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:05.906406"
+  },
+  "chapter_9_social_science_chapter_1_india_size_and_location_english": {
+    "pack_id": "chapter_9_social_science_chapter_1_india_size_and_location_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:06.201397"
+  },
+  "chapter_9_social_science_democratic_politics_class_english": {
+    "pack_id": "chapter_9_social_science_democratic_politics_class_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:06.486098"
+  },
+  "chapter_9_social_science_chapter_2_constitutional_design_english": {
+    "pack_id": "chapter_9_social_science_chapter_2_constitutional_design_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:06.766704"
+  },
+  "chapter_9_social_science_chapter_1_what_is_democracy_why_democracy_english": {
+    "pack_id": "chapter_9_social_science_chapter_1_what_is_democracy_why_democracy_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:07.053539"
+  },
+  "chapter_9_social_science_chapter_5_democratic_rights_english": {
+    "pack_id": "chapter_9_social_science_chapter_5_democratic_rights_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:07.349629"
+  },
+  "chapter_9_social_science_chapter_3_electoral_politics_english": {
+    "pack_id": "chapter_9_social_science_chapter_3_electoral_politics_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:07.692264"
+  },
+  "chapter_9_social_science_chapter_4_working_of_institutions_english": {
+    "pack_id": "chapter_9_social_science_chapter_4_working_of_institutions_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:07.993844"
+  },
+  "chapter_10_social_science_chapter_2_nationalism_in_india_english": {
+    "pack_id": "chapter_10_social_science_chapter_2_nationalism_in_india_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:08.289288"
+  },
+  "chapter_10_social_science_chapter_5_print_culture_and_the_modern_world_english": {
+    "pack_id": "chapter_10_social_science_chapter_5_print_culture_and_the_modern_world_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:08.579396"
+  },
+  "chapter_10_social_science_chapter_1_the_rise_of_nationalism_in_europe_english": {
+    "pack_id": "chapter_10_social_science_chapter_1_the_rise_of_nationalism_in_europe_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:08.873893"
+  },
+  "chapter_10_social_science_india_and_the_contemporary_world_ii_english": {
+    "pack_id": "chapter_10_social_science_india_and_the_contemporary_world_ii_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:09.172369"
+  },
+  "chapter_10_social_science_chapter_4_the_age_of_industrialisation_english": {
+    "pack_id": "chapter_10_social_science_chapter_4_the_age_of_industrialisation_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:09.462331"
+  },
+  "chapter_10_social_science_chapter_3_the_making_of_a_global_world_english": {
+    "pack_id": "chapter_10_social_science_chapter_3_the_making_of_a_global_world_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:09.748746"
+  },
+  "chapter_8_social_science_chapter_7_factors_of_production_english": {
+    "pack_id": "chapter_8_social_science_chapter_7_factors_of_production_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:10.035424"
+  },
+  "chapter_8_social_science_chapter_4_the_colonial_era_in_india_english": {
+    "pack_id": "chapter_8_social_science_chapter_4_the_colonial_era_in_india_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:10.334680"
+  },
+  "chapter_8_social_science_glossary_english": {
+    "pack_id": "chapter_8_social_science_glossary_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:10.615471"
+  },
+  "chapter_8_social_science_chapter_2_reshaping_indias_political_map_english": {
+    "pack_id": "chapter_8_social_science_chapter_2_reshaping_indias_political_map_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:10.908150"
+  },
+  "chapter_8_social_science_chapter_3_the_rise_of_the_marathas_english": {
+    "pack_id": "chapter_8_social_science_chapter_3_the_rise_of_the_marathas_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:11.205296"
+  },
+  "chapter_8_social_science_social_science_textbook_for_class_english": {
+    "pack_id": "chapter_8_social_science_social_science_textbook_for_class_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:11.508720"
+  },
+  "chapter_8_social_science_chapter_1_natural_resources_and_their_use_english": {
+    "pack_id": "chapter_8_social_science_chapter_1_natural_resources_and_their_use_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:11.802369"
+  },
+  "chapter_10_social_science_chapter_5_minerals_and_energy_resources_english": {
+    "pack_id": "chapter_10_social_science_chapter_5_minerals_and_energy_resources_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:12.105296"
+  },
+  "chapter_10_social_science_chapter_4_agriculture_english": {
+    "pack_id": "chapter_10_social_science_chapter_4_agriculture_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:12.399506"
+  },
+  "chapter_10_social_science_chapter_7_lifelines_of_national_economy_english": {
+    "pack_id": "chapter_10_social_science_chapter_7_lifelines_of_national_economy_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:12.695537"
+  },
+  "chapter_10_social_science_chapter_6_manufacturing_industries_english": {
+    "pack_id": "chapter_10_social_science_chapter_6_manufacturing_industries_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:12.975337"
+  },
+  "chapter_10_social_science_chapter_3_water_resources_english": {
+    "pack_id": "chapter_10_social_science_chapter_3_water_resources_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:13.279329"
+  },
+  "chapter_10_social_science_chapter_2_forest_and_wildlife_resources_english": {
+    "pack_id": "chapter_10_social_science_chapter_2_forest_and_wildlife_resources_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:13.576155"
+  },
+  "chapter_10_social_science_contemporary_india_english": {
+    "pack_id": "chapter_10_social_science_contemporary_india_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:13.864154"
+  },
+  "chapter_10_social_science_chapter_1_resources_and_development_english": {
+    "pack_id": "chapter_10_social_science_chapter_1_resources_and_development_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:14.154127"
+  },
+  "chapter_6_social_science_chapter_1_locating_places_on_the_earth_english": {
+    "pack_id": "chapter_6_social_science_chapter_1_locating_places_on_the_earth_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:14.444807"
+  },
+  "chapter_6_social_science_glossary_english": {
+    "pack_id": "chapter_6_social_science_glossary_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:14.720038"
+  },
+  "chapter_6_social_science_chapter_8_unity_in_diversity_or_many_in_the_one_english": {
+    "pack_id": "chapter_6_social_science_chapter_8_unity_in_diversity_or_many_in_the_one_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:15.012096"
+  },
+  "chapter_6_social_science_chapter_14_economic_activities_around_us_english": {
+    "pack_id": "chapter_6_social_science_chapter_14_economic_activities_around_us_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:15.307538"
+  },
+  "chapter_6_social_science_chapter_5_india_that_is_bharat_english": {
+    "pack_id": "chapter_6_social_science_chapter_5_india_that_is_bharat_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:15.601222"
+  },
+  "chapter_6_social_science_chapter_12_grassroots_democracy_local_government_in_urban_areas_english": {
+    "pack_id": "chapter_6_social_science_chapter_12_grassroots_democracy_local_government_in_urban_areas_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:15.896290"
+  },
+  "chapter_6_social_science_chapter_9_family_and_community_english": {
+    "pack_id": "chapter_6_social_science_chapter_9_family_and_community_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:16.216055"
+  },
+  "chapter_6_social_science_chapter_11_grassroots_democracy_local_government_in_rural_areas_english": {
+    "pack_id": "chapter_6_social_science_chapter_11_grassroots_democracy_local_government_in_rural_areas_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:16.517399"
+  },
+  "chapter_6_social_science_chapter_2_oceans_and_continents_english": {
+    "pack_id": "chapter_6_social_science_chapter_2_oceans_and_continents_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:16.807832"
+  },
+  "chapter_6_social_science_chapter_7_indias_cultural_roots_english": {
+    "pack_id": "chapter_6_social_science_chapter_7_indias_cultural_roots_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:17.114419"
+  },
+  "chapter_6_social_science_chapter_4_timeline_and_sources_of_history_english": {
+    "pack_id": "chapter_6_social_science_chapter_4_timeline_and_sources_of_history_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:17.427871"
+  },
+  "chapter_6_social_science_chapter_13_the_value_of_work_english": {
+    "pack_id": "chapter_6_social_science_chapter_13_the_value_of_work_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:17.717895"
+  },
+  "chapter_6_social_science_chapter_10_grassroots_democracy_governance_english": {
+    "pack_id": "chapter_6_social_science_chapter_10_grassroots_democracy_governance_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:18.010761"
+  },
+  "chapter_6_social_science_contents_english": {
+    "pack_id": "chapter_6_social_science_contents_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:18.296833"
+  },
+  "chapter_10_social_science_chapter_5_consumer_rights_english": {
+    "pack_id": "chapter_10_social_science_chapter_5_consumer_rights_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:18.582693"
+  },
+  "chapter_10_social_science_chapter_3_money_and_credit_english": {
+    "pack_id": "chapter_10_social_science_chapter_3_money_and_credit_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:18.873150"
+  },
+  "chapter_10_social_science_understanding_economic_development_english": {
+    "pack_id": "chapter_10_social_science_understanding_economic_development_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:19.158041"
+  },
+  "chapter_10_social_science_chapter_4_globalisation_and_the_indian_economy_english": {
+    "pack_id": "chapter_10_social_science_chapter_4_globalisation_and_the_indian_economy_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:19.459143"
+  },
+  "chapter_10_social_science_chapter_1_development_english": {
+    "pack_id": "chapter_10_social_science_chapter_1_development_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:19.739511"
+  },
+  "chapter_6_maths_prime_time_english": {
+    "pack_id": "chapter_6_maths_prime_time_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:20.049342"
+  },
+  "chapter_6_maths_fractions_english": {
+    "pack_id": "chapter_6_maths_fractions_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:20.347193"
+  },
+  "chapter_1_maths_fun_with_numbers_numbers_21_to_english": {
+    "pack_id": "chapter_1_maths_fun_with_numbers_numbers_21_to_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:20.629396"
+  },
+  "chapter_1_maths_making_10_numbers_10_to_english": {
+    "pack_id": "chapter_1_maths_making_10_numbers_10_to_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:20.911537"
+  },
+  "chapter_1_maths_vegetable_farm_addition_and_subtraction_up_to_english": {
+    "pack_id": "chapter_1_maths_vegetable_farm_addition_and_subtraction_up_to_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:21.200844"
+  },
+  "chapter_1_maths_mango_treat_numbers_1_to_english": {
+    "pack_id": "chapter_1_maths_mango_treat_numbers_1_to_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:21.487307"
+  },
+  "chapter_1_maths_finding_the_furry_cat_pre_number_concepts_english": {
+    "pack_id": "chapter_1_maths_finding_the_furry_cat_pre_number_concepts_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:21.767975"
+  },
+  "chapter_10_maths_arithmetic_progressions_english": {
+    "pack_id": "chapter_10_maths_arithmetic_progressions_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:22.091697"
+  },
+  "chapter_8_maths_the_baudhayana_pythagoras_theorem_english": {
+    "pack_id": "chapter_8_maths_the_baudhayana_pythagoras_theorem_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:22.403531"
+  },
+  "chapter_2_maths_which_season_is_it_measurement_of_time_english": {
+    "pack_id": "chapter_2_maths_which_season_is_it_measurement_of_time_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:22.701889"
+  },
+  "chapter_2_maths_playing_with_lines_orientations_of_a_line_english": {
+    "pack_id": "chapter_2_maths_playing_with_lines_orientations_of_a_line_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:22.992159"
+  },
+  "chapter_2_maths_fun_with_numbers_numbers_1_to_english": {
+    "pack_id": "chapter_2_maths_fun_with_numbers_numbers_1_to_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:23.273062"
+  },
+  "chapter_4_maths_elephants_tigers_and_leopards_english": {
+    "pack_id": "chapter_4_maths_elephants_tigers_and_leopards_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:23.557418"
+  },
+  "chapter_9_maths_quadrilaterals_english": {
+    "pack_id": "chapter_9_maths_quadrilaterals_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:23.849829"
+  },
+  "chapter_8_maths_introduction_english": {
+    "pack_id": "chapter_8_maths_introduction_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:24.156272"
+  },
+  "chapter_8_maths_power_play_english": {
+    "pack_id": "chapter_8_maths_power_play_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:24.480364"
+  },
+  "chapter_3_maths_the_surajkund_fair_english": {
+    "pack_id": "chapter_3_maths_the_surajkund_fair_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:24.769871"
+  },
+  "chapter_3_maths_time_goes_on_english": {
+    "pack_id": "chapter_3_maths_time_goes_on_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:25.067895"
+  },
+  "chapter_3_maths_fair_share_english": {
+    "pack_id": "chapter_3_maths_fair_share_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:25.344765"
+  },
+  "chapter_3_maths_what_s_in_a_name_english": {
+    "pack_id": "chapter_3_maths_what_s_in_a_name_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:25.632958"
+  },
+  "chapter_3_maths_introduction_english": {
+    "pack_id": "chapter_3_maths_introduction_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:25.930273"
+  },
+  "chapter_7_maths_finding_the_unknown_english": {
+    "pack_id": "chapter_7_maths_finding_the_unknown_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:26.285635"
+  },
+  "chapter_7_maths_large_numbers_around_us_english": {
+    "pack_id": "chapter_7_maths_large_numbers_around_us_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:26.691651"
+  },
+  "chapter_7_maths_a_peek_beyond_the_point_english": {
+    "pack_id": "chapter_7_maths_a_peek_beyond_the_point_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:27.085157"
+  },
+  "chapter_7_maths_number_play_english": {
+    "pack_id": "chapter_7_maths_number_play_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:27.481791"
+  },
+  "chapter_5_maths_we_the_travellers_ii_english": {
+    "pack_id": "chapter_5_maths_we_the_travellers_ii_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:27.841994"
+  },
+  "chapter_5_maths_far_and_near_english": {
+    "pack_id": "chapter_5_maths_far_and_near_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:28.183593"
+  },
+  "chapter_5_maths_weight_and_capacity_english": {
+    "pack_id": "chapter_5_maths_weight_and_capacity_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:28.529730"
+  },
+  "chapter_8_proportional_reasoning_proportional_reasoning_english": {
+    "pack_id": "chapter_8_proportional_reasoning_proportional_reasoning_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:28.848047"
+  },
+  "chapter_9_maths_statistics_english": {
+    "pack_id": "chapter_9_maths_statistics_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:29.257470"
+  },
+  "chapter_7_science_chapter_10_the_constitution_of_india_an_introduction_english": {
+    "pack_id": "chapter_7_science_chapter_10_the_constitution_of_india_an_introduction_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:29.609917"
+  },
+  "chapter_7_science_chapter_5_the_rise_of_empires_english": {
+    "pack_id": "chapter_7_science_chapter_5_the_rise_of_empires_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:29.935118"
+  },
+  "chapter_7_science_glossary_english": {
+    "pack_id": "chapter_7_science_glossary_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:30.275815"
+  },
+  "chapter_7_science_chapter_3_empires_and_kingdoms_6th_to_10th_centuries_english": {
+    "pack_id": "chapter_7_science_chapter_3_empires_and_kingdoms_6th_to_10th_centuries_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:30.626492"
+  },
+  "chapter_7_science_chapter_2_india_and_her_neighbours_english": {
+    "pack_id": "chapter_7_science_chapter_2_india_and_her_neighbours_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:30.954811"
+  },
+  "chapter_9_science_chapter_2_physical_features_of_india_english": {
+    "pack_id": "chapter_9_science_chapter_2_physical_features_of_india_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:31.298907"
+  },
+  "chapter_8_science_chapter_4_the_colonial_era_in_india_english": {
+    "pack_id": "chapter_8_science_chapter_4_the_colonial_era_in_india_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:31.695365"
+  },
+  "chapter_8_science_chapter_2_reshaping_indias_political_map_english": {
+    "pack_id": "chapter_8_science_chapter_2_reshaping_indias_political_map_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:32.076896"
+  },
+  "chapter_8_science_chapter_5_universal_franchise_and_indias_electoral_system_english": {
+    "pack_id": "chapter_8_science_chapter_5_universal_franchise_and_indias_electoral_system_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:32.440898"
+  },
+  "chapter_8_science_chapter_6_the_parliamentary_system_legislature_and_executive_english": {
+    "pack_id": "chapter_8_science_chapter_6_the_parliamentary_system_legislature_and_executive_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:32.768960"
+  },
+  "chapter_8_science_chapter_7_particulate_nature_of_matter_english": {
+    "pack_id": "chapter_8_science_chapter_7_particulate_nature_of_matter_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:33.108280"
+  },
+  "chapter_8_science_chapter_1_exploring_the_investigative_world_of_science_english": {
+    "pack_id": "chapter_8_science_chapter_1_exploring_the_investigative_world_of_science_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:33.433388"
+  },
+  "chapter_8_science_chapter_10_light_mirrors_and_lenses_english": {
+    "pack_id": "chapter_8_science_chapter_10_light_mirrors_and_lenses_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:33.752029"
+  },
+  "chapter_6_science_chapter_3_landforms_and_life_english": {
+    "pack_id": "chapter_6_science_chapter_3_landforms_and_life_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:34.100761"
+  },
+  "chapter_6_science_chapter_4_exploring_magnets_english": {
+    "pack_id": "chapter_6_science_chapter_4_exploring_magnets_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:34.440471"
+  },
+  "chapter_10_science_chapter_4_globalisation_and_the_indian_economy_english": {
+    "pack_id": "chapter_10_science_chapter_4_globalisation_and_the_indian_economy_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:34.774003"
+  },
+  "chapter_10_science_how_do_organisms_reproduce_english": {
+    "pack_id": "chapter_10_science_how_do_organisms_reproduce_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:35.163638"
+  },
+  "chapter_10_science_chemical_reactions_and_equations_english": {
+    "pack_id": "chapter_10_science_chemical_reactions_and_equations_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:35.584098"
+  },
+  "chapter_10_science_acids_bases_and_salts_english": {
+    "pack_id": "chapter_10_science_acids_bases_and_salts_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:36.008579"
+  },
+  "chapter_9_science_chapter_2_is_matter_around_us_pure_english": {
+    "pack_id": "chapter_9_science_chapter_2_is_matter_around_us_pure_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:36.462967"
+  },
+  "chapter_9_science_chapter_1_matter_in_our_surroundings_english": {
+    "pack_id": "chapter_9_science_chapter_1_matter_in_our_surroundings_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:36.915412"
+  },
+  "chapter_9_science_class_9_science_textbook_is_titled_science_english": {
+    "pack_id": "chapter_9_science_class_9_science_textbook_is_titled_science_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:37.308400"
+  },
+  "chapter_9_science_chapter_10_work_and_energy_english": {
+    "pack_id": "chapter_9_science_chapter_10_work_and_energy_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:37.652834"
+  },
+  "chapter_9_science_chapter_12_improvement_in_food_resources_english": {
+    "pack_id": "chapter_9_science_chapter_12_improvement_in_food_resources_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:37.965127"
+  },
+  "chapter_7_social_science_chapter_11_from_barter_to_money_english": {
+    "pack_id": "chapter_7_social_science_chapter_11_from_barter_to_money_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:38.272080"
+  },
+  "chapter_7_social_science_chapter_3_climates_of_india_english": {
+    "pack_id": "chapter_7_social_science_chapter_3_climates_of_india_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:38.596027"
+  },
+  "chapter_7_social_science_chapter_1_geographical_diversity_of_india_english": {
+    "pack_id": "chapter_7_social_science_chapter_1_geographical_diversity_of_india_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:38.900358"
+  },
+  "chapter_7_social_science_chapter_2_understanding_the_weather_english": {
+    "pack_id": "chapter_7_social_science_chapter_2_understanding_the_weather_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:39.206745"
+  },
+  "chapter_7_social_science_chapter_4_new_beginnings_cities_and_states_english": {
+    "pack_id": "chapter_7_social_science_chapter_4_new_beginnings_cities_and_states_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:39.492080"
+  },
+  "chapter_7_social_science_glossary_english": {
+    "pack_id": "chapter_7_social_science_glossary_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:39.773465"
+  },
+  "chapter_7_social_science_chapter_3_empires_and_kingdoms_6th_to_10th_centuries_english": {
+    "pack_id": "chapter_7_social_science_chapter_3_empires_and_kingdoms_6th_to_10th_centuries_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:40.085209"
+  },
+  "chapter_7_social_science_chapter_2_india_and_her_neighbours_english": {
+    "pack_id": "chapter_7_social_science_chapter_2_india_and_her_neighbours_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:40.382036"
+  },
+  "chapter_8_social_science_chapter_5_universal_franchise_and_indias_electoral_system_english": {
+    "pack_id": "chapter_8_social_science_chapter_5_universal_franchise_and_indias_electoral_system_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:40.688397"
+  },
+  "chapter_8_social_science_chapter_6_the_parliamentary_system_legislature_and_executive_english": {
+    "pack_id": "chapter_8_social_science_chapter_6_the_parliamentary_system_legislature_and_executive_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:40.985353"
+  },
+  "chapter_6_social_science_chapter_3_landforms_and_life_english": {
+    "pack_id": "chapter_6_social_science_chapter_3_landforms_and_life_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:41.305563"
+  },
+  "chapter_6_social_science_chapter_6_the_beginnings_of_indian_civilisation_english": {
+    "pack_id": "chapter_6_social_science_chapter_6_the_beginnings_of_indian_civilisation_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:41.602921"
+  },
+  "chapter_10_social_science_chapter_2_sectors_of_the_indian_economy_english": {
+    "pack_id": "chapter_10_social_science_chapter_2_sectors_of_the_indian_economy_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:41.900644"
+  },
+  "chapter_6_maths_patterns_in_mathematics_english": {
+    "pack_id": "chapter_6_maths_patterns_in_mathematics_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:42.238385"
+  },
+  "chapter_6_maths_number_play_english": {
+    "pack_id": "chapter_6_maths_number_play_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:42.590492"
+  },
+  "chapter_6_maths_playing_with_constructions_english": {
+    "pack_id": "chapter_6_maths_playing_with_constructions_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:43.062695"
+  },
+  "chapter_1_maths_how_many_addition_and_subtraction_of_single_digit_numbers_english": {
+    "pack_id": "chapter_1_maths_how_many_addition_and_subtraction_of_single_digit_numbers_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:43.391162"
+  },
+  "chapter_1_maths_utsav_patterns_english": {
+    "pack_id": "chapter_1_maths_utsav_patterns_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:43.683852"
+  },
+  "chapter_1_maths_how_do_i_spend_my_day_time_english": {
+    "pack_id": "chapter_1_maths_how_do_i_spend_my_day_time_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:43.974713"
+  },
+  "chapter_1_maths_so_many_toys_data_handling_english": {
+    "pack_id": "chapter_1_maths_so_many_toys_data_handling_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:44.270718"
+  },
+  "chapter_1_maths_lina_s_family_measurement_english": {
+    "pack_id": "chapter_1_maths_lina_s_family_measurement_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:44.551719"
+  },
+  "chapter_1_maths_how_many_times_multiplication_english": {
+    "pack_id": "chapter_1_maths_how_many_times_multiplication_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:44.843860"
+  },
+  "chapter_1_maths_introduction_english": {
+    "pack_id": "chapter_1_maths_introduction_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:45.152132"
+  },
+  "chapter_1_maths_what_is_long_what_is_round_shapes_english": {
+    "pack_id": "chapter_1_maths_what_is_long_what_is_round_shapes_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:45.440938"
+  },
+  "chapter_1_maths_how_much_can_we_spend_money_english": {
+    "pack_id": "chapter_1_maths_how_much_can_we_spend_money_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:45.724891"
+  },
+  "chapter_10_maths_quadratic_equations_english": {
+    "pack_id": "chapter_10_maths_quadratic_equations_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:46.090296"
+  },
+  "chapter_10_maths_probability_english": {
+    "pack_id": "chapter_10_maths_probability_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:46.627766"
+  },
+  "chapter_10_maths_real_numbers_english": {
+    "pack_id": "chapter_10_maths_real_numbers_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:47.005670"
+  },
+  "chapter_10_maths_polynomials_english": {
+    "pack_id": "chapter_10_maths_polynomials_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:47.365765"
+  },
+  "chapter_10_maths_circles_english": {
+    "pack_id": "chapter_10_maths_circles_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:47.776821"
+  },
+  "chapter_10_maths_coordinate_geometry_english": {
+    "pack_id": "chapter_10_maths_coordinate_geometry_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:48.219387"
+  },
+  "chapter_10_maths_some_applications_of_trigonometry_english": {
+    "pack_id": "chapter_10_maths_some_applications_of_trigonometry_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:48.611762"
+  },
+  "chapter_10_maths_pair_of_linear_equations_in_two_variables_english": {
+    "pack_id": "chapter_10_maths_pair_of_linear_equations_in_two_variables_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:48.997041"
+  },
+  "chapter_10_maths_introduction_to_trigonometry_english": {
+    "pack_id": "chapter_10_maths_introduction_to_trigonometry_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:49.645042"
+  },
+  "chapter_10_maths_introduction_english": {
+    "pack_id": "chapter_10_maths_introduction_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:50.047630"
+  },
+  "chapter_10_maths_areas_related_to_circles_english": {
+    "pack_id": "chapter_10_maths_areas_related_to_circles_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:50.401057"
+  },
+  "chapter_10_maths_surface_areas_and_volumes_english": {
+    "pack_id": "chapter_10_maths_surface_areas_and_volumes_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:50.826927"
+  },
+  "chapter_10_maths_triangles_english": {
+    "pack_id": "chapter_10_maths_triangles_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:51.504740"
+  },
+  "chapter_10_maths_statistics_english": {
+    "pack_id": "chapter_10_maths_statistics_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:52.008156"
+  },
+  "chapter_8_maths_area_english": {
+    "pack_id": "chapter_8_maths_area_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:52.439593"
+  },
+  "chapter_8_maths_fractions_in_disguise_english": {
+    "pack_id": "chapter_8_maths_fractions_in_disguise_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:52.812974"
+  },
+  "chapter_8_maths_exploring_some_geometric_themes_english": {
+    "pack_id": "chapter_8_maths_exploring_some_geometric_themes_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:53.154465"
+  },
+  "chapter_8_maths_tales_by_dots_and_lines_english": {
+    "pack_id": "chapter_8_maths_tales_by_dots_and_lines_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:53.494464"
+  },
+  "chapter_8_maths_algebra_play_english": {
+    "pack_id": "chapter_8_maths_algebra_play_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:53.802739"
+  },
+  "chapter_2_maths_introduction_english": {
+    "pack_id": "chapter_2_maths_introduction_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:54.128884"
+  },
+  "chapter_2_maths_decoration_for_festival_addition_and_subtraction_english": {
+    "pack_id": "chapter_2_maths_decoration_for_festival_addition_and_subtraction_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:54.580406"
+  },
+  "chapter_2_maths_shadow_story_togalu_2d_shapes_english": {
+    "pack_id": "chapter_2_maths_shadow_story_togalu_2d_shapes_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:54.870631"
+  },
+  "chapter_2_maths_rani_s_gift_measurement_english": {
+    "pack_id": "chapter_2_maths_rani_s_gift_measurement_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:55.174749"
+  },
+  "chapter_2_maths_a_day_at_the_beach_counting_in_groups_english": {
+    "pack_id": "chapter_2_maths_a_day_at_the_beach_counting_in_groups_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:55.481684"
+  },
+  "chapter_2_maths_data_handling_english": {
+    "pack_id": "chapter_2_maths_data_handling_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:55.771765"
+  },
+  "chapter_2_maths_shapes_around_us_3d_shapes_english": {
+    "pack_id": "chapter_2_maths_shapes_around_us_3d_shapes_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:56.061117"
+  },
+  "chapter_2_maths_fun_at_the_fair_money_english": {
+    "pack_id": "chapter_2_maths_fun_at_the_fair_money_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:56.356067"
+  },
+  "chapter_2_maths_grouping_and_sharing_multiplication_and_division_english": {
+    "pack_id": "chapter_2_maths_grouping_and_sharing_multiplication_and_division_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:56.651407"
+  },
+  "chapter_4_maths_thousands_around_us_english": {
+    "pack_id": "chapter_4_maths_thousands_around_us_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:56.966917"
+  },
+  "chapter_4_maths_measuring_length_english": {
+    "pack_id": "chapter_4_maths_measuring_length_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:57.272293"
+  },
+  "chapter_4_maths_fun_with_symmetry_english": {
+    "pack_id": "chapter_4_maths_fun_with_symmetry_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:57.565203"
+  },
+  "chapter_4_maths_the_transport_museum_english": {
+    "pack_id": "chapter_4_maths_the_transport_museum_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:57.868258"
+  },
+  "chapter_4_maths_shapes_around_us_english": {
+    "pack_id": "chapter_4_maths_shapes_around_us_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:58.210503"
+  },
+  "chapter_4_maths_ticking_clocks_and_turning_calendar_english": {
+    "pack_id": "chapter_4_maths_ticking_clocks_and_turning_calendar_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:58.555689"
+  },
+  "chapter_4_maths_hide_and_seek_english": {
+    "pack_id": "chapter_4_maths_hide_and_seek_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:58.866582"
+  },
+  "chapter_4_maths_introduction_english": {
+    "pack_id": "chapter_4_maths_introduction_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:59.204960"
+  },
+  "chapter_4_maths_sharing_and_measuring_english": {
+    "pack_id": "chapter_4_maths_sharing_and_measuring_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:59.515866"
+  },
+  "chapter_4_maths_equal_groups_english": {
+    "pack_id": "chapter_4_maths_equal_groups_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:29:59.811238"
+  },
+  "chapter_4_maths_data_handling_english": {
+    "pack_id": "chapter_4_maths_data_handling_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:00.116569"
+  },
+  "chapter_4_maths_the_cleanest_village_english": {
+    "pack_id": "chapter_4_maths_the_cleanest_village_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:00.455139"
+  },
+  "chapter_4_maths_pattern_around_us_english": {
+    "pack_id": "chapter_4_maths_pattern_around_us_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:00.746392"
+  },
+  "chapter_4_maths_weigh_it_pour_it_english": {
+    "pack_id": "chapter_4_maths_weigh_it_pour_it_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:01.027745"
+  },
+  "chapter_9_maths_introduction_to_euclid_s_geometry_english": {
+    "pack_id": "chapter_9_maths_introduction_to_euclid_s_geometry_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:01.369880"
+  },
+  "chapter_9_maths_polynomials_english": {
+    "pack_id": "chapter_9_maths_polynomials_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:01.803423"
+  },
+  "chapter_9_maths_circles_english": {
+    "pack_id": "chapter_9_maths_circles_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:02.372824"
+  },
+  "chapter_9_maths_heron_s_formula_english": {
+    "pack_id": "chapter_9_maths_heron_s_formula_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:02.725490"
+  },
+  "chapter_9_maths_linear_equations_in_two_variables_english": {
+    "pack_id": "chapter_9_maths_linear_equations_in_two_variables_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:03.062238"
+  },
+  "chapter_9_maths_coordinate_geometry_english": {
+    "pack_id": "chapter_9_maths_coordinate_geometry_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:03.415046"
+  },
+  "chapter_9_maths_lines_and_angles_english": {
+    "pack_id": "chapter_9_maths_lines_and_angles_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:03.804110"
+  },
+  "chapter_9_maths_introduction_english": {
+    "pack_id": "chapter_9_maths_introduction_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:04.148989"
+  },
+  "chapter_9_maths_surface_areas_and_volumes_english": {
+    "pack_id": "chapter_9_maths_surface_areas_and_volumes_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:04.469282"
+  },
+  "chapter_9_maths_number_systems_english": {
+    "pack_id": "chapter_9_maths_number_systems_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:04.864820"
+  },
+  "chapter_9_maths_triangles_english": {
+    "pack_id": "chapter_9_maths_triangles_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:05.444343"
+  },
+  "chapter_8_maths_proportional_reasoning_english": {
+    "pack_id": "chapter_8_maths_proportional_reasoning_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:05.786964"
+  },
+  "chapter_8_maths_a_square_and_a_cube_english": {
+    "pack_id": "chapter_8_maths_a_square_and_a_cube_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:06.103744"
+  },
+  "chapter_8_maths_quadrilaterals_english": {
+    "pack_id": "chapter_8_maths_quadrilaterals_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:06.524797"
+  },
+  "chapter_8_maths_number_play_english": {
+    "pack_id": "chapter_8_maths_number_play_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:06.839521"
+  },
+  "chapter_8_maths_a_story_of_numbers_english": {
+    "pack_id": "chapter_8_maths_a_story_of_numbers_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:07.170627"
+  },
+  "chapter_8_maths_we_distribute_yet_things_multiply_english": {
+    "pack_id": "chapter_8_maths_we_distribute_yet_things_multiply_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:07.478741"
+  },
+  "chapter_3_maths_fun_at_class_party_english": {
+    "pack_id": "chapter_3_maths_fun_at_class_party_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:07.760284"
+  },
+  "chapter_3_maths_house_of_hundreds_ii_english": {
+    "pack_id": "chapter_3_maths_house_of_hundreds_ii_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:08.058548"
+  },
+  "chapter_3_maths_house_of_hundreds_i_english": {
+    "pack_id": "chapter_3_maths_house_of_hundreds_i_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:08.397150"
+  },
+  "chapter_3_maths_fun_with_shapes_english": {
+    "pack_id": "chapter_3_maths_fun_with_shapes_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:08.741193"
+  },
+  "chapter_3_maths_raksha_bandhan_english": {
+    "pack_id": "chapter_3_maths_raksha_bandhan_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:09.174537"
+  },
+  "chapter_3_maths_toy_joy_english": {
+    "pack_id": "chapter_3_maths_toy_joy_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:09.589842"
+  },
+  "chapter_3_maths_give_and_take_english": {
+    "pack_id": "chapter_3_maths_give_and_take_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:09.997997"
+  },
+  "chapter_3_maths_vacation_with_my_nani_maa_english": {
+    "pack_id": "chapter_3_maths_vacation_with_my_nani_maa_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:10.421220"
+  },
+  "chapter_3_maths_double_century_english": {
+    "pack_id": "chapter_3_maths_double_century_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:10.905505"
+  },
+  "chapter_3_maths_filling_and_lifting_english": {
+    "pack_id": "chapter_3_maths_filling_and_lifting_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:11.301376"
+  },
+  "chapter_7_maths_geometric_twins_english": {
+    "pack_id": "chapter_7_maths_geometric_twins_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:11.761621"
+  },
+  "chapter_7_maths_another_peek_beyond_the_point_english": {
+    "pack_id": "chapter_7_maths_another_peek_beyond_the_point_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:12.194418"
+  },
+  "chapter_7_maths_operations_with_integers_english": {
+    "pack_id": "chapter_7_maths_operations_with_integers_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:12.539288"
+  },
+  "chapter_7_maths_connecting_the_dots_english": {
+    "pack_id": "chapter_7_maths_connecting_the_dots_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:12.953935"
+  },
+  "chapter_7_maths_constructions_and_tilings_english": {
+    "pack_id": "chapter_7_maths_constructions_and_tilings_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:13.513909"
+  },
+  "chapter_7_maths_finding_common_ground_english": {
+    "pack_id": "chapter_7_maths_finding_common_ground_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:13.833322"
+  },
+  "chapter_7_maths_parallel_and_intersecting_lines_english": {
+    "pack_id": "chapter_7_maths_parallel_and_intersecting_lines_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:14.200060"
+  },
+  "chapter_7_maths_arithmetic_expressions_english": {
+    "pack_id": "chapter_7_maths_arithmetic_expressions_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:14.651258"
+  },
+  "chapter_7_maths_introduction_english": {
+    "pack_id": "chapter_7_maths_introduction_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:15.052714"
+  },
+  "chapter_7_maths_expressions_using_letter_numbers_english": {
+    "pack_id": "chapter_7_maths_expressions_using_letter_numbers_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:15.492989"
+  },
+  "chapter_7_maths_working_with_fractions_english": {
+    "pack_id": "chapter_7_maths_working_with_fractions_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:15.898007"
+  },
+  "chapter_7_maths_a_tale_of_three_intersecting_lines_english": {
+    "pack_id": "chapter_7_maths_a_tale_of_three_intersecting_lines_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:16.313562"
+  },
+  "chapter_5_maths_shapes_and_patterns_english": {
+    "pack_id": "chapter_5_maths_shapes_and_patterns_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:16.615338"
+  },
+  "chapter_5_maths_racing_seconds_english": {
+    "pack_id": "chapter_5_maths_racing_seconds_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:16.893491"
+  },
+  "chapter_5_maths_the_dairy_farm_english": {
+    "pack_id": "chapter_5_maths_the_dairy_farm_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:17.254945"
+  },
+  "chapter_5_maths_angles_as_turns_english": {
+    "pack_id": "chapter_5_maths_angles_as_turns_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:17.583230"
+  },
+  "chapter_5_maths_symmetrical_designs_english": {
+    "pack_id": "chapter_5_maths_symmetrical_designs_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:17.864245"
+  },
+  "chapter_5_maths_maps_and_locations_english": {
+    "pack_id": "chapter_5_maths_maps_and_locations_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:18.169954"
+  },
+  "chapter_5_maths_grandmother_s_quilt_english": {
+    "pack_id": "chapter_5_maths_grandmother_s_quilt_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:18.465472"
+  },
+  "chapter_5_maths_introduction_english": {
+    "pack_id": "chapter_5_maths_introduction_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:18.817247"
+  },
+  "chapter_5_maths_data_through_pictures_english": {
+    "pack_id": "chapter_5_maths_data_through_pictures_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:19.107509"
+  },
+  "chapter_5_maths_coconut_farm_english": {
+    "pack_id": "chapter_5_maths_coconut_farm_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:19.446513"
+  },
+  "chapter_5_maths_fractions_english": {
+    "pack_id": "chapter_5_maths_fractions_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:19.738932"
+  },
+  "chapter_5_maths_we_the_travellers_i_english": {
+    "pack_id": "chapter_5_maths_we_the_travellers_i_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:20.041329"
+  },
+  "chapter_6_maths_data_handling_and_presentation_english": {
+    "pack_id": "chapter_6_maths_data_handling_and_presentation_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:20.448498"
+  },
+  "chapter_6_maths_perimeter_and_area_english": {
+    "pack_id": "chapter_6_maths_perimeter_and_area_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:20.916178"
+  },
+  "chapter_6_maths_the_other_side_of_zero_english": {
+    "pack_id": "chapter_6_maths_the_other_side_of_zero_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:21.485180"
+  },
+  "chapter_6_maths_lines_and_angles_english": {
+    "pack_id": "chapter_6_maths_lines_and_angles_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:22.215136"
+  },
+  "chapter_6_maths_symmetry_english": {
+    "pack_id": "chapter_6_maths_symmetry_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:22.718089"
+  },
+  "chapter_5_maths_animal_jumps_english": {
+    "pack_id": "chapter_5_maths_animal_jumps_english",
+    "version": "1.0.0",
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "checked_at": "2026-06-04T15:30:23.124763"
+  }
+}

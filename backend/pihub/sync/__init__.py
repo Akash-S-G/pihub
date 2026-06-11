@@ -1,0 +1,1 @@
+"""PiHub sync package."""

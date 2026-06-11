@@ -1,0 +1,2693 @@
+.
+├── AI_CONTENT_GENERATION_QUALITY_AUDIT_REPORT.md
+├── ai_generation_audit_report.md
+├── ASSET_QUALITY_ROOT_CAUSE_REPORT.md
+├── ASSET_REMEDIATION_REPORT.md
+├── backend
+│   ├── content_forensics
+│   │   ├── cleanup_loss_audit.py
+│   │   ├── common.py
+│   │   ├── concept_extractor_accuracy.py
+│   │   ├── concept_loss_root_cause.py
+│   │   ├── deduplication_loss_audit.py
+│   │   ├── formula_retention_audit.py
+│   │   ├── ground_truth_builder.py
+│   │   ├── __init__.py
+│   │   ├── qdrant_retrieval_audit.py
+│   │   ├── run_concept_precision_recovery.py
+│   │   ├── run_explanation_recovery_pilot.py
+│   │   ├── run_formula_intelligence_validation.py
+│   │   ├── run_full_corpus_regeneration.py
+│   │   ├── run_grade8_forensics.py
+│   │   ├── run_grade8_full_regeneration.py
+│   │   ├── run_multi_grade_regeneration.py
+│   │   ├── run_quality_gate_closure_validation.py
+│   │   ├── run_source_corpus_audit.py
+│   │   ├── run_structure_extraction_benchmark.py
+│   │   ├── run_tutor_context_validation.py
+│   │   ├── run_worked_example_validation.py
+│   │   └── source_chunk_classifier.py
+│   ├── content-pipeline
+│   │   ├── app
+│   │   │   ├── auto_ingest.py
+│   │   │   ├── content_pipeline
+│   │   │   │   ├── chunking_smoke.py
+│   │   │   │   ├── chunk_metadata_builder.py
+│   │   │   │   ├── concept_boundary_detector.py
+│   │   │   │   ├── educational_chunker.py
+│   │   │   │   ├── educational_classifier.py
+│   │   │   │   ├── extraction_cleaner.py
+│   │   │   │   ├── formula_preserver.py
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── paragraph_merger.py
+│   │   │   │   ├── README.md
+│   │   │   │   └── section_parser.py
+│   │   │   ├── curriculum_graph
+│   │   │   │   ├── concept_index.py
+│   │   │   │   ├── concept_linker.py
+│   │   │   │   ├── curriculum_router.py
+│   │   │   │   ├── graph_builder.py
+│   │   │   │   ├── graph_storage.py
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── prerequisite_mapper.py
+│   │   │   │   └── topic_relation_builder.py
+│   │   │   ├── educational_intelligence
+│   │   │   │   ├── enrichment_router.py
+│   │   │   │   ├── flashcard_generator.py
+│   │   │   │   ├── glossary_extractor.py
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── multilingual_support.py
+│   │   │   │   ├── pack_compiler.py
+│   │   │   │   ├── quality_evaluator.py
+│   │   │   │   ├── quiz_generator.py
+│   │   │   │   └── summary_generator.py
+│   │   │   ├── __init__.py
+│   │   │   ├── main.py
+│   │   │   ├── retrieval_engine
+│   │   │   │   ├── educational_retrieval_engine.py
+│   │   │   │   └── __init__.py
+│   │   │   └── textbook_ingest.py
+│   │   ├── Dockerfile
+│   │   ├── requirements.txt
+│   │   └── tests
+│   │       ├── test_curriculum_graph_engine.py
+│   │       ├── test_educational_chunking.py
+│   │       ├── test_educational_intelligence.py
+│   │       └── test_educational_retrieval_engine.py
+│   ├── content_pipeline
+│   │   ├── chunk_cleaner.py
+│   │   ├── chunk_merger.py
+│   │   ├── deduplicate_chunks.py
+│   │   └── __init__.py
+│   ├── content_quality
+│   │   ├── common.py
+│   │   ├── flashcard_evaluator.py
+│   │   ├── grade8_concept_preservation_runner.py
+│   │   ├── grade8_quality_runner.py
+│   │   ├── __init__.py
+│   │   ├── quiz_evaluator.py
+│   │   ├── reader_evaluator.py
+│   │   ├── summary_evaluator.py
+│   │   └── tutor_evaluator.py
+│   ├── curriculum-builder
+│   │   ├── 00_PROJECT_SUMMARY.md
+│   │   ├── build_cache.json
+│   │   ├── build_complete_curriculum.py
+│   │   ├── build_curriculum.py
+│   │   ├── build_report_generator.py
+│   │   ├── build_report.json
+│   │   ├── build_reports
+│   │   │   ├── build_report_20260518T131120Z.json
+│   │   │   ├── build_report_20260518T131205Z.json
+│   │   │   ├── build_report_20260518T131608Z.json
+│   │   │   ├── build_report_index.json
+│   │   │   └── build_report_social_20260518T130559Z.json
+│   │   ├── build_subject.py
+│   │   ├── bulk_curriculum_compiler.py
+│   │   ├── complete_build
+│   │   │   ├── compilation_report.json
+│   │   │   ├── curriculum_manifest.json
+│   │   │   ├── curriculum_scan.json
+│   │   │   ├── enrichment_registry.json
+│   │   │   └── pack_registry.json
+│   │   ├── curriculum_build
+│   │   │   ├── curriculum_manifest.json
+│   │   │   └── curriculum_scan.json
+│   │   ├── curriculum_manifest_builder.py
+│   │   ├── curriculum_retrieval_benchmark_report.json
+│   │   ├── curriculum_retrieval_comparison_math.json
+│   │   ├── curriculum_scanner.py
+│   │   ├── curriculum_validation.py
+│   │   ├── enrichment_registry.py
+│   │   ├── folder_parser.py
+│   │   ├── IMPLEMENTATION.md
+│   │   ├── __init__.py
+│   │   ├── language_detector.py
+│   │   ├── master_pack_registry.py
+│   │   ├── pack_validation_report.json
+│   │   ├── QUICK_START.md
+│   │   ├── README.md
+│   │   ├── retrieval_validation_math.json
+│   │   ├── scripts
+│   │   │   ├── benchmark_curriculum_retrieval.py
+│   │   │   ├── build_curriculum.py
+│   │   │   ├── build_grade.py
+│   │   │   ├── build_subject.py
+│   │   │   ├── build_utils.py
+│   │   │   ├── retry_failed_builds.py
+│   │   │   └── validate_packs.py
+│   │   └── subject_mapper.py
+│   ├── debug_script.py
+│   ├── docker-compose.yml
+│   ├── docs
+│   │   └── api
+│   │       └── api_reference.md
+│   ├── experiment-service
+│   │   ├── analytics
+│   │   │   ├── analytics_models.py
+│   │   │   ├── analytics_repository.py
+│   │   │   ├── experiment_analytics_service.py
+│   │   │   └── __init__.py
+│   │   ├── api
+│   │   │   ├── __init__.py
+│   │   │   └── routes.py
+│   │   ├── app
+│   │   │   ├── ai
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── prompts
+│   │   │   │   │   ├── experiment_prompts.py
+│   │   │   │   │   └── __init__.py
+│   │   │   │   ├── routes.py
+│   │   │   │   ├── services
+│   │   │   │   │   ├── ai_experiment_generator_service.py
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   ├── manifest_repair_service.py
+│   │   │   │   │   └── providers.py
+│   │   │   │   └── validators
+│   │   │   │       ├── __init__.py
+│   │   │   │       └── manifest_safety_validator.py
+│   │   │   ├── builder
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── routes.py
+│   │   │   ├── classroom
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── repositories
+│   │   │   │   │   ├── classroom_repository.py
+│   │   │   │   │   └── __init__.py
+│   │   │   │   ├── routes.py
+│   │   │   │   └── services
+│   │   │   │       ├── classroom_service.py
+│   │   │   │       └── __init__.py
+│   │   │   ├── core
+│   │   │   │   ├── database.py
+│   │   │   │   ├── errors.py
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── observability.py
+│   │   │   │   ├── pagination.py
+│   │   │   │   └── payload_limits.py
+│   │   │   ├── experiment_content
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── models.py
+│   │   │   │   ├── routes.py
+│   │   │   │   └── service.py
+│   │   │   ├── __init__.py
+│   │   │   ├── main.py
+│   │   │   ├── maintenance
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── routes.py
+│   │   │   │   └── services.py
+│   │   │   ├── manifest
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── manifest_service.py
+│   │   │   │   ├── migrations.py
+│   │   │   │   ├── models.py
+│   │   │   │   ├── routes.py
+│   │   │   │   ├── template_repository.py
+│   │   │   │   └── validator.py
+│   │   │   ├── services
+│   │   │   │   ├── execution_package_service.py
+│   │   │   │   ├── execution_resolver.py
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── manifest_migration_service.py
+│   │   │   │   ├── manifest_resolver.py
+│   │   │   │   ├── manifest_storage_service.py
+│   │   │   │   └── manifest_version_service.py
+│   │   │   └── sharing
+│   │   │       ├── __init__.py
+│   │   │       ├── repositories
+│   │   │       │   ├── __init__.py
+│   │   │       │   └── sharing_repository.py
+│   │   │       ├── routes.py
+│   │   │       └── services
+│   │   │           ├── experiment_sharing_service.py
+│   │   │           ├── __init__.py
+│   │   │           └── share_signature_service.py
+│   │   ├── Dockerfile
+│   │   ├── domain
+│   │   │   ├── enums.py
+│   │   │   ├── __init__.py
+│   │   │   └── models.py
+│   │   ├── PLATFORM_HARDENING_REPORT.md
+│   │   ├── repositories
+│   │   │   ├── experiment_manifest_repository.py
+│   │   │   ├── experiment_repository.py
+│   │   │   ├── __init__.py
+│   │   │   ├── run_repository.py
+│   │   │   ├── sqlite_run_repository.py
+│   │   │   └── template_repository.py
+│   │   ├── requirements.txt
+│   │   ├── runtime
+│   │   │   ├── experiment_runtime.py
+│   │   │   └── __init__.py
+│   │   ├── schemas
+│   │   │   ├── contracts.py
+│   │   │   ├── experiment_registry_models.py
+│   │   │   └── __init__.py
+│   │   ├── services
+│   │   │   ├── experiment_registry.py
+│   │   │   ├── experiment_run_service.py
+│   │   │   └── __init__.py
+│   │   └── tests
+│   │       └── test_execution_package_closure.py
+│   ├── gateway
+│   │   ├── app
+│   │   │   ├── __init__.py
+│   │   │   ├── main.py
+│   │   │   └── services
+│   │   │       ├── experiment_service_client.py
+│   │   │       └── __init__.py
+│   │   ├── Dockerfile
+│   │   └── requirements.txt
+│   ├── inference-service
+│   │   ├── app
+│   │   │   ├── __init__.py
+│   │   │   └── main.py
+│   │   ├── Dockerfile
+│   │   └── requirements.txt
+│   ├── nginx
+│   │   └── nginx.conf
+│   ├── pack-service
+│   │   ├── app
+│   │   │   ├── api
+│   │   │   │   ├── pack_download_service.py
+│   │   │   │   ├── pack_response_models.py
+│   │   │   │   ├── pack_routes.py
+│   │   │   │   ├── pdf_routes.py
+│   │   │   │   └── preview_routes.py
+│   │   │   ├── educational
+│   │   │   │   ├── chunk_normalizer.py
+│   │   │   │   ├── concept_coverage_validator.py
+│   │   │   │   ├── concept_extractor.py
+│   │   │   │   ├── concept_false_positive_audit.py
+│   │   │   │   ├── concept_graph.py
+│   │   │   │   ├── concept_models.py
+│   │   │   │   ├── concept_validator.py
+│   │   │   │   ├── educational_concept_validator.py
+│   │   │   │   ├── explanation_recovery.py
+│   │   │   │   ├── formula_intelligence.py
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── learning_objective_extractor.py
+│   │   │   │   ├── structure_parser.py
+│   │   │   │   ├── textbook_builder.py
+│   │   │   │   ├── textbook_models.py
+│   │   │   │   ├── toc_cleanup.py
+│   │   │   │   ├── tutor_context_builder.py
+│   │   │   │   └── worked_example_builder.py
+│   │   │   ├── evaluation
+│   │   │   │   ├── benchmark_questions.py
+│   │   │   │   ├── curriculum_test_suite.py
+│   │   │   │   ├── educational_eval_runner.py
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── quality_scoring.py
+│   │   │   │   └── retrieval_benchmark.py
+│   │   │   ├── main.py
+│   │   │   ├── pack_generator.py
+│   │   │   ├── pack_system
+│   │   │   │   ├── checksum_generator.py
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── manifest_builder.py
+│   │   │   │   ├── manifest_validator.py
+│   │   │   │   ├── pack_metadata_store.py
+│   │   │   │   └── version_manager.py
+│   │   │   ├── pdf_reader
+│   │   │   │   ├── chapter_page_mapper.py
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── models.py
+│   │   │   │   ├── pdf_registration_service.py
+│   │   │   │   └── pdf_repository.py
+│   │   │   ├── semantic_content_pipeline.py
+│   │   │   ├── sync
+│   │   │   │   ├── delta_builder.py
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── pack_diff_engine.py
+│   │   │   │   ├── sync_manifest_generator.py
+│   │   │   │   └── update_resolver.py
+│   │   │   └── validation
+│   │   │       ├── educational_quality_validator.py
+│   │   │       ├── glossary_validator.py
+│   │   │       ├── __init__.py
+│   │   │       ├── pack_validator.py
+│   │   │       ├── quiz_validator.py
+│   │   │       └── retrieval_validator.py
+│   │   ├── Dockerfile
+│   │   ├── requirements.txt
+│   │   └── tests
+│   │       ├── test_pack_manifest_storage.py
+│   │       ├── test_pack_validation_sync.py
+│   │       ├── test_pdf_reader.py
+│   │       ├── test_semantic_content_pipeline.py
+│   │       └── test_textbook_builder.py
+│   ├── pack_validation_report.json
+│   ├── performance_report.md
+│   ├── pihub
+│   │   ├── api
+│   │   │   ├── __init__.py
+│   │   │   ├── main.py
+│   │   │   └── schemas.py
+│   │   ├── backend
+│   │   │   ├── coordinator.py
+│   │   │   └── __init__.py
+│   │   ├── cache
+│   │   │   ├── active_registry.py
+│   │   │   ├── cache_manager.py
+│   │   │   ├── debug_routes.py
+│   │   │   ├── failover.py
+│   │   │   ├── __init__.py
+│   │   │   ├── manager.py
+│   │   │   ├── monitoring.py
+│   │   │   ├── pack_manager.py
+│   │   │   ├── retrieval_optimization.py
+│   │   │   ├── store.py
+│   │   │   └── sync_engine.py
+│   │   ├── deployment
+│   │   │   ├── backend_recovery.py
+│   │   │   ├── cache_hardening.py
+│   │   │   ├── hotspot.py
+│   │   │   ├── __init__.py
+│   │   │   ├── load_manager.py
+│   │   │   ├── monitoring.py
+│   │   │   ├── pack_hardening.py
+│   │   │   ├── startup.py
+│   │   │   ├── sync_recovery.py
+│   │   │   └── validation.py
+│   │   ├── devices
+│   │   │   └── manager.py
+│   │   ├── distribution
+│   │   │   └── pack_manager.py
+│   │   ├── Dockerfile
+│   │   ├── logs
+│   │   ├── monitoring
+│   │   │   ├── health.py
+│   │   │   └── __init__.py
+│   │   ├── network
+│   │   │   ├── discovery.py
+│   │   │   └── __init__.py
+│   │   ├── packs
+│   │   ├── requirements.txt
+│   │   └── sync
+│   │       ├── engine.py
+│   │       ├── __init__.py
+│   │       ├── manager.py
+│   │       └── sync_engine.py
+│   ├── pihub5.md
+│   ├── PIHUB_BACKEND_ARCHITECTURE_UPGRADE_REPORT.md
+│   ├── scratch_regenerate.py
+│   ├── scripts
+│   │   ├── ai_content_generation_quality_audit.py
+│   │   ├── audit_pack_storage.py
+│   │   ├── chunk_metrics.py
+│   │   ├── content_extraction_audit.py
+│   │   ├── content_quality_audit.py
+│   │   ├── content_quality_audit_v2.py
+│   │   ├── full_corpus_regeneration_api.py
+│   │   ├── full_curriculum_api_certification.py
+│   │   ├── grade8_semantic_validation.py
+│   │   ├── integration_test_suite.py
+│   │   ├── pack_content_quality_validation.py
+│   │   ├── pack_publication_integrity_audit.py
+│   │   ├── pack_runtime_inventory.py
+│   │   ├── pack_sync_contract_audit.py
+│   │   ├── performance_benchmark.py
+│   │   ├── publish_runtime_packs.py
+│   │   ├── regenerate_damaged_packs.py
+│   │   ├── repair_legacy_pack_from_qdrant.py
+│   │   ├── retrieval_evaluation.py
+│   │   ├── selective_pack_sync_audit.py
+│   │   ├── semantic_content_pipeline_audit.py
+│   │   └── textbook_catalog_report.py
+│   ├── shared
+│   │   ├── config.py
+│   │   ├── curriculum_graph.py
+│   │   ├── __init__.py
+│   │   ├── pack_schemas.py
+│   │   ├── schemas.py
+│   │   ├── text_normalization.py
+│   │   ├── topic_normalization.py
+│   │   └── vector_store.py
+│   ├── storage_audit_report.md
+│   └── test_qdrant.py
+├── BACKEND_ARCHITECTURE_DEEP_DIVE.md
+├── BACKEND_CONTENT_PIPELINE_AUDIT_REPORT.md
+├── BACKEND_EXPLORATION_INDEX.md
+├── BACKEND_INFRASTRUCTURE_MAP.md
+├── BACKEND_QUICK_REFERENCE.md
+├── backend_stabilization_summary.md
+├── backend_tree.txt
+├── build_reports
+│   ├── build_report_maths_20260518T130646Z.json
+│   └── build_report_social_20260518T130612Z.json
+├── chunk_normalization_report.json
+├── CURRICULUM_PUBLICATION_CLOSURE_REPORT.md
+├── documentation_inventory
+├── DUPLICATE_CURRICULUM_AUDIT.md
+├── EDUCATIONAL_CONTENT_FORENSICS_REPORT.md
+├── EDUCATIONAL_SOURCE_CORPUS_AUDIT.md
+├── EDUCATIONAL_STRUCTURE_EXTRACTION_REPORT.md
+├── EXPERIMENT_CONTENT_CERTIFICATION_REPORT.md
+├── FLASHCARD_QUALITY_CERTIFICATION.md
+├── full_corpus_regeneration_report.json
+├── FULL_CORPUS_REGENERATION_REPORT.md
+├── full_corpus_regeneration_state.json
+├── full_curriculum_api_certification.json
+├── FULL_CURRICULUM_API_CERTIFICATION_REPORT.md
+├── grade10_pack_inventory.json
+├── grade10_quality_report.json
+├── grade6_pack_inventory.json
+├── grade6_quality_report.json
+├── grade7_pack_inventory.json
+├── grade7_quality_report.json
+├── GRADE8_FINAL_QUALITY_GATE_REPORT.md
+├── GRADE8_FULL_REGENERATION_REPORT.md
+├── grade8_regeneration_report.json
+├── grade9_pack_inventory.json
+├── grade9_quality_report.json
+├── graphify-out
+│   ├── cache
+│   │   ├── ast
+│   │   │   ├── 00516ee7bbef7958ffed863c8c7358c18843f30aa2b6fc1d128da0cb28dcc5c3.json
+│   │   │   ├── 019f6eca15bb8e59fb650a155ac0ec28fd890f2fb237433562927d245f7b5eea.json
+│   │   │   ├── 01b804bd4995b0b09ddecec5872dedbcea4d73433b8700bb413385895a55644d.json
+│   │   │   ├── 01c762c3ca13d3b27edf95503cf3f645ccf17b60a242709445bf1c6234007b19.json
+│   │   │   ├── 02d125158bb81f5fd8b0c0d13bb841df9f58c0488b73713bfb94affe1da7ca32.json
+│   │   │   ├── 03452c51b504652f1e2e060584cb2fa055a2c7f195afe22e3ed81542e8c5bce7.json
+│   │   │   ├── 056a81953efbcf92fa3ab4c99cf2bc9882e39b4380a6e875e51bb7e87b69055d.json
+│   │   │   ├── 05e25ee95cadee68569058387419a85484629dd85ae91a7372579244fd33bacf.json
+│   │   │   ├── 0679d700dee88d82cc504a686e14a235892797c6776d5e40cfd034cab7d50f8f.json
+│   │   │   ├── 068e3e02a7e65c8d0b131b8a99e61984912c022e4301626624584292d96f6631.json
+│   │   │   ├── 077b5c88c8a63db8b686b92e3a2d8c6b069db2c7c5b751bd8743fd86231f9592.json
+│   │   │   ├── 07a02aa0c3dcff977be56473004ddbd534fbe2542f1249a089cd2ba84db9ed21.json
+│   │   │   ├── 081c04970bcd766e34dc9324293aa401594c2746fb47a5f1a25c29b5950bd1cb.json
+│   │   │   ├── 08f90bd720cd74e38b09ff255311fd06850b9b6618d47acaa85757211785ed48.json
+│   │   │   ├── 09b5dd172fa01e3b7abff9b65b14c3324b2ee15fe48cb97ae805ea81c6cbd991.json
+│   │   │   ├── 0af1b3f9a0afd897367f55c18e9f3e84a1c61e47c6d0e456ffdb06a2306eeba5.json
+│   │   │   ├── 0b480baf277be4dbe5bbe8e4d0c600f2c1711ae1522d3ea099a1a098833f3e0a.json
+│   │   │   ├── 0b7f1cf13c38cc69ce91d4ab6f5ce479ab9e6c6d699b5d9d886f29e7f2ed154b.json
+│   │   │   ├── 0c19161094ee066dd3a6dba4c95872d9ad749998c156d55e890272880e04a394.json
+│   │   │   ├── 0c4f73e7897490051e64511c7cb81aebcef4a4a7b06c33fd68ae74d09e2eaf02.json
+│   │   │   ├── 0c864f94b8cd9c05e28969ce6a6edc70761fec14ec601cc924f5963201b63932.json
+│   │   │   ├── 0d41c7a02d23ee51d8c1adcb351c0cc60b7e871a89cc0961856b512529c6a939.json
+│   │   │   ├── 0d48e87b9adea40b61ab153c4f7832892b5ff5d514ccff114b07d338f84ee21c.json
+│   │   │   ├── 0e21a5b24f159349bce6f90ae3ae6e9eb0345f635334e76bc465e0988ee7d94d.json
+│   │   │   ├── 0e359aaa2a3718997afa36744d1813d3f799dfdf0bc9d8b5aa483f0dd7587561.json
+│   │   │   ├── 0efe7ed5d94bf582fa9d5d87981c6e383bbe4fea627c1caf8145af8930d2d97b.json
+│   │   │   ├── 0f86775face991688c8c1908c29acbad9e7c92246c5b44cf88f54937499b2cdd.json
+│   │   │   ├── 1065a6e6c344edc8ee7432df53aa0f471f6e0ac85b8ca8efbcc0e02792f73c7e.json
+│   │   │   ├── 1136c23773fad17c82a66728a0b2cba5d869609b57655f59322f94c190235d31.json
+│   │   │   ├── 114b3f080058f5628c7d7f73a611461e66c4f3c60aaa0099de0847562f6f0e3b.json
+│   │   │   ├── 1208bf6d30161769ffefbb7e3d6c1acd79fe48a21c1abe11e659cf73b8b08baa.json
+│   │   │   ├── 12299ddc7a9976221b6979a7cea99f730df549fec07772dbc66d649488593e52.json
+│   │   │   ├── 125e700508f352e4de59208c3d1f5b4ce4a3e3be6a7bdfd1775ea300916e18e2.json
+│   │   │   ├── 12c3cac4e1a2544abcf5053b017277e5dc5c04d4976ad5f88edf68678e198392.json
+│   │   │   ├── 12eac24c135bdbb3f815ac134caf0243bd3aedb654f88d4a03548c921597bb1f.json
+│   │   │   ├── 1331c6e01e59e70dd8c0b8ade7a50d75e7feb3789094bb0e8a10d541a8cadb32.json
+│   │   │   ├── 133bdd3ba7d4baf6b88e7307b29f0b501aba2d0a46d82fc8b9f1dc8f488cccf0.json
+│   │   │   ├── 1487a1f410a7719c3c121a6d5440cc97e8fe35137f2e8cb7559c9416cb75bd9a.json
+│   │   │   ├── 1696bd7600f2e5475bbfd989a1fbc02f3b92c177d3eafeddcae84b3e1cac2f19.json
+│   │   │   ├── 17649fc95ffffe2d81969d1b72a7636dd90eac35e0fa15104ae8e043a15ab02a.json
+│   │   │   ├── 19d03d23e21eaee779b23a6e754b2ff059b8b000394ca09e9683a7696c66d419.json
+│   │   │   ├── 1b097ea1637d66fbed6463c74c19b61a1199698269012bc82a281d69132a2929.json
+│   │   │   ├── 1b13ce372546f5d19a26ebe3784e4704370225a20c2e4fcf4fc682e42f286f08.json
+│   │   │   ├── 1d9df60d1db1e23d0fdbd9969d452495a9a73f95944dbb0a2d5eed501d740ac1.json
+│   │   │   ├── 1dd0af3cf83299e5810b698438a8b9e8bd6192491bb58c3cd01419ee3e8b701f.json
+│   │   │   ├── 1e6b3b072e1cac64bba8728fe6be6e3871509fe58cb74c85d71736d4716a680c.json
+│   │   │   ├── 1ea28aeb568c18c5808dd306f635c11c9af00937aba6c1e28ec81c91c4aba775.json
+│   │   │   ├── 1ebdfa8ecc2b124c9822e62887ae1b3f6b7443a9bb5f07a8b4fc6d63dada6d31.json
+│   │   │   ├── 1f882ba7c9f69a65119b77a629d7c2fcd31baa8da82f91c23b0a600db4f21505.json
+│   │   │   ├── 2115f1dc496f319b157254c6db43a9933559bba280e56f44f7520a620e9cead5.json
+│   │   │   ├── 21262d161e2fe71d605745f500064c31a2fdd4b787c6d59830f17c555f308e78.json
+│   │   │   ├── 213b795c58bbccb5c92c5df4a0bd66ff4115b7ac0041ffaa101664191afc3566.json
+│   │   │   ├── 214a67ecb39f42fb8d28613857132dd82a39e15857b5a9ee334df479b273df3f.json
+│   │   │   ├── 219c757b7468d028ac9444636184316bc40ff11d388923c6e4a23b0777a4491a.json
+│   │   │   ├── 22ee6fd26016be57c71e53919205030f0f57fab0f4cf8f9988807f40546c6184.json
+│   │   │   ├── 23001ea01d6198c19723af706d4e40b61eb93e7a8e52915d49950979132e0f2c.json
+│   │   │   ├── 230aef9480b303979aab32b4875516e08dbb434f6c275a9595814e577a30dfdb.json
+│   │   │   ├── 2548e8ce224b180d66f04f550b8f61919cc12c209fd2ea67a7960e9104eab0fc.json
+│   │   │   ├── 257c3656d517492c1e908837af0c7bd649c66a6c0b237bcce81afa88a064b684.json
+│   │   │   ├── 258ef8d0af7cb34c4587989f05a2aab0a52f9ac86c93193b4f78a8fad2ed1aec.json
+│   │   │   ├── 25d0f309a9fcd8118cab5b578c8a02732ca4b19ae41debcbdd3d0a07f92986db.json
+│   │   │   ├── 25f59eae55dcbc1e00b6c04fdd35c01dfd8304cd92e49c19cef3fdfbcc106169.json
+│   │   │   ├── 26ed4af372dff4dc2032bef1d0cbd2e7e117f1330aa16dbe90028fde5fd1342d.json
+│   │   │   ├── 2705225bea6e2b265a209312a670ef2f6a6565dd79a1f3658fba2dea671b14ac.json
+│   │   │   ├── 2711a781f744c21899246a1b3e13809ce955c96b292817891e70940302b22e62.json
+│   │   │   ├── 27abafc07d47a430b8228bc7e6ed0fc440c72c8ef38b4a436b7be63b997371e3.json
+│   │   │   ├── 27e18283aa53f120af818d3f18aa06f5465d279bff25c3b7183aed0dba528685.json
+│   │   │   ├── 28254d6346224c3a3bd175805a624b0e55eee85ce140140ab16d2e2db5bc7d6f.json
+│   │   │   ├── 2825a678cabf01d10f0c9809c8c4c16fb784d8fdbbdb3d7806a3c44b66f9872e.json
+│   │   │   ├── 28c29015044ef5f79ff15b2365ff36c0d1b154df3fba5bcd5a10c04f0961b1a9.json
+│   │   │   ├── 2918e1b6b6bca5ff97d22be99b90d14925eda8270235acf979738fb0b5913efc.json
+│   │   │   ├── 292d3239d8a42d0bf5c8f19523b005a6bca3aef861c126fe0f67964ed3037a0f.json
+│   │   │   ├── 29bfc401b87e41ca7fba3e9a6ee12204ee1da79f4a85f57b8a4c0a28389c7c3d.json
+│   │   │   ├── 2b571dc0cd2a4290391ee1ad97b35637f7030c0a0922168b242676e45bfd6c3e.json
+│   │   │   ├── 2c9b57c86079851662eea4d73c6c639bad4ec7763f89308a0d07770fcf435762.json
+│   │   │   ├── 2cc588c9b55e0ca1f527755f0506cf2d9803d49595e61952a086d42f36dc82b5.json
+│   │   │   ├── 2d76b90bb52803e88a3e0adb94e560f02737b0de1a8c3c410b65678a1f6443a3.json
+│   │   │   ├── 2e6ff75552443e30b924f33356db462f0283e6ef92f38aeb94cf6305243e05d8.json
+│   │   │   ├── 2f11c0073a20bab2bd341a17f1a2c38282160093a44fb77bc0d1f8a4d0ca7865.json
+│   │   │   ├── 2f34805198bb5101e59affe27b25c0812ce61bf4206ef37b998698a8cc8d7f8a.json
+│   │   │   ├── 31870db0255b95c1bb6d935645107fbfdb2d76809b8492586623bba317dd4884.json
+│   │   │   ├── 31a64d2c4f95a1772f0233f577304ea3073e1811c7f37ab0c44845be9878e2a5.json
+│   │   │   ├── 32c27dbe79a66c3e65bcd88fa6e66976e419153469da1e12a6696755ae1ccb09.json
+│   │   │   ├── 33f7b75e3b96e0e0790cceeae4a5b0c1a9cc52ede3ee69b531c317057a621082.json
+│   │   │   ├── 34e9807ab65505d75646b44ef130d62be016d192e6ec2d48afdf8dc9827dbf04.json
+│   │   │   ├── 3504dcbdc03ad43028a687874d98fe540c248d93745fcbaac97539f7be044617.json
+│   │   │   ├── 35a81a960573438691a15ca96696ea8121492c11d926248bd3da84c9bb9f1b21.json
+│   │   │   ├── 36e4240d468836dd15e31b2bccadd5706732a9459a54d0aba7ba33b75b249f6c.json
+│   │   │   ├── 374c82aa77c4d7c295575120e71486229aa41d449f9bfbebab0281b4e7db2888.json
+│   │   │   ├── 376a2dfe5dd986ac8ad43cd41e6a22b9bb50c43631b7300a5dfd8693a8118742.json
+│   │   │   ├── 379267950e976a2d01d7194117b4f0d6bb5e75984dd8376b133445c2e7f48396.json
+│   │   │   ├── 38b6953bfa8dae1ff6035756363e2f9d5d9c8fd1d5acb46b9bbf42d8a1500210.json
+│   │   │   ├── 3e3616390a91e8a6f1e387195d880d96dab50da3858fc5c48fbe3ff91d518188.json
+│   │   │   ├── 40b23983edbc6f1b7f0545c3592433058a981b01399b29d9ebe693c9590250c5.json
+│   │   │   ├── 40f027f317fc5d2e7d6f2b47131730733ee5b3e735a86f5d318c6f4086873fae.json
+│   │   │   ├── 410e1766c6e55814dab542dd2e55fb9fb78b58aa5290d0b2e9a22ed4e569bf59.json
+│   │   │   ├── 424bfa955045b7797b4b1bfdc97ce0dd80c1622c05192497855d5ae28adbf103.json
+│   │   │   ├── 427d0ac562159b85e1b3e84896aea86d5b9eab84fe0de215e7dd89529d1dfc5a.json
+│   │   │   ├── 42c06cba4cc045eda46b773190a9c421d47253bd22557be9190e5a8c4de21dc1.json
+│   │   │   ├── 438e2a2e3d3756ada0f2ec6789c6046d2c753b142c6f0f00c76fc2125f33e3f5.json
+│   │   │   ├── 444412cff790819e4acea750c1fa4bcce87ebf49da53b6c5ee1bb9f09d906a5f.json
+│   │   │   ├── 4583598eef2003c5ebd006ad5f2bcc3e951e0ee14d9261c09cb0c11eb33bef19.json
+│   │   │   ├── 468f750ceaa93f173f7d2e9dc405bf9e1e17911cb18c00ac44f0bc6c25050da9.json
+│   │   │   ├── 46eb5a8888f6d16f8e8ac5ceebc6c4317b51993afe0958845409c123de0e7048.json
+│   │   │   ├── 46f820e7d3ebdb6e3bf041cb605980e3d45067d59505c97c3735684e7e88506e.json
+│   │   │   ├── 4778fa6f9fbb571efebd151a6ca91f8ea1b3642b06712a972ddef84f2bb33bee.json
+│   │   │   ├── 4885233276624db7225ebcafac6462c8aeca504c39b8884b3a3f28433f13fe8b.json
+│   │   │   ├── 49e50dbeeb55443a2d78bd64a1ec790282353d950743f479cd46a6356a0970fd.json
+│   │   │   ├── 4af09a64a872318cb2b16985b4019ac651711e6d5d7a495bd43795fb2085250c.json
+│   │   │   ├── 4b7ce2237752c85624cd29f1d2ef8b087f62940d493ee459bbda73ccffedfec3.json
+│   │   │   ├── 4bacce692a2647af624ba2ddadbf558797337b90854b005e730c45684d8404bd.json
+│   │   │   ├── 4c0b40eed51308c4bd2ee9cce09d8596a00b09d5f884499e7730e3bb664b4086.json
+│   │   │   ├── 4d721f38e79932fa3f827cab742e733aef0d37709dec4e318a9c1a233cf3d116.json
+│   │   │   ├── 4e8499abdfffff45d02dfb6614ee361bbe35992ca3dfa803ae583ff4145b8a1a.json
+│   │   │   ├── 4f2e92c2203b361f27411ab2e47794245a4c4a87753a90f6cf91b9ec0244c738.json
+│   │   │   ├── 4f5d054529030646dc866c5c226260a903ffa5825113591266ea4318478af824.json
+│   │   │   ├── 4f74f14c56a1744195043d6b88c8a10e6679f47aadaa4d45770be3e1d409d8eb.json
+│   │   │   ├── 5029f499f60fdbff0685354cc34ea27a66ac477d746255af83461a55332ab5ff.json
+│   │   │   ├── 502e3b99918a46bb1afd47c6dd4d24591e6429ed2b5ceff529840f6414b2d249.json
+│   │   │   ├── 5102077dcef5c34be60a9d739483fd10e99235d27b1f9fed1b511d38e31ae551.json
+│   │   │   ├── 51446648a5d534e6853f43c00250e7df8cbe464ccab7e89e33830d02d65c2b45.json
+│   │   │   ├── 5371fe36a22ac87a4ba4c4a10e2d8247fc3c4dc29d0926790aa096da153ba310.json
+│   │   │   ├── 53b1cb72937dd372a2d32d73d52a5152ba132f3b66eee13aafddfb915e08cd72.json
+│   │   │   ├── 540ff1b047a308fca1e539a940d7bdad2edcf76e4f7cf220800b3cdab44d0bab.json
+│   │   │   ├── 542fe5557ea3cb33c4d3d4371535e5c5c3a59ab288e7f436b6ea9d7a2a654111.json
+│   │   │   ├── 546e80e771b777544931b4605b3be201de3be2d8319e162562fca17dfa7b4e44.json
+│   │   │   ├── 54b67ba6941685b0a539643ae1bbdf778cc0ed44b199e8e40b3a36b1073762fe.json
+│   │   │   ├── 54c0b48bd833934340e0ba100d924c455c44a376167e3970f354b982d9cc1d5a.json
+│   │   │   ├── 55249dba802dfbceea9160848ca77905cd97fc4e58f3b5337cb9bb9cea0c336d.json
+│   │   │   ├── 57f771937dc67f1c1b4413716cbbb9d95a3509b9e3d8bdc2b2987877f61c1d11.json
+│   │   │   ├── 5815569f16e5cc58af6a65bf7619a632e28dc63625ca6b1504600577ba61c0f6.json
+│   │   │   ├── 5892ce5e79035ad0821f013040ec48b75292d868aa70b743ddb58972d1407cde.json
+│   │   │   ├── 5920ff9f7c60f8a78cbd5e0141e5a539c7bdf6b04903494cf88f65f92d606bd0.json
+│   │   │   ├── 5afbb012e3be4fdf3f7e259735f33e259630643d69439d32cfbd222c9863911d.json
+│   │   │   ├── 5b31ff9e9b7c86f833b739d80ff72f656ed6519526660ad0634e18780960867b.json
+│   │   │   ├── 5b673c346b1466a6435a5ed3db95462a6f6da6856389c59c3139b25e21d07307.json
+│   │   │   ├── 5c259f43d4a825e2a29925fa85d79f470798f5012029b884434b7ece752b20d7.json
+│   │   │   ├── 5c6fc6309bb6b89cd46792164f2f66463b58f690a84eae5f461821cedc3d89f4.json
+│   │   │   ├── 5c8047ef27c9976473be7b007251bb16a5f3ada9fd638a7e7578068f603a0629.json
+│   │   │   ├── 5cc6bd8ede901f934646c36e9a287da71457f0a534baf5956c7c03df0067b59a.json
+│   │   │   ├── 5e69947c9a935dce95a6daacc1f2bc2b3507bf882691cf3269010b277dbf6f71.json
+│   │   │   ├── 5e7cb0ccd81b79995bc394089fbd1e345b9c2a0659295361379f0fb0f7a16764.json
+│   │   │   ├── 5eb44e3a64dd826358ab4bf2edfffd995fb1bae35e6f55601eab2e8f24493411.json
+│   │   │   ├── 5ef91e84b8baea7cfc6e4ee02d2ce5d6debfdfdce03b31b15c057cfc3f9312f0.json
+│   │   │   ├── 5f7d683614092947f8522d062d3ae75fa399202c08c24936ce7cec0f7986922f.json
+│   │   │   ├── 5fdec7830546daeebbca3fc61cb81d654ec93bd1ed9ff1798479005224cb54bc.json
+│   │   │   ├── 6050941ae89cef735457357afd80c079c641cbbc66898b4b7c43410f65acee27.json
+│   │   │   ├── 6138aa8ee72be8557c5b5f55b44bd034fabb40bf1eec343102e71a7bfc594223.json
+│   │   │   ├── 61869e5af4ab51ff6ff3d058942b2bd8a7028d0e82d4e8f3c7cef83b6558226c.json
+│   │   │   ├── 61a5f4289ffc2cdb1b014ec628cc08f3cdeb3d7ba226d82d8385c0d699ee4f1a.json
+│   │   │   ├── 62b31dc6d5c48ad0752556877b3f5d1f5f28cb2e10db2cfd3e3fd031a3303851.json
+│   │   │   ├── 6301e81a9113e3fe1201ed768d9bc7212346cbd299bfe6f90a1f32bea37c2747.json
+│   │   │   ├── 631c44b1bc4822ae499afd98658bd8eb35809e5cbe682961dc8434a0ada4c035.json
+│   │   │   ├── 63c120f49c204a4296111bd0d88251b97b33ca1fcc7556b5ad348f8ef2187287.json
+│   │   │   ├── 63cbb01f2127f46d0f1fa9b7bae1a524ba538ca2f6029282c8d6763f2488c27d.json
+│   │   │   ├── 649688429198905e6c54ef77976b7b381a7bea528c34c94df58b88cf4609adec.json
+│   │   │   ├── 6523a90683853850771afaf58f9bab1b29aa0540a86563024f04ba7df3cd7030.json
+│   │   │   ├── 686b7ea4eb78f5a034c8e04e09171204070b0453e5198dc855eb9e9da55884a5.json
+│   │   │   ├── 69e494b5261a75f9965b78e689a58ad5e2532f913872b84bf2ddfcd188918681.json
+│   │   │   ├── 69eb398cf9348b15d9b2851ccda185a3ad9ec06e24d5d031451bf2147223545f.json
+│   │   │   ├── 6a16e4f7d2dce2cf4408aeeb2599918b834e5b289fb296ce0238bbf1a3c05a90.json
+│   │   │   ├── 6af1cb2f659031adfa34618742235af9f525ce6613f20aeabd900890fa44173e.json
+│   │   │   ├── 6bc9fd09636acd36fa8c3fe95264d21c8be40aa086782f2cb02d0d3d2e522d5d.json
+│   │   │   ├── 6c5b37f0323cdfc36058800633f9f38b853623a564b5ea91d71ff6b8bf8eb702.json
+│   │   │   ├── 6e0e649fe7b002ba5dc57a590991da8d9132b9f3d6bf949f0d1f97b785279111.json
+│   │   │   ├── 6e45aa8535923439cb4f3c95f65ef425e9a68a2448424e00b741390a9b2a5228.json
+│   │   │   ├── 6ed701ab5470b888571d2eaa1fe0eff4e395c4de3a64eefc827757f9af1c8f1f.json
+│   │   │   ├── 6edae739f863fd9d8034dc3815f825e7fefa825f5f9aee7df29e3b1d80a6b105.json
+│   │   │   ├── 6f550507ea4e106280c47ea65589fa179a4ac4c4423722710de50dc1fbd57826.json
+│   │   │   ├── 6f84897b1638646877340d430e6cb804436c08adf87f4017c52078813bdead11.json
+│   │   │   ├── 71ba221668d9498e2051e97b8ced5cb8cc9a456545b37c437e0ceecd611d8dd2.json
+│   │   │   ├── 71f52c687d05ea95a24f1cd95050561baa514fe4b69d41281464df7cc2475583.json
+│   │   │   ├── 728f8d39d8fba99917510d1fcd44a142c96063a6d730466f932a19d15d727a26.json
+│   │   │   ├── 73e6f260b388e710c0293d08acdaabbd5ec0199b98b1a7e72f4180e04f5aeb18.json
+│   │   │   ├── 743acecabf0633dca0001856be59de35c5a55e2404fa5d935e0f5113a6ce4555.json
+│   │   │   ├── 7453590cda56332bc05a9e953881834b396767c167a2c212495318563e43a23b.json
+│   │   │   ├── 7565f94497b8def6fd9831fbe138973fe9f77d84e2a5840eb6d77fe153585b05.json
+│   │   │   ├── 765b48586140f9f770efb6ee98101056ac871d874abf9012349405106a6ca381.json
+│   │   │   ├── 7aa95d0af1b1df07bb3266bb3ec4f14cf3b1275a0ce99cc8a28d1e5f7302c680.json
+│   │   │   ├── 7b334fa1564daa557158bda15da993e311dc9d40ac9fbafeb02c052044a5737e.json
+│   │   │   ├── 7bb2a61454cf20469ffce2ea6d7567e8fe6b6c024158516d1c9842a0d3f6268c.json
+│   │   │   ├── 7cde9e5e97d936edc3911b2b1189efbc251607864ce553a4c70f9be6f7fd4e30.json
+│   │   │   ├── 7d8d89ec90932691963be0fa33eef47c7e329597f3559cef9743b4e919e4eee0.json
+│   │   │   ├── 7e41b6ebdd194ef8eab144e68795184bc216855182ab135e26fa949b0b435859.json
+│   │   │   ├── 7e727e4ea82327881a3fd4d461d9e727fbad40166905a0150bc94d04ccf9aff1.json
+│   │   │   ├── 7ea3e8e9050f9a70837c6285596d24368e4f5954d00f446e56174902f04346a5.json
+│   │   │   ├── 7ec971df49322541c94b5029fe5670190dfb864f5fbc556fc7f39b621de0752e.json
+│   │   │   ├── 7f10dcce067339e99c28ecd67f462337e31f8c685a6cc916ddc87663ce76c114.json
+│   │   │   ├── 7f6bafa319a462ecad24492ddbd4a90d47565005237b2f5175e28eb6beaca06a.json
+│   │   │   ├── 7fb232a1e46cc803caf83d5c05de50a25f1afae2d325feb8a36bbdb72d3b66fb.json
+│   │   │   ├── 8089384c8a0075ca5a3c8dfd4249986687984b09850026b54b38878584780fbe.json
+│   │   │   ├── 80adb5e74dad86ed59dc4a97a0212945b45b7e8d91c41fa93f154a0e8d2729bb.json
+│   │   │   ├── 80b5092a5b2bb6482c7d225a4a38526d5630a1dc92f66be8bbeee72fa3632234.json
+│   │   │   ├── 81d05d56daf02f8ff20ef7f4f0a2d2fbb582407aef727bee130ac1432f2115d5.json
+│   │   │   ├── 8231a95d9c1ba100a38f2286d1b7c9ace92659403f0401faa6f5ff66352755db.json
+│   │   │   ├── 830da13919e6e36a927b47de3387a59147c62f2ad94253bc8813cf57ed69bd2b.json
+│   │   │   ├── 843fef1783b8e28c531b18db6cb8cfcc508dcc76f3c5bc5deb225a0078766d40.json
+│   │   │   ├── 8487f6a5651d3c7da73e34578af5c4f88059b17cadb394aee29f1207f5c56d61.json
+│   │   │   ├── 84c2630456a9bb80c708cb4992b37cd6918222be9feb27c6fd73402c27fa6b37.json
+│   │   │   ├── 8671582e43594732ddd9c9e6f8026f08a6d25854b1d50989c7140d688539dcf4.json
+│   │   │   ├── 88119beae5c3198ab051339c069e80d153fa85603d023445f1c49643d7b113e8.json
+│   │   │   ├── 890b2eb60575f350baa6b845ae3b86dd1993314eec217263d44a2565597b8b92.json
+│   │   │   ├── 8a68df25dff7fa135ca3be2496de92e8107afc8967722302d0e0bce4316b6a16.json
+│   │   │   ├── 8bd6b1018cdbade87a91d0f74dc365c88f570f9b7735e34336b7aa36e468e5e6.json
+│   │   │   ├── 8c680268c313696a8162fb76dda00d98c2330fbcdd5a818e1c68e97915b93520.json
+│   │   │   ├── 8f143a90324771d0a2c5c58b167c1a832ebcb82534c802871365332c19957e1d.json
+│   │   │   ├── 8f6680305aa4919a7c979b2ea57cd16d6095c903c5789047bc4d0bb65be24761.json
+│   │   │   ├── 8f6b712b535bd73cc903742ab353c1a510001cf681116fb1e9ff1633376e5c47.json
+│   │   │   ├── 8fe56725cc16464ad4e4ad697766ec8b36ba89bc5f8bb1e289b0833550873874.json
+│   │   │   ├── 901963efd4ac4fc0559799beec75eaccea8540ce29504801e7376a26460666fa.json
+│   │   │   ├── 912f0627665538534a544407956671ade5c55504b79ce8cfc160c7cdf398c3d1.json
+│   │   │   ├── 91f95421b35008d159410f1490fff4b6385eca041682bce69202b104fbe43989.json
+│   │   │   ├── 9247cbcb366427910dceb314d3b4061db295645636be30eeda6e72d4f5a56ae1.json
+│   │   │   ├── 926fe72de210376b09ce7b0031b61dacab49fd9e7cd373a1f7879f881af274dd.json
+│   │   │   ├── 94971fdb76d2ef67d2a7d828375a17d74d65fbc9418ff2d6cf3a9295304a8825.json
+│   │   │   ├── 957e1a5c6bd61317ce3c185bc06c668e0fc6f197e2cb8d3fae9fc5ff673523b7.json
+│   │   │   ├── 960ef990abe14945b49331917b4a67deae5efe211e6252bf03f17763713aa81b.json
+│   │   │   ├── 9651ede6924008e50d526d5e6d919922478d96f8aec1cd84588c594e4573f3ab.json
+│   │   │   ├── 9684a4a4423a8c06936c5d0309da98655f0a3d7cdab6effe742d7654adcd3832.json
+│   │   │   ├── 97714b59915f044004bc9319e44d66440bdb76933db03c2f3f0e2d668a8b165f.json
+│   │   │   ├── 978e86258b197c24b91b00e520387dd367afc1eed82ac51ba02138e236c71865.json
+│   │   │   ├── 97b606f313d29a7574a1dd5dfd61d8d8a4976c0604a43086c1186cf7ea946583.json
+│   │   │   ├── 98035fda6de8e3ae5cd61c626c31b93aa68e7e492290cd82befddac7882765d3.json
+│   │   │   ├── 9832f93da148a4e6b729893baa96921b285fc4c429cae0501c1d664295a61a58.json
+│   │   │   ├── 9840eeb9c8fe97adb68eb7e81b3be74768b562463e1ebbc1fba393e4209e7141.json
+│   │   │   ├── 98ae124b75ac796252a1bbdf2d3976f9ab60898ee8235fa571dfefbfa04fda4e.json
+│   │   │   ├── 991c75b9aa9a6b9779f8e52545a142cf79468bdffb76bdd99faf668239ca0389.json
+│   │   │   ├── 996c3b6432cbe454710794b26d2142148c31742e9dbc3fa80c7fe73363407665.json
+│   │   │   ├── 9a6f7ec32c787c8bd4719cd3bf4f9e15c2e907a6698f3e0a4e81c9a4fa40a15c.json
+│   │   │   ├── 9b0b4d0744fa9131799ebd793bfd9b57f7cb1474f37978cad400aefdeef3fa35.json
+│   │   │   ├── 9bc166764323f333bfb628814e0320e5e26e4e279a4330a71843287c3f6b79d1.json
+│   │   │   ├── 9d263a1cafa39bd6792ea46ad6f14cc441e6901a0ff14a0b19a9f4ccd1d92466.json
+│   │   │   ├── 9d869d54808525cde81b68965d92f7409fffb86007297667210cdfedaae31ea5.json
+│   │   │   ├── 9dd3d5387abe42db9af38c089b881c5d0f59950b29b088b929ab09ad41d2f773.json
+│   │   │   ├── 9ee4f117757a9672ca66893e6c496b17257f9cf2e08d3a5f1ac6f68aface1ee9.json
+│   │   │   ├── 9f4584292ad95dcab36bf6d8014f89e8bb133d73c9b80b67d1820e29962a67a1.json
+│   │   │   ├── 9f70708c460604f4f19fca939f7317fdbf4f7c8c392939e062e028d78d0d7ea0.json
+│   │   │   ├── 9fcbb765d5d67546925d2fb1fe1875bbd740d748a44407e05b2ffc75c7700e63.json
+│   │   │   ├── a081f62fe7e3048fa2febb0dcb3e7ea41f2a293b330eb86c8a650d31441ea825.json
+│   │   │   ├── a0bd169e1b507ce627df995b122659a52671c20c4e78085f50cd93da96976ab8.json
+│   │   │   ├── a3e8fb19a11fb856cd747cba0340f4f970805b0e81b3a61c4e5097473db629ec.json
+│   │   │   ├── a431e36c80e4692df8cc7169b28f66b86765d06ce9ec8d1334a3a32f42b02d87.json
+│   │   │   ├── a440a36f0d0c95b88dea1fd8073838da811852118702400b1711991842c54840.json
+│   │   │   ├── a60802a26ed2e355d07f68228477395ff3d87078234236c2328ae88e4e176186.json
+│   │   │   ├── a718987946e815b63d10dc0c93e1b9cef7e754808d0d2152e0bc6a4480cf1abd.json
+│   │   │   ├── a801287e9a5e82ca5ee50b4d07a241b143862a39c043fe803c0980a2a91297f7.json
+│   │   │   ├── a8289fd3d0b88eda774ad9cef5cead22655b74143445bbcfe84531d6a8d9b86c.json
+│   │   │   ├── a910301e975eebc4122b799007f9e824b891233313df5f32b02637940ffaab76.json
+│   │   │   ├── a95ba5e4cadbc9178d6c5c957a4feb8719b6ba4c3a3f16c992afb7516c079171.json
+│   │   │   ├── ab575d50680bd43bbe357400ad272c1f8dd6cd55ac7b80ae99d2a166f95d4f80.json
+│   │   │   ├── ab93628b856c551b8810c1b30dd0bdf4e5fc4fed34a12359b754da573e224eea.json
+│   │   │   ├── ab9bbddbacb8a0eb8c67457f97ee6e233aa44ab511e90ec19afc10923a5d0336.json
+│   │   │   ├── aba61e7ab2d89f1e68fcddfe83927c7f9b87c3e05d6ba271dc391667f0990493.json
+│   │   │   ├── abc0822b647179bc4a387d543dd48a3d4346075e91be421e036d6afe6a8d12ae.json
+│   │   │   ├── ace851aabd423bef0fc9a07089c678abfb4b74ca95604989069f0359353b53d2.json
+│   │   │   ├── ad729fb673b5f972a6222c63c83a9d2ac2acfffc78d209cb54f106cc97a18e1e.json
+│   │   │   ├── aed58d02ed4021772e8308ed675cac72ef526686d4732bff385633fe7b271214.json
+│   │   │   ├── af9aa9df8f6de77f5f6b329ea3e7d83c7d591da8afb82eba6bf5854d2874cd2d.json
+│   │   │   ├── afa68abe837667a3201533d3ef78f45bfb335404def9a594e9af1efe4fede9f9.json
+│   │   │   ├── b007541e3816a7988bdad67bd20f4340b410926ebb4a550efde384063d35054a.json
+│   │   │   ├── b02a7f46f74e16f58b99601dfd9af891bb46e5d77b10a33e2f51c4aaf0d41581.json
+│   │   │   ├── b25980f9fedc1a9e2ce01accdb7df34aeb4723cc10af97c5caf22bcfc233bf5a.json
+│   │   │   ├── b2d58f49c1e75aed7278723d35c3ca9b9f3a1e17d4ddfd6c2034bb103b18afa6.json
+│   │   │   ├── b4271eacf017431edd87dd234153259b07c649a7a265ba21b8e69d67ea5ef24c.json
+│   │   │   ├── b6928143b11827a90c7f75d905312d51a7889947493cdc2c59f643762f8b589d.json
+│   │   │   ├── b6d628eed3640a4df7bb478f95673d0075b655bf0a103654995424627d75772a.json
+│   │   │   ├── b95904dd260704bd70bd4002e99cc87282b261cb5e5369a575696766053c683e.json
+│   │   │   ├── b964b3f4f919f779c88e3845ea65f436e19b7c7f5521e5657d7fabbeb09568f9.json
+│   │   │   ├── ba234058055c01507d6f29fc8e1f2ffc1ae4c0093dd640d49d9ca3f1412fa494.json
+│   │   │   ├── bb4d21c7695571bb9238d2dc25f115b38ad32d90ea0bffed6439580ba39a578a.json
+│   │   │   ├── bcad482e5c3cbcb8869736f7390f767f1b32a16bea507ea07bd1112d100558c2.json
+│   │   │   ├── bde3c7c14c410753d7037a4f93ea3ff9c55bc260a1603814ae76bea0eb5b6536.json
+│   │   │   ├── bf43f75153f52868ac7c10305355f072117db440a4b12fd245027b341aa594d7.json
+│   │   │   ├── bf75a0dd7b7bbcaf6ee191ea689bbb6cb07ade207f799703bc1c2a76fc470e31.json
+│   │   │   ├── c157dc9680b8a04f19ff9a5d5b5a978edc96ac847f4cb1fb26ad0c60b13e0442.json
+│   │   │   ├── c168a6888d1870db2afe711cac4dc01b5250921f7f920efb617a3d2a0187af07.json
+│   │   │   ├── c201e29124b85b2fd1562221ab241b61958e9e8597203cc113edaaa7eec22304.json
+│   │   │   ├── c2362b563368e3e4da3424fd3ac08bad73c3aec8fa23d901886c5e83cde111f3.json
+│   │   │   ├── c2d1df77a3d98aa4bc48b12dd5dccd18ac98fa09fd737f0ed77c52eb61c28334.json
+│   │   │   ├── c44027b70dd8f9954c66f7729ae3f9e8b2123880c5ca80279b0437148ac81c6c.json
+│   │   │   ├── c5caadf7d1862ccf6ab7b048fd8f311c8ec8e2ce084a2bba59eec78bc0671cb6.json
+│   │   │   ├── c6c2a33b1df53514edf82c256b3a3404b57993eceec8ada28edc96cfa97cade7.json
+│   │   │   ├── c6f2d202782f8e9b05f200c5d9adcc1e0210df198067b3381cffe7a423acd0a2.json
+│   │   │   ├── c9d11223769ba391ed2c30d579364648c2449e01954a6d6029e326cca313644f.json
+│   │   │   ├── c9ec745da6c45cfc61f66e31e30c23e98aaf1c40de40245cc2c5c2ecffc006f5.json
+│   │   │   ├── cdad27333ffa3e84d094c6082c801eed5cbb392ce803171a13d9230ba4ea983e.json
+│   │   │   ├── cdc7bcc393b84fbc0bd1b5c0e591546bca2d160cde8a03867691ff10d177f32d.json
+│   │   │   ├── cdf885a8b88d0b4f5158e43cb152c736a674489bba09be600d4f37c78dbc1ede.json
+│   │   │   ├── cee107d00860fe7d0e623d29670643d1276bd369cb228db39cd6c282f83faabb.json
+│   │   │   ├── cf12e61a346d3572c3d36d9725f628d24c2e92968282adff026f8c59f2569a33.json
+│   │   │   ├── cf3fcb191504bfcf8dde7f0b2c335eed4ea901b909fa4800ea6a4e786054c0f6.json
+│   │   │   ├── cf56037736346d32ab60712f7f8b835de9ce0db542a2095aa50a6df227861d2c.json
+│   │   │   ├── cffa3ede6b4ff0ae1c5b6f0038a850b72c927a79c3d4d430fe4ca289570de42d.json
+│   │   │   ├── d0a3fd096172816ee01fd6bb398a2fc5410a2f31a461b4de88875a0ae3194efd.json
+│   │   │   ├── d11676db54330babded507c1e52d951f92a26425a800290ef61b5b0bc627dd47.json
+│   │   │   ├── d1362952ebf66ac6fc9ac99d6e95f0ecd0dd7eb7580e8713a81f2ad8458be4d3.json
+│   │   │   ├── d17bfb9a905d6e0c942689bda7bfe66ec61474e4a70697fac12252eafcc6cb8d.json
+│   │   │   ├── d1b32ae64529fa7c09c73e2aed66d8c862244d7344ddcd37f6fdcefdec8af7c5.json
+│   │   │   ├── d245f1272ab615be6fd6dcb834b8b4f40beee15b34c2ae30fc756de0984fe89c.json
+│   │   │   ├── d3fbbca64d602b605f9b4f07da0af94b3a16f15cc096c96d7ba33079af68cfce.json
+│   │   │   ├── d45b46111b3f13f2ddb116168684ccb8877a86b227a11820cb070b238058b201.json
+│   │   │   ├── d4bced06a506519eb999bc09209826cc64b19c5b1153ed3c0854f6c44dca20f2.json
+│   │   │   ├── d59ac62ae5dbc510e6d678e74cc28fd5a3801292a9754d14311d1fedf6d99969.json
+│   │   │   ├── d8045e48bc90b45db4cb243fbe79ae2a999c0bf1c59bffbcb8da2c5bb6afb2e1.json
+│   │   │   ├── d96d689ccf41706c2a945b098854b2002aab55a976f785f4988581a8960d6832.json
+│   │   │   ├── d96dad106a9bfa246b175373ffd0f083e2d7a8214453ad08277a0a9ae86041a1.json
+│   │   │   ├── d9e6aa00bee08de7404be92b0ce982ceacf05fa4e59da15acdedfe1e9cb2eab1.json
+│   │   │   ├── dc67b5da612ffc4ec3421ed13319903f4df26036ac64f4ac8b5d169ffff3ec9f.json
+│   │   │   ├── dd2aa372bcd019eb126493d035d85d929ec1a4cfe005d59a2667cb34d12a10ea.json
+│   │   │   ├── ddb9ac4d90a5225e41b4c591e98fb8a3fb1e6219b8ea7a90981498ce123d8d48.json
+│   │   │   ├── de9637a7fcca4b5da35280beeb72c6717bb2e0d13dd3ae30166326ddf708a7f4.json
+│   │   │   ├── e086809aa4ec48c6214cf15267d7bccbb87deb6c25bb976833f8b6bc6ffc625a.json
+│   │   │   ├── e1a8f11310f53ea700999f8f59c5bad4bf3b74828a54a6a97ee3faa60bebc6f1.json
+│   │   │   ├── e1e459578271e54b555e895bf41e9bf765c837a8b65e89f9c699438f052cfbb7.json
+│   │   │   ├── e2e2ca1efeb29d6ba636f96aed3fbcf70e673ae93860ba51431fd631a8f55f9f.json
+│   │   │   ├── e365a2ea5047cf8a1b28c7de891492dc53e67aff78c7bb62d7a0852da39ca5b6.json
+│   │   │   ├── e3a7d75efff5f9268c67484fff53aa24073601a1a81c4d23071ab0751afd2280.json
+│   │   │   ├── e43e1e846802f18cd431501fe261eb816f5c00e1009c1c0a23a0f851faa50498.json
+│   │   │   ├── e6251148450490c727b8c912a1426d5d6ecc2141f5cda1ad2730a170c302315f.json
+│   │   │   ├── e682b413e3df8a06d36b003dcf5f3fc37896143cd259fe2d18ba8ebdea79a9cd.json
+│   │   │   ├── e82130fa628e616d2b4e3ebffd58ab92c8761cfef49ba00466b5db95f2ed7960.json
+│   │   │   ├── e833e763f1f161820dd61e3fde85d9a0b7db53be8ad2c5e20827d9c141fcbaa4.json
+│   │   │   ├── e8da0d59bae636497d7ed908bfb7c43155e891d54eee5c68873e46536873d1cc.json
+│   │   │   ├── e9b095f2b0d806280d540f26bc686905588bb911c5ecea8b4a34c61b04fb95f4.json
+│   │   │   ├── ea0b2c7843afae552217b2e964bf06bb24ed6b06b913daf7bfa0d321ab5c1750.json
+│   │   │   ├── ea8343c5973766508362216344c5a6872bcc12b32352089e71fa6e1d467d50e2.json
+│   │   │   ├── ead76e0c6bc9898465715f43be211e3aa7f894c92ba20bc1295e1633b34c81e1.json
+│   │   │   ├── eaf6b822b96954db17dd24ba75abd4f66201b79f502c9f85a4c0a50b88b980ff.json
+│   │   │   ├── eb03bcc46e6567c72855168d420531db1dc6ce4d7b57bb2c806f780a8188c527.json
+│   │   │   ├── eb1bcd951bdeb1573d75984cc3585d45e1e7068838c832d3273f39d576082150.json
+│   │   │   ├── eb9d0ea16077a88697e422d63df64f68f390af1d01512174db9f93a7bd9a1889.json
+│   │   │   ├── ec41c65ad3a768bc555233dc5f570b2a94e8d1530e18c2419b0863d4c0b98ae8.json
+│   │   │   ├── eca4503ffbd810459b8d66f5de577e8aa78e86dce2ad6f587440c11fe062ed6c.json
+│   │   │   ├── eda1f9c1bc03e37f44198cf92326f5501820bd122955802542c3582a385ad3c0.json
+│   │   │   ├── eeff61730c9dcc1b0c8a7133b532b22da24ed5f80570586a74e34605096897ac.json
+│   │   │   ├── f03f99ce3ec64de741d0e5f2a04443dd68ea1709e4b4f7a7abbafac49c0f2dac.json
+│   │   │   ├── f04a481685cf37b48ec82150a5a0360d913e91bf2a029275e0c6d953a590025f.json
+│   │   │   ├── f067d6f1f0547c58206884e3f67033ee2822014e551d799a47ada5359f369035.json
+│   │   │   ├── f0f7236abcdf384675427498e60cbeccc15edb8cbb5586ab789b2ea8c15536ba.json
+│   │   │   ├── f1aec40220dd527b664c7cb37a4a94bfaeebc817162255930eadcee0dabaab71.json
+│   │   │   ├── f24febc0b7104be14c2c1fb12155a606438086b0e3998006ada8335a3f808129.json
+│   │   │   ├── f2991d67fe0a41e4c0a6a47355993ab2a1cd73ae3ce6ab571e3747736cf6840e.json
+│   │   │   ├── f3b68e23b2a7249f21662d66e512cb3edfc50a0ee26124238af30386ee958ff0.json
+│   │   │   ├── f40b4a14dabd8f8ea5fc8f2483cd42dee59fc32e3095457923b6db7945a1afe4.json
+│   │   │   ├── f441ea24706cbfdd53de40c23f15143a33f5a045c8b3823289f542db14b0f603.json
+│   │   │   ├── f495a9e148cc9a13e0d96e5601a8d79ee62d66e96f6cdb3b41a265016051127c.json
+│   │   │   ├── f4e5445228b0f24b17655ca61066ab3e8c18887328bbb3ef6d33a7d257b3e9b3.json
+│   │   │   ├── f65c897c3c37955ce56b6b5ebde4b6476280da655d364cd06fc52280bf6daaf3.json
+│   │   │   ├── f6d1fbb22014b3c6ac3305fa6d994727a20a3672949292e9e7bbb3e2f1ef635e.json
+│   │   │   ├── f7609f0468c4bc6e2835a2f47b4ac9b0f65ee8ed29253f25825316f09aed4474.json
+│   │   │   ├── f83261c1e2fa7b5dd033c4533785641d0adaa43d35c0c1db8c5dd1b8a93a4275.json
+│   │   │   ├── fc3feacd4bf57aa3b3cb1af46b7674386cda354c31a8b9d8135e4a662611b134.json
+│   │   │   ├── fc8408078a5c9a995a2c2dceee66415abe2f79a56a30ca73952cf7fa8a86ac58.json
+│   │   │   ├── fcd567f9698f57ba0a504cb38989e133e104a62904c6e9c521f42052b843e706.json
+│   │   │   ├── fd0bbcc75d966e933353b7bcc3ed0b81743b92ed46390bb2def6ab8d37af2f86.json
+│   │   │   ├── fe9301d7f66bdb6011bb0be7d792bfe45c023c628d19a287340957bd49015fbb.json
+│   │   │   ├── febbb07031afd9564b913df254d4a2712c8c8bf1b21739854f07101e41ff5210.json
+│   │   │   └── ff1af41022d4a7406db6c3ee3f0394c0c27f4064f6421c9af37eb5ca25c490dc.json
+│   │   └── semantic
+│   ├── chunks
+│   │   ├── chunk_000.txt
+│   │   ├── chunk_001.txt
+│   │   ├── chunk_002.txt
+│   │   ├── chunk_003.txt
+│   │   ├── chunk_004.txt
+│   │   ├── chunk_005.txt
+│   │   ├── chunk_006.txt
+│   │   ├── chunk_007.txt
+│   │   ├── chunk_008.txt
+│   │   ├── chunk_009.txt
+│   │   ├── chunk_010.txt
+│   │   ├── chunk_011.txt
+│   │   ├── chunk_012.txt
+│   │   ├── chunk_013.txt
+│   │   └── chunk_014.txt
+│   ├── cost.json
+│   ├── doc_files.txt
+│   ├── filtered_files.txt
+│   ├── graph.html
+│   ├── graph.json
+│   ├── graph_merged.html
+│   ├── graph_merged.json
+│   ├── GRAPH_REPORT.md
+│   └── manifest.json
+├── KANNADA_MEDIUM
+│   ├── 10th Kan Maths Part- 1 2025-26.pdf
+│   ├── 10th Kan Maths Part - 2  2025-26.pdf
+│   ├── 10th Kan Science Part-1 2025-26.pdf
+│   ├── 10th Kan Science Part-2  2025-26.pdf
+│   ├── media_to_upload1750315140.pdf
+│   └── media_to_upload1750315236.pdf
+├── multi_grade_android_validation.json
+├── MULTI_GRADE_ANDROID_VALIDATION_REPORT.md
+├── MULTI_GRADE_COMPARISON_REPORT.md
+├── MULTI_GRADE_REGENERATION_REPORT.md
+├── PDF_FRONTEND_READINESS_REPORT.md
+├── PDF_READER_BACKEND_REPORT.md
+├── quality_gate_closure_report.json
+├── QUIZ_QUALITY_CERTIFICATION.md
+├── README.md
+├── semantic_pack_samples
+├── TEMP
+│   ├── ai_content_generation_quality_audit.json
+│   ├── build_report.json
+│   ├── build_subject.py
+│   ├── chapter_quality_ranking.json
+│   ├── chunking_benchmark_report.json
+│   ├── chunk_metrics.json
+│   ├── CHUNK_METRICS_REPORT.md
+│   ├── chunk_normalization_report.json
+│   ├── chunk_quality_distribution.json
+│   ├── classroom_consistency_report.md
+│   ├── cleanup_concept_loss_report.json
+│   ├── COMMANDS_REFERENCE.md
+│   ├── concept_audit.json
+│   ├── concept_coverage_report.json
+│   ├── CONCEPT_EXTRACTION_PRECISION_RECOVERY_REPORT.md
+│   ├── concept_extractor_accuracy.json
+│   ├── concept_extractor_comparison.json
+│   ├── concept_extractor_precision_v2.json
+│   ├── concept_false_positive_report.json
+│   ├── concept_graph_cleanup_report.json
+│   ├── concept_graph.json
+│   ├── concept_graph_v2.json
+│   ├── concept_loss_root_cause.json
+│   ├── concept_precision_recovery_reports
+│   │   ├── CONCEPT_EXTRACTION_PRECISION_RECOVERY_REPORT.md
+│   │   ├── concept_extractor_precision_v2.json
+│   │   ├── concept_false_positive_report.json
+│   │   ├── concept_graph_cleanup_report.json
+│   │   ├── concept_taxonomy_report.json
+│   │   ├── concept_validation_report.json
+│   │   └── formula_extraction_report.json
+│   ├── concept_relationship_graph.json
+│   ├── concept_source_precision_report.json
+│   ├── concept_taxonomy_report.json
+│   ├── concept_validation_report.json
+│   ├── content_extraction_audit.json
+│   ├── CONTENT_EXTRACTION_AUDIT.md
+│   ├── CONTENT_EXTRACTION_REPAIR_REPORT.md
+│   ├── CONTENT_PIPELINE_REDESIGN_REPORT.md
+│   ├── content_quality_audit.json
+│   ├── CONTENT_QUALITY_AUDIT_REPORT.md
+│   ├── CONTENT_QUALITY_RANKING.md
+│   ├── database_health_report.md
+│   ├── deduplication_concept_loss_report.json
+│   ├── definition_coverage_report.json
+│   ├── DEPLOYMENT_API_REFERENCE.md
+│   ├── DEPLOYMENT_COMPLETION_REPORT.md
+│   ├── DEPLOYMENT_QUICK_START.md
+│   ├── DEPLOYMENT_VALIDATION_IMPLEMENTATION.md
+│   ├── DISTRIBUTED_PACK_IMPLEMENTATION.md
+│   ├── DOWNLOAD_COMPATIBILITY_REPORT.md
+│   ├── e2e_validation_report.md
+│   ├── educational_density_report.json
+│   ├── execution_package_closure_report.md
+│   ├── EXPLANATION_RECOVERY_PILOT_REPORT.md
+│   ├── explanation_recovery_report.json
+│   ├── explanation_recovery_reports
+│   │   ├── EXPLANATION_RECOVERY_PILOT_REPORT.md
+│   │   └── explanation_recovery_report.json
+│   ├── formula_extraction_report.json
+│   ├── formula_extraction_v2_report.json
+│   ├── FORMULA_INTELLIGENCE_REPORT.md
+│   ├── formula_intelligence_reports
+│   │   ├── FORMULA_INTELLIGENCE_REPORT.md
+│   │   └── formula_validation_report.json
+│   ├── formula_quality_report.json
+│   ├── formula_retention_report.json
+│   ├── formula_validation_report.json
+│   ├── grade8_android_packs_from_container
+│   │   ├── chapter_8_maths_algebra_play_english.otpack
+│   │   ├── chapter_8_maths_area_english.otpack
+│   │   ├── chapter_8_maths_a_square_and_a_cube_english.otpack
+│   │   ├── chapter_8_maths_a_story_of_numbers_english.otpack
+│   │   ├── chapter_8_maths_exploring_some_geometric_themes_english.otpack
+│   │   ├── chapter_8_maths_fractions_in_disguise_english.otpack
+│   │   ├── chapter_8_maths_introduction_english.otpack
+│   │   ├── chapter_8_maths_number_play_english.otpack
+│   │   ├── chapter_8_maths_power_play_english.otpack
+│   │   ├── chapter_8_maths_proportional_reasoning_english.otpack
+│   │   ├── chapter_8_maths_quadrilaterals_english.otpack
+│   │   ├── chapter_8_maths_tales_by_dots_and_lines_english.otpack
+│   │   ├── chapter_8_maths_the_baudhayana_pythagoras_theorem_english.otpack
+│   │   ├── chapter_8_maths_we_distribute_yet_things_multiply_english.otpack
+│   │   ├── chapter_8_proportional_reasoning_–_1.pdf_proportional_reasoning_–_english.otpack
+│   │   ├── chapter_8_proportional_reasoning_proportional_reasoning_english.otpack
+│   │   ├── chapter_8_science_chapter_10_light_mirrors_and_lenses_english.otpack
+│   │   ├── chapter_8_science_chapter_11_keeping_time_with_the_skies_english.otpack
+│   │   ├── chapter_8_science_chapter_12_how_nature_works_in_harmony_english.otpack
+│   │   ├── chapter_8_science_chapter_13_our_home_earth_a_unique_life_sustaining_planet_english.otpack
+│   │   ├── chapter_8_science_chapter_1_exploring_the_investigative_world_of_science_english.otpack
+│   │   ├── chapter_8_science_chapter_1_natural_resources_and_their_use_english.otpack
+│   │   ├── chapter_8_science_chapter_2_reshaping_indias_political_map_english.otpack
+│   │   ├── chapter_8_science_chapter_2_the_invisible_living_world_beyond_our_naked_eye_english.otpack
+│   │   ├── chapter_8_science_chapter_3_health_the_ultimate_treasure_english.otpack
+│   │   ├── chapter_8_science_chapter_3_the_rise_of_the_marathas_english.otpack
+│   │   ├── chapter_8_science_chapter_4_electricity_magnetic_and_heating_effects_english.otpack
+│   │   ├── chapter_8_science_chapter_4_the_colonial_era_in_india_english.otpack
+│   │   ├── chapter_8_science_chapter_5_exploring_forces_english.otpack
+│   │   ├── chapter_8_science_chapter_5_universal_franchise_and_indias_electoral_system_english.otpack
+│   │   ├── chapter_8_science_chapter_6_pressure_winds_storms_and_cyclones_english.otpack
+│   │   ├── chapter_8_science_chapter_6_the_parliamentary_system_legislature_and_executive_english.otpack
+│   │   ├── chapter_8_science_chapter_7_factors_of_production_english.otpack
+│   │   ├── chapter_8_science_chapter_7_particulate_nature_of_matter_english.otpack
+│   │   ├── chapter_8_science_chapter_8_nature_of_matter_elements_compounds_and_mixtures_english.otpack
+│   │   ├── chapter_8_science_chapter_9_the_amazing_world_of_solutes_solvents_and_solutions_english.otpack
+│   │   ├── chapter_8_science_curiosity_english.otpack
+│   │   ├── chapter_8_science_glossary_english.otpack
+│   │   ├── chapter_8_science_introduction_english.otpack
+│   │   ├── chapter_8_science_social_science_textbook_for_class_english.otpack
+│   │   ├── chapter_8_social_science_chapter_1_natural_resources_and_their_use_english.otpack
+│   │   ├── chapter_8_social_science_chapter_2_reshaping_indias_political_map_english.otpack
+│   │   ├── chapter_8_social_science_chapter_3_the_rise_of_the_marathas_english.otpack
+│   │   ├── chapter_8_social_science_chapter_4_the_colonial_era_in_india_english.otpack
+│   │   ├── chapter_8_social_science_chapter_5_universal_franchise_and_indias_electoral_system_english.otpack
+│   │   ├── chapter_8_social_science_chapter_6_the_parliamentary_system_legislature_and_executive_english.otpack
+│   │   ├── chapter_8_social_science_chapter_7_factors_of_production_english.otpack
+│   │   ├── chapter_8_social_science_glossary_english.otpack
+│   │   └── chapter_8_social_science_social_science_textbook_for_class_english.otpack
+│   ├── GRADE8_CONCEPT_PRESERVATION_REPORT.md
+│   ├── grade8_concept_preservation_reports
+│   │   ├── concept_audit.json
+│   │   ├── concept_coverage_report.json
+│   │   ├── concept_graph.json
+│   │   ├── GRADE8_CONCEPT_PRESERVATION_REPORT.md
+│   │   ├── quiz_alignment_report.json
+│   │   ├── summary_quality_v2.json
+│   │   └── tutor_context_quality.json
+│   ├── grade8_content_forensics_reports
+│   │   ├── cleanup_concept_loss_report.json
+│   │   ├── concept_extractor_accuracy.json
+│   │   ├── concept_loss_root_cause.json
+│   │   ├── deduplication_concept_loss_report.json
+│   │   ├── EDUCATIONAL_CONTENT_FORENSICS_REPORT.md
+│   │   ├── formula_retention_report.json
+│   │   ├── ground_truth_concepts.json
+│   │   └── qdrant_concept_coverage.json
+│   ├── GRADE8_CONTENT_QUALITY_APPROVAL.md
+│   ├── grade8_content_quality_recovery_reports
+│   │   ├── benchmark
+│   │   │   ├── Profile_A
+│   │   │   │   ├── chapter_8_maths_area_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_maths_a_square_and_a_cube_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_maths_fractions_in_disguise_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_maths_introduction_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_maths_number_play_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_maths_proportional_reasoning_–_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_maths_tales_by_dots_and_lines_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_maths_the_baudhayana_pythagoras_theorem_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_proportional_reasoning_–_1.pdf_proportional_reasoning_–_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_proportional_reasoning_proportional_reasoning_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_chapter_12_how_nature_works_in_harmony_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_chapter_13_our_home_earth_a_unique_life_sustaining_planet_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_chapter_1_exploring_the_investigative_world_of_science_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_chapter_3_health_the_ultimate_treasure_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_chapter_4_electricity_magnetic_and_heating_effects_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_chapter_4_the_colonial_era_in_india_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_chapter_5_universal_franchise_and_indias_electoral_system_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_chapter_7_factors_of_production_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_curiosity_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_glossary_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_introduction_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_social_science_textbook_for_class_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_social_science_chapter_4_the_colonial_era_in_india_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_social_science_chapter_6_the_parliamentary_system_legislature_and_executive_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_social_science_chapter_7_factors_of_production_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_social_science_glossary_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   └── chapter_8_social_science_social_science_textbook_for_class_english
+│   │   │   │       ├── activities.json
+│   │   │   │       ├── concepts.json
+│   │   │   │       ├── content.json
+│   │   │   │       ├── examples.json
+│   │   │   │       ├── flashcards.json
+│   │   │   │       ├── glossary.json
+│   │   │   │       ├── questions.json
+│   │   │   │       ├── quizzes.json
+│   │   │   │       ├── summaries.json
+│   │   │   │       └── worked_examples.json
+│   │   │   ├── Profile_B
+│   │   │   │   ├── chapter_8_maths_area_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_maths_a_square_and_a_cube_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_maths_fractions_in_disguise_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_maths_introduction_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_maths_number_play_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_maths_proportional_reasoning_–_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_maths_tales_by_dots_and_lines_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_maths_the_baudhayana_pythagoras_theorem_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_proportional_reasoning_–_1.pdf_proportional_reasoning_–_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_proportional_reasoning_proportional_reasoning_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_chapter_12_how_nature_works_in_harmony_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_chapter_13_our_home_earth_a_unique_life_sustaining_planet_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_chapter_1_exploring_the_investigative_world_of_science_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_chapter_3_health_the_ultimate_treasure_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_chapter_4_electricity_magnetic_and_heating_effects_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_chapter_4_the_colonial_era_in_india_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_chapter_5_universal_franchise_and_indias_electoral_system_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_chapter_7_factors_of_production_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_curiosity_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_glossary_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_introduction_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_social_science_textbook_for_class_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_social_science_chapter_4_the_colonial_era_in_india_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_social_science_chapter_6_the_parliamentary_system_legislature_and_executive_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_social_science_chapter_7_factors_of_production_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_social_science_glossary_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   └── chapter_8_social_science_social_science_textbook_for_class_english
+│   │   │   │       ├── activities.json
+│   │   │   │       ├── concepts.json
+│   │   │   │       ├── content.json
+│   │   │   │       ├── examples.json
+│   │   │   │       ├── flashcards.json
+│   │   │   │       ├── glossary.json
+│   │   │   │       ├── questions.json
+│   │   │   │       ├── quizzes.json
+│   │   │   │       ├── summaries.json
+│   │   │   │       └── worked_examples.json
+│   │   │   ├── Profile_C
+│   │   │   │   ├── chapter_8_maths_area_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_maths_a_square_and_a_cube_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_maths_fractions_in_disguise_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_maths_introduction_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_maths_number_play_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_maths_proportional_reasoning_–_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_maths_tales_by_dots_and_lines_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_maths_the_baudhayana_pythagoras_theorem_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_proportional_reasoning_–_1.pdf_proportional_reasoning_–_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_proportional_reasoning_proportional_reasoning_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_chapter_12_how_nature_works_in_harmony_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_chapter_13_our_home_earth_a_unique_life_sustaining_planet_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_chapter_1_exploring_the_investigative_world_of_science_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_chapter_3_health_the_ultimate_treasure_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_chapter_4_electricity_magnetic_and_heating_effects_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_chapter_4_the_colonial_era_in_india_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_chapter_5_universal_franchise_and_indias_electoral_system_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_chapter_7_factors_of_production_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_curiosity_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_glossary_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_introduction_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_science_social_science_textbook_for_class_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_social_science_chapter_4_the_colonial_era_in_india_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_social_science_chapter_6_the_parliamentary_system_legislature_and_executive_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_social_science_chapter_7_factors_of_production_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   ├── chapter_8_social_science_glossary_english
+│   │   │   │   │   ├── activities.json
+│   │   │   │   │   ├── concepts.json
+│   │   │   │   │   ├── content.json
+│   │   │   │   │   ├── examples.json
+│   │   │   │   │   ├── flashcards.json
+│   │   │   │   │   ├── glossary.json
+│   │   │   │   │   ├── questions.json
+│   │   │   │   │   ├── quizzes.json
+│   │   │   │   │   ├── summaries.json
+│   │   │   │   │   └── worked_examples.json
+│   │   │   │   └── chapter_8_social_science_social_science_textbook_for_class_english
+│   │   │   │       ├── activities.json
+│   │   │   │       ├── concepts.json
+│   │   │   │       ├── content.json
+│   │   │   │       ├── examples.json
+│   │   │   │       ├── flashcards.json
+│   │   │   │       ├── glossary.json
+│   │   │   │       ├── questions.json
+│   │   │   │       ├── quizzes.json
+│   │   │   │       ├── summaries.json
+│   │   │   │       └── worked_examples.json
+│   │   │   └── Profile_D
+│   │   │       ├── chapter_8_maths_area_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       ├── chapter_8_maths_a_square_and_a_cube_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       ├── chapter_8_maths_fractions_in_disguise_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       ├── chapter_8_maths_introduction_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       ├── chapter_8_maths_number_play_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       ├── chapter_8_maths_proportional_reasoning_–_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       ├── chapter_8_maths_tales_by_dots_and_lines_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       ├── chapter_8_maths_the_baudhayana_pythagoras_theorem_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       ├── chapter_8_proportional_reasoning_–_1.pdf_proportional_reasoning_–_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       ├── chapter_8_proportional_reasoning_proportional_reasoning_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       ├── chapter_8_science_chapter_12_how_nature_works_in_harmony_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       ├── chapter_8_science_chapter_13_our_home_earth_a_unique_life_sustaining_planet_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       ├── chapter_8_science_chapter_1_exploring_the_investigative_world_of_science_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       ├── chapter_8_science_chapter_3_health_the_ultimate_treasure_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       ├── chapter_8_science_chapter_4_electricity_magnetic_and_heating_effects_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       ├── chapter_8_science_chapter_4_the_colonial_era_in_india_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       ├── chapter_8_science_chapter_5_universal_franchise_and_indias_electoral_system_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       ├── chapter_8_science_chapter_7_factors_of_production_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       ├── chapter_8_science_curiosity_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       ├── chapter_8_science_glossary_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       ├── chapter_8_science_introduction_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       ├── chapter_8_science_social_science_textbook_for_class_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       ├── chapter_8_social_science_chapter_4_the_colonial_era_in_india_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       ├── chapter_8_social_science_chapter_6_the_parliamentary_system_legislature_and_executive_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       ├── chapter_8_social_science_chapter_7_factors_of_production_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       ├── chapter_8_social_science_glossary_english
+│   │   │       │   ├── activities.json
+│   │   │       │   ├── concepts.json
+│   │   │       │   ├── content.json
+│   │   │       │   ├── examples.json
+│   │   │       │   ├── flashcards.json
+│   │   │       │   ├── glossary.json
+│   │   │       │   ├── questions.json
+│   │   │       │   ├── quizzes.json
+│   │   │       │   ├── summaries.json
+│   │   │       │   └── worked_examples.json
+│   │   │       └── chapter_8_social_science_social_science_textbook_for_class_english
+│   │   │           ├── activities.json
+│   │   │           ├── concepts.json
+│   │   │           ├── content.json
+│   │   │           ├── examples.json
+│   │   │           ├── flashcards.json
+│   │   │           ├── glossary.json
+│   │   │           ├── questions.json
+│   │   │           ├── quizzes.json
+│   │   │           ├── summaries.json
+│   │   │           └── worked_examples.json
+│   │   ├── chunking_benchmark_report.json
+│   │   ├── GRADE8_CONTENT_QUALITY_APPROVAL.md
+│   │   ├── grade8_deduplication_analysis.json
+│   │   ├── grade8_flashcard_failures.json
+│   │   ├── grade8_quality_baseline.json
+│   │   ├── grade8_quiz_failures.json
+│   │   ├── grade8_reader_failures.json
+│   │   ├── grade8_regeneration_v2_report.json
+│   │   ├── grade8_summary_failures.json
+│   │   └── grade8_tutor_benchmark.json
+│   ├── grade8_deduplication_analysis.json
+│   ├── GRADE8_FINAL_QUALITY_GATE_REPORT.md
+│   ├── grade8_flashcard_failures.json
+│   ├── grade8_flashcard_quality_report.json
+│   ├── grade8_quality_baseline.json
+│   ├── grade8_quiz_failures.json
+│   ├── grade8_quiz_quality_report.json
+│   ├── grade8_reader_failures.json
+│   ├── grade8_reader_quality_report.json
+│   ├── grade8_regeneration_report.json
+│   ├── grade8_regeneration_v2_report.json
+│   ├── GRADE8_SEMANTIC_PIPELINE_VALIDATION.md
+│   ├── grade8_semantic_validation_reports
+│   │   ├── grade8_flashcard_quality_report.json
+│   │   ├── grade8_quiz_quality_report.json
+│   │   ├── grade8_reader_quality_report.json
+│   │   ├── grade8_regeneration_report.json
+│   │   ├── GRADE8_SEMANTIC_PIPELINE_VALIDATION.md
+│   │   ├── grade8_summary_quality_report.json
+│   │   └── grade8_tutor_benchmark_report.json
+│   ├── grade8_summary_failures.json
+│   ├── grade8_summary_quality_report.json
+│   ├── grade8_tutor_benchmark.json
+│   ├── grade8_tutor_benchmark_report.json
+│   ├── ground_truth_concepts.json
+│   ├── hash_audit_report.md
+│   ├── IDP_BACKEND_BUG_DISCOVERY_AUDIT_REPORT.md
+│   ├── IDP_BACKEND_CONTENT_QUALITY_AUDIT_REPORT.md
+│   ├── IDP_CURRICULUM_ALIGNMENT_AUDIT_REPORT.md
+│   ├── IDP_EDUCATIONAL_CONTENT_QUALITY_AUDIT_REPORT.json
+│   ├── IDP_EDUCATIONAL_CONTENT_QUALITY_AUDIT_REPORT.md
+│   ├── IDP_FORENSIC_EVIDENCE_AUDIT_REPORT.md
+│   ├── IDP PIPELINE AUDIT FINDINGS.md
+│   ├── IDP_PIPELINE_ROOT_CAUSE_AUDIT.md
+│   ├── IMPLEMENTATION_COMPLETE.md
+│   ├── INTEGRATION_STEPS.md
+│   ├── learning_objectives_report.json
+│   ├── maintenance_api_report.md
+│   ├── misconception_report.json
+│   ├── NEW_ARTIFACT_SCHEMAS.md
+│   ├── observability_report.md
+│   ├── orphan_integrity_report.md
+│   ├── PACK_CATALOG_CONSISTENCY_REPORT.md
+│   ├── pack_content_integrity.json
+│   ├── PACK_CONTENT_INTEGRITY_REPORT.md
+│   ├── PACK_ID_NORMALIZATION_REPORT.md
+│   ├── pack_publication_integrity_after_repair.json
+│   ├── pack_publication_integrity_after_validation_10.json
+│   ├── pack_publication_integrity_before_repair.json
+│   ├── pack_publication_integrity.json
+│   ├── PACK_PUBLICATION_INTEGRITY_REPORT.md
+│   ├── pack_regeneration_bulk_237.json
+│   ├── PACK_REGENERATION_PLAN.md
+│   ├── PACK_REGENERATION_REPAIR_REPORT.md
+│   ├── pack_regeneration_validation_10.json
+│   ├── pack_sync_contract_audit.json
+│   ├── PACK_SYNC_CONTRACT_AUDIT.md
+│   ├── pack_sync_production_contract_audit.json
+│   ├── PACK_SYNC_PRODUCTION_CONTRACT_REPORT.md
+│   ├── performance_baseline_report.md
+│   ├── pihub2.md
+│   ├── pihub3.md
+│   ├── pihub4.md
+│   ├── pihub5.md
+│   ├── pihub6.md
+│   ├── pihub7.md
+│   ├── pihub.md
+│   ├── plan1-2.md
+│   ├── plan3-4.md
+│   ├── qdrant_concept_coverage.json
+│   ├── quality_gate_closure_report.json
+│   ├── quiz_alignment_report.json
+│   ├── reader_verification_report.json
+│   ├── real_pack_regeneration_report.json
+│   ├── RUNTIME_CONTENT_DELIVERY_AUDIT_REPORT.md
+│   ├── RUNTIME_PACK_PUBLICATION_REPAIR_REPORT.md
+│   ├── selective_pack_sync_audit.json
+│   ├── SELECTIVE_PACK_SYNC_AUDIT_REPORT.md
+│   ├── SEMANTIC_CONTENT_PIPELINE_ARCHITECTURE.md
+│   ├── semantic_validation_report.md
+│   ├── source_chunk_classification.json
+│   ├── source_corpus_audit_reports
+│   │   ├── chapter_quality_ranking.json
+│   │   ├── chunk_quality_distribution.json
+│   │   ├── definition_coverage_report.json
+│   │   ├── educational_density_report.json
+│   │   ├── EDUCATIONAL_SOURCE_CORPUS_AUDIT.md
+│   │   ├── formula_quality_report.json
+│   │   ├── source_chunk_classification.json
+│   │   ├── source_corpus_root_cause.json
+│   │   ├── tutor_readiness_report.json
+│   │   └── worked_example_report.json
+│   ├── source_corpus_root_cause.json
+│   ├── structure_extraction_reports
+│   │   ├── concept_extractor_comparison.json
+│   │   ├── concept_graph_v2.json
+│   │   ├── concept_source_precision_report.json
+│   │   ├── EDUCATIONAL_STRUCTURE_EXTRACTION_REPORT.md
+│   │   ├── formula_extraction_v2_report.json
+│   │   ├── learning_objectives_report.json
+│   │   └── structure_parser_report.json
+│   ├── structure_parser_report.json
+│   ├── summary_quality_v2.json
+│   ├── summary_verification_report.json
+│   ├── tasks.md
+│   ├── toc_cleanup_report.json
+│   ├── TOP_50_BROKEN_PACKS.md
+│   ├── TUTOR_CONTEXT_ENRICHMENT_REPORT.md
+│   ├── tutor_context_quality.json
+│   ├── tutor_context_report.json
+│   ├── tutor_quality_validation.json
+│   ├── tutor_readiness_report.json
+│   ├── tutor_verification_report.json
+│   ├── WORKED_EXAMPLE_BUILDER_REPORT.md
+│   ├── worked_example_report.json
+│   └── worked_example_validation_reports
+│       ├── reader_verification_report.json
+│       ├── selected_pack_verification_candidate.json
+│       ├── summary_verification_report.json
+│       ├── tutor_verification_report.json
+│       ├── WORKED_EXAMPLE_BUILDER_REPORT.md
+│       └── worked_example_report.json
+├── textbook_catalog.json
+├── TEXTBOOK_CATALOG_REPORT.md
+├── textbook_mapping_validation.json
+├── TEXTBOOK_MAPPING_VALIDATION_REPORT.md
+├── textbook_mapping_validation_summary.json
+├── TEXTBOOK_PUBLICATION_REPORT.md
+├── TEXTBOOKS
+│   ├── mathematics
+│   │   ├── class 1
+│   │   │   ├── Finding the Furry Cat! (Pre-number Concepts).pdf
+│   │   │   ├── Fun with Numbers (Numbers 21 to 99).pdf
+│   │   │   ├── How do I Spend my Day (Time).pdf
+│   │   │   ├── How Many (Addition and Subtraction of Single Digit Numbers).pdf
+│   │   │   ├── How Many Times (Multiplication).pdf
+│   │   │   ├── How Much Can We Spend (Money).pdf
+│   │   │   ├── introduction.pdf
+│   │   │   ├── Lina’s Family (Measurement).pdf
+│   │   │   ├── Making 10 (Numbers 10 to 20).pdf
+│   │   │   ├── Mango Treat (Numbers 1 to 9).pdf
+│   │   │   ├── So Many Toys (Data Handling).pdf
+│   │   │   ├── Utsav (Patterns).pdf
+│   │   │   ├── Vegetable Farm (Addition and Subtraction up to 20).pdf
+│   │   │   └── What is Long What is Round (Shapes).pdf
+│   │   ├── class 10
+│   │   │   ├── Areas Related to Circles.pdf
+│   │   │   ├── Arithmetic Progressions.pdf
+│   │   │   ├── Circles.pdf
+│   │   │   ├── class 10.jpg
+│   │   │   ├── Coordinate Geometry.pdf
+│   │   │   ├── introduction.pdf
+│   │   │   ├── Introduction to Trigonometry.pdf
+│   │   │   ├── Pair of Linear Equations in Two Variables.pdf
+│   │   │   ├── Polynomials.pdf
+│   │   │   ├── Probability.pdf
+│   │   │   ├── Quadratic Equations.pdf
+│   │   │   ├── Real Numbers.pdf
+│   │   │   ├── Some Applications of Trigonometry.pdf
+│   │   │   ├── Statistics.pdf
+│   │   │   ├── Surface Areas and Volumes.pdf
+│   │   │   └── Triangles.pdf
+│   │   ├── class 2
+│   │   │   ├── A Day at the Beach (Counting in Groups).pdf
+│   │   │   ├── Data Handling.pdf
+│   │   │   ├── Decoration for Festival (Addition and Subtraction).pdf
+│   │   │   ├── Fun at the Fair (Money).pdf
+│   │   │   ├── Fun with Numbers (Numbers 1 to 100).pdf
+│   │   │   ├── Grouping and Sharing (Multiplication and Division).pdf
+│   │   │   ├── Introduction.pdf
+│   │   │   ├── Playing with Lines (Orientations of a line).pdf
+│   │   │   ├── Rani’s Gift (Measurement).pdf
+│   │   │   ├── Shadow Story (Togalu) (2D Shapes).pdf
+│   │   │   ├── Shapes Around Us (3D Shapes).pdf
+│   │   │   └── Which Season is it (Measurement of Time).pdf
+│   │   ├── class 3
+│   │   │   ├── Double Century.pdf
+│   │   │   ├── Fair Share.pdf
+│   │   │   ├── Filling and Lifting.pdf
+│   │   │   ├── Fun at Class Party!.pdf
+│   │   │   ├── Fun with Shapes.pdf
+│   │   │   ├── Give and Take.pdf
+│   │   │   ├── House of Hundreds – II.pdf
+│   │   │   ├── House of Hundreds – I.pdf
+│   │   │   ├── introduction.pdf
+│   │   │   ├── Raksha Bandhan.pdf
+│   │   │   ├── The Surajkund Fair.pdf
+│   │   │   ├── Time Goes On.pdf
+│   │   │   ├── Toy Joy.pdf
+│   │   │   ├── Vacation with My Nani Maa.pdf
+│   │   │   └── What’s in a Name.pdf
+│   │   ├── class 4
+│   │   │   ├── Data Handling.pdf
+│   │   │   ├── Elephants, Tigers and Leopards.pdf
+│   │   │   ├── Equal Groups.pdf
+│   │   │   ├── Fun with Symmetry.pdf
+│   │   │   ├── Hide and Seek.pdf
+│   │   │   ├── introduction.pdf
+│   │   │   ├── Measuring Length.pdf
+│   │   │   ├── Pattern Around Us.pdf
+│   │   │   ├── Shapes Around Us.pdf
+│   │   │   ├── Sharing and Measuring.pdf
+│   │   │   ├── The Cleanest Village.pdf
+│   │   │   ├── The Transport Museum.pdf
+│   │   │   ├── Thousands Around Us.pdf
+│   │   │   ├── Ticking Clocks and Turning Calendar.pdf
+│   │   │   └── Weigh it, Pour it.pdf
+│   │   ├── class 5
+│   │   │   ├── Angles as Turns.pdf
+│   │   │   ├── Animal Jumps.pdf
+│   │   │   ├── Coconut Farm.pdf
+│   │   │   ├── Data Through Pictures.pdf
+│   │   │   ├── Far and Near.pdf
+│   │   │   ├── Fractions.pdf
+│   │   │   ├── Grandmother’s Quilt.pdf
+│   │   │   ├── introduction.pdf
+│   │   │   ├── Maps and Locations.pdf
+│   │   │   ├── Racing Seconds.pdf
+│   │   │   ├── Shapes and Patterns.pdf
+│   │   │   ├── Symmetrical Designs.pdf
+│   │   │   ├── The Dairy Farm.pdf
+│   │   │   ├── Weight and Capacity.pdf
+│   │   │   ├── We the Travellers—II.pdf
+│   │   │   └── We the Travellers—I.pdf
+│   │   ├── class 6
+│   │   │   ├── Data Handling and Presentation.pdf
+│   │   │   ├── Fractions.pdf
+│   │   │   ├── Lines and Angles.pdf
+│   │   │   ├── Number Play.pdf
+│   │   │   ├── Patterns in Mathematics.pdf
+│   │   │   ├── Perimeter and Area.pdf
+│   │   │   ├── Playing with Constructions.pdf
+│   │   │   ├── Prime Time.pdf
+│   │   │   ├── Symmetry.pdf
+│   │   │   └── The Other Side of Zero.pdf
+│   │   ├── class 7 part 1
+│   │   │   ├── A Peek Beyond the Point.pdf
+│   │   │   ├── Arithmetic Expressions.pdf
+│   │   │   ├── A Tale of Three Intersecting Lines.pdf
+│   │   │   ├── Expressions Using Letter Numbers.pdf
+│   │   │   ├── introduction.pdf
+│   │   │   ├── Large Numbers Around Us.pdf
+│   │   │   ├── Number Play.pdf
+│   │   │   ├── Parallel and Intersecting Lines.pdf
+│   │   │   └── Working with Fractions.pdf
+│   │   ├── class 7 part 2
+│   │   │   ├── Another Peek Beyond the Point.pdf
+│   │   │   ├── class 7 part b.png
+│   │   │   ├── Connecting the Dots....pdf
+│   │   │   ├── Constructions and Tilings.pdf
+│   │   │   ├── Finding Common Ground.pdf
+│   │   │   ├── Finding the Unknown.pdf
+│   │   │   ├── Geometric Twins.pdf
+│   │   │   ├── introduction.pdf
+│   │   │   └── Operations with Integers.pdf
+│   │   ├── class 8 part 1
+│   │   │   ├── A Square and A Cube.pdf
+│   │   │   ├── A Story of Numbers.pdf
+│   │   │   ├── introduction.pdf
+│   │   │   ├── Number Play.pdf
+│   │   │   ├── Power Play.pdf
+│   │   │   ├── Proportional Reasoning – 1.pdf
+│   │   │   ├── Quadrilaterals.pdf
+│   │   │   └── We Distribute, Yet Things Multiply.pdf
+│   │   ├── class 8 part 2
+│   │   │   ├── Algebra Play.pdf
+│   │   │   ├── Area.pdf
+│   │   │   ├── Exploring Some Geometric Themes.pdf
+│   │   │   ├── Fractions in Disguise.pdf
+│   │   │   ├── introduction.pdf
+│   │   │   ├── Proportional Reasoning-2.pdf
+│   │   │   ├── Tales by Dots and Lines.pdf
+│   │   │   └── The Baudhayana-Pythagoras Theorem.pdf
+│   │   └── class 9
+│   │       ├── Circles.pdf
+│   │       ├── class 9.jpg
+│   │       ├── Coordinate Geometry.pdf
+│   │       ├── Heron’s Formula.pdf
+│   │       ├── introduction.pdf
+│   │       ├── Introduction to Euclid’s Geometry.pdf
+│   │       ├── Linear Equations in Two Variables.pdf
+│   │       ├── Lines and Angles.pdf
+│   │       ├── Number Systems.pdf
+│   │       ├── Polynomials.pdf
+│   │       ├── Quadrilaterals.pdf
+│   │       ├── Statistics.pdf
+│   │       ├── Surface Areas and Volumes.pdf
+│   │       └── Triangles.pdf
+│   ├── science
+│   │   ├── class 10
+│   │   │   ├── Acids, Bases and Salts.pdf
+│   │   │   ├── Answers.pdf
+│   │   │   ├── Carbon and its Compounds.pdf
+│   │   │   ├── Chemical Reactions and Equations.pdf
+│   │   │   ├── Control and Coordination.pdf
+│   │   │   ├── Electricity.pdf
+│   │   │   ├── Heredity.pdf
+│   │   │   ├── How do Organisms Reproduce.pdf
+│   │   │   ├── introduction.pdf
+│   │   │   ├── Life Processes.pdf
+│   │   │   ├── Light – Reflection and Refraction.pdf
+│   │   │   ├── Magnetic Effects of Electric Current.pdf
+│   │   │   ├── Metals and Non-metals.pdf
+│   │   │   ├── Our Environment.pdf
+│   │   │   └── The Human Eye and the Colourful World.pdf
+│   │   ├── class 5
+│   │   │   ├── Chapter 10 Earth—Our Shared Home.pdf
+│   │   │   ├── Chapter 1 Water—The Essence of Life.pdf
+│   │   │   ├── Chapter 2 Journey of a River.pdf
+│   │   │   ├── Chapter 3 The Mystery of Food.pdf
+│   │   │   ├── Chapter 4 Our School—A Happy Place.pdf
+│   │   │   ├── Chapter 5 Our Vibrant Country.pdf
+│   │   │   ├── Chapter 6 Some Unique Places.pdf
+│   │   │   ├── Chapter 7 Energy—How Things Work.pdf
+│   │   │   ├── Chapter 8 Clothes—How Things are Made.pdf
+│   │   │   ├── Chapter 9 Rhythms of Nature.pdf
+│   │   │   └── Class 5 Environmental Studies (EVS).pdf
+│   │   ├── class 6
+│   │   │   ├── Chapter 10 Living Creatures Exploring their Characteristics.pdf
+│   │   │   ├── Chapter 11 Natures Treasures.pdf
+│   │   │   ├── Chapter 12 Beyond Earth.pdf
+│   │   │   ├── Chapter 1 The Wonderful World of Science.pdf
+│   │   │   ├── Chapter 2 Diversity in the Living World.pdf
+│   │   │   ├── Chapter 3 Mindful Eating A Path to a Healthy Body.pdf
+│   │   │   ├── Chapter 4 Exploring Magnets.pdf
+│   │   │   ├── Chapter 5 Measurement of Length and Motion.pdf
+│   │   │   ├── Chapter 6 Materials Around Us.pdf
+│   │   │   ├── Chapter 7 Temperature and its Measurement.pdf
+│   │   │   ├── Chapter 8 A Journey through States of Water.pdf
+│   │   │   ├── Chapter 9 Methods of Separation in Everyday Life.pdf
+│   │   │   └── Class 6 Science textbook.pdf
+│   │   ├── class 7
+│   │   │   ├── Chapter 10 Life Processes in Plants.pdf
+│   │   │   ├── Chapter 11 Light Shadows and Reflections.pdf
+│   │   │   ├── Chapter 12 Earth, Moon and the Sun.pdf
+│   │   │   ├── Chapter 1 The Ever-Evolving World of Science.pdf
+│   │   │   ├── Chapter 2 Exploring Substances Acidic, Basic and Neutral.pdf
+│   │   │   ├── Chapter 3 Electricity Circuits and their Components.pdf
+│   │   │   ├── Chapter 4 The World of Metals and Non-metals.pdf
+│   │   │   ├── Chapter 5 Changes Around Us Physical and Chemical.pdf
+│   │   │   ├── Chapter 6 Adolescence A Stage of Growth and Change.pdf
+│   │   │   ├── Chapter 7 Heat Transfer in Nature.pdf
+│   │   │   ├── Chapter 8 Measurement of Time and Motion.pdf
+│   │   │   ├── Chapter 9 Life Processes in Animals.pdf
+│   │   │   └── Class 7 Science textbook titled Curiosity.pdf
+│   │   ├── class 8
+│   │   │   ├── Chapter 10 Light Mirrors and Lenses.pdf
+│   │   │   ├── Chapter 11 Keeping Time with the Skies.pdf
+│   │   │   ├── Chapter 12 How Nature Works in Harmony.pdf
+│   │   │   ├── Chapter 13 Our Home Earth, a Unique Life-Sustaining Planet.pdf
+│   │   │   ├── Chapter 1 Exploring the Investigative World of Science.pdf
+│   │   │   ├── Chapter 2 The Invisible Living World Beyond Our Naked Eye.pdf
+│   │   │   ├── Chapter 3 Health The Ultimate Treasure.pdf
+│   │   │   ├── Chapter 4 Electricity Magnetic and Heating Effects.pdf
+│   │   │   ├── Chapter 5 Exploring Forces.pdf
+│   │   │   ├── Chapter 6 Pressure, Winds, Storms, and Cyclones.pdf
+│   │   │   ├── Chapter 7 Particulate Nature of Matter.pdf
+│   │   │   ├── Chapter 8 Nature of Matter Elements, Compounds, and Mixtures.pdf
+│   │   │   ├── Chapter 9 The Amazing World of Solutes, Solvents, and Solutions.pdf
+│   │   │   ├── Curiosity.pdf
+│   │   │   └── introduction.pdf
+│   │   └── class 9
+│   │       ├── Chapter 10 WORK  AND ENERGY.pdf
+│   │       ├── Chapter 11 SOUND.pdf
+│   │       ├── Chapter 12 IMPROVEMENT IN FOOD RESOURCES.pdf
+│   │       ├── Chapter 1 Matter in Our Surroundings.pdf
+│   │       ├── Chapter 2 Is Matter Around Us Pure.pdf
+│   │       ├── Chapter 3 Atoms and Molecules.pdf
+│   │       ├── Chapter 4 Structure of the Atom.pdf
+│   │       ├── Chapter 5 The Fundamental Unit of Life.pdf
+│   │       ├── Chapter 6 Tissues.pdf
+│   │       ├── Chapter 7 Motion.pdf
+│   │       ├── Chapter 8 Force and Laws of Motion.pdf
+│   │       ├── Chapter 9 GRAVITATION.pdf
+│   │       ├── Class 9 Science textbook is titled Science (2).pdf
+│   │       └── Class 9 Science textbook is titled Science.pdf
+│   └── social
+│       ├── class 10 th social science part 1
+│       │   ├── Chapter 1 Resources and Development.pdf
+│       │   ├── Chapter 2 Forest and Wildlife Resources.pdf
+│       │   ├── Chapter 3 Water Resources.pdf
+│       │   ├── Chapter 4 Agriculture.pdf
+│       │   ├── Chapter 5 Minerals and Energy Resources.pdf
+│       │   ├── Chapter 6 Manufacturing Industries.pdf
+│       │   ├── Chapter 7 Lifelines of National Economy.pdf
+│       │   └── Contemporary india 2.pdf
+│       ├── class 10 th social science part 2
+│       │   ├── Chapter 1 Development.pdf
+│       │   ├── Chapter 2 Sectors of the Indian Economy.pdf
+│       │   ├── Chapter 3 Money and Credit.pdf
+│       │   ├── Chapter 4 Globalisation and the Indian Economy.pdf
+│       │   ├── Chapter 5 Consumer Rights.pdf
+│       │   └── Understanding Economic Development.pdf
+│       ├── class 10 th social science part 3
+│       │   ├── Chapter 1 The Rise of Nationalism in Europe.pdf
+│       │   ├── Chapter 2 Nationalism in India.pdf
+│       │   ├── Chapter 3 The Making of a Global World.pdf
+│       │   ├── Chapter 4 The Age of Industrialisation.pdf
+│       │   ├── Chapter 5 Print Culture and the Modern World.pdf
+│       │   └── India and the Contemporary World – II.pdf
+│       ├── class 10 th social science part 4
+│       │   ├── Chapter 1 Power Sharing.pdf
+│       │   ├── Chapter 2 Federalism.pdf
+│       │   ├── Chapter 3 Gender Religion and Caste.pdf
+│       │   ├── Chapter 4 Political Parties.pdf
+│       │   ├── Chapter 5 Outcomes of Democracy.pdf
+│       │   └── Democratic Politics-ii.pdf
+│       ├── class 6th social science
+│       │   ├── Chapter 10 Grassroots Democracy Part 1 Governance.pdf
+│       │   ├── Chapter 11 Grassroots Democracy Part 2 Local Government in Rural Areas.pdf
+│       │   ├── Chapter 12 Grassroots Democracy Part 3 Local Government in Urban Areas.pdf
+│       │   ├── Chapter 13 The Value of Work.pdf
+│       │   ├── Chapter 14 Economic Activities Around Us.pdf
+│       │   ├── Chapter 1 Locating Places on the Earth.pdf
+│       │   ├── Chapter 2 Oceans and Continents.pdf
+│       │   ├── Chapter 3 Landforms and Life.pdf
+│       │   ├── Chapter 4 Timeline and Sources of History.pdf
+│       │   ├── Chapter 5 India That Is Bharat.pdf
+│       │   ├── Chapter 6 The Beginnings of Indian Civilisation.pdf
+│       │   ├── Chapter 7 Indias Cultural Roots.pdf
+│       │   ├── Chapter 8 Unity in Diversity or Many in the One.pdf
+│       │   ├── Chapter 9 Family and Community.pdf
+│       │   ├── Contents.pdf
+│       │   └── Glossary.pdf
+│       ├── class 7th social science part 1
+│       │   ├── Chapter 10 The Constitution of India An Introduction.pdf
+│       │   ├── Chapter 11 From Barter to Money.pdf
+│       │   ├── Chapter 12 Understanding Markets.pdf
+│       │   ├── Chapter 1 Geographical Diversity of India.pdf
+│       │   ├── Chapter 2 Understanding the Weather.pdf
+│       │   ├── Chapter 3 Climates of India.pdf
+│       │   ├── Chapter 4 New Beginnings Cities and States.pdf
+│       │   ├── Chapter 5 The Rise of Empires.pdf
+│       │   ├── Chapter 6 The Age of Reorganisation.pdf
+│       │   ├── Chapter 7 The Gupta Era An Age of Tireless Creativity.pdf
+│       │   ├── Chapter 8 How the Land Becomes Sacred.pdf
+│       │   ├── Chapter 9 From the Rulers to the Ruled Types of Governments.pdf
+│       │   └── Social Science textbook for  class 7 part 1.pdf
+│       ├── class 7th social science part 2
+│       │   ├── Chapter 1 The Story of Indian Farming.pdf
+│       │   ├── Chapter 2 India and Her Neighbours.pdf
+│       │   ├── Chapter 3 Empires and Kingdoms 6th to 10th Centuries.pdf
+│       │   ├── Chapter 4 Turning Tides 11th and 12th Centuries.pdf
+│       │   ├── Chapter 5 India a Home to Many.pdf
+│       │   ├── Chapter 6 The State the Government and You.pdf
+│       │   ├── Chapter 7 Infrastructure Engine of Indias Development.pdf
+│       │   ├── Chapter 8 Banks and the Magic of Finance.pdf
+│       │   ├── Glossary.pdf
+│       │   ├── part 2.jpg
+│       │   └── Social Science textbook for  class 7 part 2.pdf
+│       ├── class 8th social science
+│       │   ├── Chapter 1 Natural Resources and Their Use.pdf
+│       │   ├── Chapter 2 Reshaping Indias Political Map.pdf
+│       │   ├── Chapter 3 The Rise of the Marathas.pdf
+│       │   ├── Chapter 4 The Colonial Era in India.pdf
+│       │   ├── Chapter 5 Universal Franchise and Indias Electoral System.pdf
+│       │   ├── Chapter 6 The Parliamentary System Legislature and Executive.pdf
+│       │   ├── Chapter 7 Factors of Production.pdf
+│       │   ├── Glossary.pdf
+│       │   └── Social Science Textbook for class 8.pdf
+│       ├── class 9th social science part 1
+│       │   ├── Chapter 1 What Is Democracy Why Democracy.pdf
+│       │   ├── Chapter 2 Constitutional Design.pdf
+│       │   ├── Chapter 3 Electoral Politics.pdf
+│       │   ├── Chapter 4 Working of Institutions.pdf
+│       │   ├── Chapter 5 Democratic Rights.pdf
+│       │   └── DEMOCRATIC POLITICS CLASS 9.pdf
+│       ├── class 9th social science part 2
+│       │   ├── Chapter 1 India Size and Location.pdf
+│       │   ├── Chapter 2 Physical Features of India.pdf
+│       │   ├── Chapter 3 Drainage.pdf
+│       │   ├── Chapter 4 Climate.pdf
+│       │   ├── Chapter 5 Natural Vegetation and Wildlife.pdf
+│       │   ├── Chapter 6 Population.pdf
+│       │   └── CONTEMPORARY INDIA-I.pdf
+│       └── class 9th social science part 3
+│           ├── Chapter 1 The Story of Village Palampur.pdf
+│           ├── Chapter 2 People as Resource.pdf
+│           ├── Chapter 3 Poverty as a Challenge.pdf
+│           ├── Chapter 4 Food Security in India.pdf
+│           └── ECONOMICS.pdf
+└── toc_cleanup_report.json
+
+242 directories, 2449 files

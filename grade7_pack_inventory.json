@@ -1,0 +1,1162 @@
+{
+  "chapter_count": 51,
+  "chapters": [
+    "a peek beyond the point",
+    "a tale of three intersecting lines",
+    "another peek beyond the point",
+    "arithmetic expressions",
+    "chapter 1 geographical diversity of india",
+    "chapter 1 the ever evolving world of science",
+    "chapter 1 the story of indian farming",
+    "chapter 10 life processes in plants",
+    "chapter 10 the constitution of india an introduction",
+    "chapter 11 from barter to money",
+    "chapter 11 light shadows and reflections",
+    "chapter 12 earth, moon and the sun",
+    "chapter 12 understanding markets",
+    "chapter 2 exploring substances acidic, basic and neutral",
+    "chapter 2 india and her neighbours",
+    "chapter 2 understanding the weather",
+    "chapter 3 climates of india",
+    "chapter 3 electricity circuits and their components",
+    "chapter 3 empires and kingdoms 6th to 10th centuries",
+    "chapter 4 new beginnings cities and states",
+    "chapter 4 the world of metals and non metals",
+    "chapter 4 turning tides 11th and 12th centuries",
+    "chapter 5 changes around us physical and chemical",
+    "chapter 5 india a home to many",
+    "chapter 5 the rise of empires",
+    "chapter 6 adolescence a stage of growth and change",
+    "chapter 6 the age of reorganisation",
+    "chapter 6 the state the government and you",
+    "chapter 7 heat transfer in nature",
+    "chapter 7 infrastructure engine of indias development",
+    "chapter 7 the gupta era an age of tireless creativity",
+    "chapter 8 banks and the magic of finance",
+    "chapter 8 how the land becomes sacred",
+    "chapter 8 measurement of time and motion",
+    "chapter 9 from the rulers to the ruled types of governments",
+    "chapter 9 life processes in animals",
+    "class 7 science textbook titled curiosity",
+    "connecting the dots",
+    "constructions and tilings",
+    "expressions using letter numbers",
+    "finding common ground",
+    "finding the unknown",
+    "geometric twins",
+    "glossary",
+    "introduction",
+    "large numbers around us",
+    "number play",
+    "operations with integers",
+    "parallel and intersecting lines",
+    "social science textbook for class 7",
+    "working with fractions"
+  ],
+  "grade": 7,
+  "pack_count": 73,
+  "rows": [
+    {
+      "artifact_counts": {
+        "content": 3276,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "a peek beyond the point",
+      "language": "english",
+      "pack_id": "chapter_7_maths_a_peek_beyond_the_point_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 2077,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "a tale of three intersecting lines",
+      "language": "english",
+      "pack_id": "chapter_7_maths_a_tale_of_three_intersecting_lines_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 2211,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "another peek beyond the point",
+      "language": "english",
+      "pack_id": "chapter_7_maths_another_peek_beyond_the_point_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 2380,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "arithmetic expressions",
+      "language": "english",
+      "pack_id": "chapter_7_maths_arithmetic_expressions_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 841,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "connecting the dots",
+      "language": "english",
+      "pack_id": "chapter_7_maths_connecting_the_dots_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 1260,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "constructions and tilings",
+      "language": "english",
+      "pack_id": "chapter_7_maths_constructions_and_tilings_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 2541,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "expressions using letter numbers",
+      "language": "english",
+      "pack_id": "chapter_7_maths_expressions_using_letter_numbers_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 864,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "finding common ground",
+      "language": "english",
+      "pack_id": "chapter_7_maths_finding_common_ground_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 868,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "finding the unknown",
+      "language": "english",
+      "pack_id": "chapter_7_maths_finding_the_unknown_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 2244,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "geometric twins",
+      "language": "english",
+      "pack_id": "chapter_7_maths_geometric_twins_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 1570,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "introduction",
+      "language": "english",
+      "pack_id": "chapter_7_maths_introduction_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 2035,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "large numbers around us",
+      "language": "english",
+      "pack_id": "chapter_7_maths_large_numbers_around_us_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 2040,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "number play",
+      "language": "english",
+      "pack_id": "chapter_7_maths_number_play_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 1024,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "operations with integers",
+      "language": "english",
+      "pack_id": "chapter_7_maths_operations_with_integers_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 1710,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "parallel and intersecting lines",
+      "language": "english",
+      "pack_id": "chapter_7_maths_parallel_and_intersecting_lines_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 2336,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "working with fractions",
+      "language": "english",
+      "pack_id": "chapter_7_maths_working_with_fractions_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 261,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 10 life processes in plants",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_10_life_processes_in_plants_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 546,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 10 the constitution of india an introduction",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_10_the_constitution_of_india_an_introduction_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 342,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 11 from barter to money",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_11_from_barter_to_money_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 299,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 11 light shadows and reflections",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_11_light_shadows_and_reflections_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 152,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 12 earth, moon and the sun",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_12_earth_moon_and_the_sun_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 530,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 12 understanding markets",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_12_understanding_markets_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 165,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 1 geographical diversity of india",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_1_geographical_diversity_of_india_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 0,
+        "enrichment": 2,
+        "flashcards": 0,
+        "glossary": 0,
+        "quizzes": 0,
+        "retrieval_index": 2,
+        "summaries": 0
+      },
+      "chapter": "chapter 1 the ever evolving world of science",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_1_the_ever_evolving_world_of_science_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 384,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 1 the story of indian farming",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_1_the_story_of_indian_farming_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 48,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 2 exploring substances acidic, basic and neutral",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_2_exploring_substances_acidic_basic_and_neutral_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 44,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 2 india and her neighbours",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_2_india_and_her_neighbours_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 248,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 2 understanding the weather",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_2_understanding_the_weather_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 216,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 3 climates of india",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_3_climates_of_india_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 364,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 3 electricity circuits and their components",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_3_electricity_circuits_and_their_components_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 455,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 3 empires and kingdoms 6th to 10th centuries",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_3_empires_and_kingdoms_6th_to_10th_centuries_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 26,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 4 new beginnings cities and states",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_4_new_beginnings_cities_and_states_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 0,
+        "enrichment": 2,
+        "flashcards": 0,
+        "glossary": 0,
+        "quizzes": 0,
+        "retrieval_index": 2,
+        "summaries": 0
+      },
+      "chapter": "chapter 4 the world of metals and non metals",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_4_the_world_of_metals_and_non_metals_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 196,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 4 turning tides 11th and 12th centuries",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_4_turning_tides_11th_and_12th_centuries_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 276,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 5 changes around us physical and chemical",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_5_changes_around_us_physical_and_chemical_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 207,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 5 india a home to many",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_5_india_a_home_to_many_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 90,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 5 the rise of empires",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_5_the_rise_of_empires_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 315,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 6 adolescence a stage of growth and change",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_6_adolescence_a_stage_of_growth_and_change_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 385,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 6 the age of reorganisation",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_6_the_age_of_reorganisation_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 470,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 6 the state the government and you",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_6_the_state_the_government_and_you_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 168,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 7 heat transfer in nature",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_7_heat_transfer_in_nature_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 174,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 7 infrastructure engine of indias development",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_7_infrastructure_engine_of_indias_development_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 232,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 7 the gupta era an age of tireless creativity",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_7_the_gupta_era_an_age_of_tireless_creativity_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 200,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 8 banks and the magic of finance",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_8_banks_and_the_magic_of_finance_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 78,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 8 how the land becomes sacred",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_8_how_the_land_becomes_sacred_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 144,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 8 measurement of time and motion",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_8_measurement_of_time_and_motion_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 624,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 9 from the rulers to the ruled types of governments",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_9_from_the_rulers_to_the_ruled_types_of_governments_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 100,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 9 life processes in animals",
+      "language": "english",
+      "pack_id": "chapter_7_science_chapter_9_life_processes_in_animals_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 260,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "class 7 science textbook titled curiosity",
+      "language": "english",
+      "pack_id": "chapter_7_science_class_7_science_textbook_titled_curiosity_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 120,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 5,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "glossary",
+      "language": "english",
+      "pack_id": "chapter_7_science_glossary_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 0,
+        "enrichment": 2,
+        "flashcards": 0,
+        "glossary": 0,
+        "quizzes": 0,
+        "retrieval_index": 2,
+        "summaries": 0
+      },
+      "chapter": "social science textbook for class 7",
+      "language": "english",
+      "pack_id": "chapter_7_science_social_science_textbook_for_class_7_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 630,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 10 the constitution of india an introduction",
+      "language": "english",
+      "pack_id": "chapter_7_social_science_chapter_10_the_constitution_of_india_an_introduction_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 418,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 11 from barter to money",
+      "language": "english",
+      "pack_id": "chapter_7_social_science_chapter_11_from_barter_to_money_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 636,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 12 understanding markets",
+      "language": "english",
+      "pack_id": "chapter_7_social_science_chapter_12_understanding_markets_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 231,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 1 geographical diversity of india",
+      "language": "english",
+      "pack_id": "chapter_7_social_science_chapter_1_geographical_diversity_of_india_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 512,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 1 the story of indian farming",
+      "language": "english",
+      "pack_id": "chapter_7_social_science_chapter_1_the_story_of_indian_farming_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 132,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 2 india and her neighbours",
+      "language": "english",
+      "pack_id": "chapter_7_social_science_chapter_2_india_and_her_neighbours_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 372,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 2 understanding the weather",
+      "language": "english",
+      "pack_id": "chapter_7_social_science_chapter_2_understanding_the_weather_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 288,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 3 climates of india",
+      "language": "english",
+      "pack_id": "chapter_7_social_science_chapter_3_climates_of_india_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 585,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 3 empires and kingdoms 6th to 10th centuries",
+      "language": "english",
+      "pack_id": "chapter_7_social_science_chapter_3_empires_and_kingdoms_6th_to_10th_centuries_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 78,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 4 new beginnings cities and states",
+      "language": "english",
+      "pack_id": "chapter_7_social_science_chapter_4_new_beginnings_cities_and_states_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 294,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 4 turning tides 11th and 12th centuries",
+      "language": "english",
+      "pack_id": "chapter_7_social_science_chapter_4_turning_tides_11th_and_12th_centuries_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 253,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 5 india a home to many",
+      "language": "english",
+      "pack_id": "chapter_7_social_science_chapter_5_india_a_home_to_many_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 180,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 5 the rise of empires",
+      "language": "english",
+      "pack_id": "chapter_7_social_science_chapter_5_the_rise_of_empires_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 455,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 6 the age of reorganisation",
+      "language": "english",
+      "pack_id": "chapter_7_social_science_chapter_6_the_age_of_reorganisation_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 564,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 6 the state the government and you",
+      "language": "english",
+      "pack_id": "chapter_7_social_science_chapter_6_the_state_the_government_and_you_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 290,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 7 infrastructure engine of indias development",
+      "language": "english",
+      "pack_id": "chapter_7_social_science_chapter_7_infrastructure_engine_of_indias_development_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 290,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 7 the gupta era an age of tireless creativity",
+      "language": "english",
+      "pack_id": "chapter_7_social_science_chapter_7_the_gupta_era_an_age_of_tireless_creativity_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 280,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 8 banks and the magic of finance",
+      "language": "english",
+      "pack_id": "chapter_7_social_science_chapter_8_banks_and_the_magic_of_finance_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 130,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 8 how the land becomes sacred",
+      "language": "english",
+      "pack_id": "chapter_7_social_science_chapter_8_how_the_land_becomes_sacred_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 728,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 9 from the rulers to the ruled types of governments",
+      "language": "english",
+      "pack_id": "chapter_7_social_science_chapter_9_from_the_rulers_to_the_ruled_types_of_governments_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 150,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 5,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "glossary",
+      "language": "english",
+      "pack_id": "chapter_7_social_science_glossary_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 0,
+        "enrichment": 2,
+        "flashcards": 0,
+        "glossary": 0,
+        "quizzes": 0,
+        "retrieval_index": 2,
+        "summaries": 0
+      },
+      "chapter": "social science textbook for class 7",
+      "language": "english",
+      "pack_id": "chapter_7_social_science_social_science_textbook_for_class_7_english",
+      "subject": "social_science"
+    }
+  ],
+  "source_pdfs": [],
+  "subject_count": 3,
+  "subjects": {
+    "maths": 16,
+    "science": 35,
+    "social_science": 22
+  }
+}

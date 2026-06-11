@@ -1,0 +1,880 @@
+{
+  "chapter_count": 39,
+  "chapters": [
+    "chapter 1 locating places on the earth",
+    "chapter 1 the wonderful world of science",
+    "chapter 10 grassroots democracy governance",
+    "chapter 10 living creatures exploring their characteristics",
+    "chapter 11 grassroots democracy local government in rural areas",
+    "chapter 11 natures treasures",
+    "chapter 12 beyond earth",
+    "chapter 12 grassroots democracy local government in urban areas",
+    "chapter 13 the value of work",
+    "chapter 14 economic activities around us",
+    "chapter 2 diversity in the living world",
+    "chapter 2 oceans and continents",
+    "chapter 3 landforms and life",
+    "chapter 3 mindful eating a path to a healthy body",
+    "chapter 4 exploring magnets",
+    "chapter 4 timeline and sources of history",
+    "chapter 5 india that is bharat",
+    "chapter 5 measurement of length and motion",
+    "chapter 6 materials around us",
+    "chapter 6 the beginnings of indian civilisation",
+    "chapter 7 indias cultural roots",
+    "chapter 7 temperature and its measurement",
+    "chapter 8 a journey through states of water",
+    "chapter 8 unity in diversity or many in the one",
+    "chapter 9 family and community",
+    "chapter 9 methods of separation in everyday life",
+    "class 6 science textbook",
+    "contents",
+    "data handling and presentation",
+    "fractions",
+    "glossary",
+    "lines and angles",
+    "number play",
+    "patterns in mathematics",
+    "perimeter and area",
+    "playing with constructions",
+    "prime time",
+    "symmetry",
+    "the other side of zero"
+  ],
+  "grade": 6,
+  "pack_count": 55,
+  "rows": [
+    {
+      "artifact_counts": {
+        "content": 2014,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "data handling and presentation",
+      "language": "english",
+      "pack_id": "chapter_6_maths_data_handling_and_presentation_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 2460,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "fractions",
+      "language": "english",
+      "pack_id": "chapter_6_maths_fractions_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 3740,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "lines and angles",
+      "language": "english",
+      "pack_id": "chapter_6_maths_lines_and_angles_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 1102,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "number play",
+      "language": "english",
+      "pack_id": "chapter_6_maths_number_play_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 640,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "patterns in mathematics",
+      "language": "english",
+      "pack_id": "chapter_6_maths_patterns_in_mathematics_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 936,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "perimeter and area",
+      "language": "english",
+      "pack_id": "chapter_6_maths_perimeter_and_area_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 2296,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "playing with constructions",
+      "language": "english",
+      "pack_id": "chapter_6_maths_playing_with_constructions_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 1395,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "prime time",
+      "language": "english",
+      "pack_id": "chapter_6_maths_prime_time_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 990,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "symmetry",
+      "language": "english",
+      "pack_id": "chapter_6_maths_symmetry_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 2590,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "the other side of zero",
+      "language": "english",
+      "pack_id": "chapter_6_maths_the_other_side_of_zero_english",
+      "subject": "maths"
+    },
+    {
+      "artifact_counts": {
+        "content": 0,
+        "enrichment": 2,
+        "flashcards": 0,
+        "glossary": 0,
+        "quizzes": 0,
+        "retrieval_index": 2,
+        "summaries": 0
+      },
+      "chapter": "chapter 10 grassroots democracy governance",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_10_grassroots_democracy_governance_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 168,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 10 living creatures exploring their characteristics",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_10_living_creatures_exploring_their_characteristics_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 0,
+        "enrichment": 2,
+        "flashcards": 0,
+        "glossary": 0,
+        "quizzes": 0,
+        "retrieval_index": 2,
+        "summaries": 0
+      },
+      "chapter": "chapter 11 grassroots democracy local government in rural areas",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_11_grassroots_democracy_local_government_in_rural_areas_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 72,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 9,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 11 natures treasures",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_11_natures_treasures_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 98,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 7,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 12 beyond earth",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_12_beyond_earth_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 0,
+        "enrichment": 2,
+        "flashcards": 0,
+        "glossary": 0,
+        "quizzes": 0,
+        "retrieval_index": 2,
+        "summaries": 0
+      },
+      "chapter": "chapter 12 grassroots democracy local government in urban areas",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_12_grassroots_democracy_local_government_in_urban_areas_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 68,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 13 the value of work",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_13_the_value_of_work_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 312,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 14 economic activities around us",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_14_economic_activities_around_us_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 672,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 1 locating places on the earth",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_1_locating_places_on_the_earth_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 4,
+        "enrichment": 2,
+        "flashcards": 4,
+        "glossary": 1,
+        "quizzes": 4,
+        "retrieval_index": 2,
+        "summaries": 4
+      },
+      "chapter": "chapter 1 the wonderful world of science",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_1_the_wonderful_world_of_science_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 65,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 2 diversity in the living world",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_2_diversity_in_the_living_world_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 189,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 2 oceans and continents",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_2_oceans_and_continents_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 376,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 3 landforms and life",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_3_landforms_and_life_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 144,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 3 mindful eating a path to a healthy body",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_3_mindful_eating_a_path_to_a_healthy_body_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 182,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 4 exploring magnets",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_4_exploring_magnets_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 220,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 4 timeline and sources of history",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_4_timeline_and_sources_of_history_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 276,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 5 india that is bharat",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_5_india_that_is_bharat_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 225,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 5 measurement of length and motion",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_5_measurement_of_length_and_motion_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 144,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 6 materials around us",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_6_materials_around_us_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 84,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 6 the beginnings of indian civilisation",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_6_the_beginnings_of_indian_civilisation_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 216,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 7 indias cultural roots",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_7_indias_cultural_roots_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 75,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 7 temperature and its measurement",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_7_temperature_and_its_measurement_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 70,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 8 a journey through states of water",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_8_a_journey_through_states_of_water_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 266,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 8,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 8 unity in diversity or many in the one",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_8_unity_in_diversity_or_many_in_the_one_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 310,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 9,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 9 family and community",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_9_family_and_community_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 22,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 2,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 9 methods of separation in everyday life",
+      "language": "english",
+      "pack_id": "chapter_6_science_chapter_9_methods_of_separation_in_everyday_life_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 220,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "class 6 science textbook",
+      "language": "english",
+      "pack_id": "chapter_6_science_class_6_science_textbook_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 15,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "contents",
+      "language": "english",
+      "pack_id": "chapter_6_science_contents_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 390,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "glossary",
+      "language": "english",
+      "pack_id": "chapter_6_science_glossary_english",
+      "subject": "science"
+    },
+    {
+      "artifact_counts": {
+        "content": 0,
+        "enrichment": 2,
+        "flashcards": 0,
+        "glossary": 0,
+        "quizzes": 0,
+        "retrieval_index": 2,
+        "summaries": 0
+      },
+      "chapter": "chapter 10 grassroots democracy governance",
+      "language": "english",
+      "pack_id": "chapter_6_social_science_chapter_10_grassroots_democracy_governance_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 0,
+        "enrichment": 2,
+        "flashcards": 0,
+        "glossary": 0,
+        "quizzes": 0,
+        "retrieval_index": 2,
+        "summaries": 0
+      },
+      "chapter": "chapter 11 grassroots democracy local government in rural areas",
+      "language": "english",
+      "pack_id": "chapter_6_social_science_chapter_11_grassroots_democracy_local_government_in_rural_areas_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 0,
+        "enrichment": 2,
+        "flashcards": 0,
+        "glossary": 0,
+        "quizzes": 0,
+        "retrieval_index": 2,
+        "summaries": 0
+      },
+      "chapter": "chapter 12 grassroots democracy local government in urban areas",
+      "language": "english",
+      "pack_id": "chapter_6_social_science_chapter_12_grassroots_democracy_local_government_in_urban_areas_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 102,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 13 the value of work",
+      "language": "english",
+      "pack_id": "chapter_6_social_science_chapter_13_the_value_of_work_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 360,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 14 economic activities around us",
+      "language": "english",
+      "pack_id": "chapter_6_social_science_chapter_14_economic_activities_around_us_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 756,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 1 locating places on the earth",
+      "language": "english",
+      "pack_id": "chapter_6_social_science_chapter_1_locating_places_on_the_earth_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 243,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 2 oceans and continents",
+      "language": "english",
+      "pack_id": "chapter_6_social_science_chapter_2_oceans_and_continents_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 470,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 3 landforms and life",
+      "language": "english",
+      "pack_id": "chapter_6_social_science_chapter_3_landforms_and_life_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 308,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 4 timeline and sources of history",
+      "language": "english",
+      "pack_id": "chapter_6_social_science_chapter_4_timeline_and_sources_of_history_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 322,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 5 india that is bharat",
+      "language": "english",
+      "pack_id": "chapter_6_social_science_chapter_5_india_that_is_bharat_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 140,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 6 the beginnings of indian civilisation",
+      "language": "english",
+      "pack_id": "chapter_6_social_science_chapter_6_the_beginnings_of_indian_civilisation_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 288,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 7 indias cultural roots",
+      "language": "english",
+      "pack_id": "chapter_6_social_science_chapter_7_indias_cultural_roots_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 304,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 8,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 8 unity in diversity or many in the one",
+      "language": "english",
+      "pack_id": "chapter_6_social_science_chapter_8_unity_in_diversity_or_many_in_the_one_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 372,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 9,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "chapter 9 family and community",
+      "language": "english",
+      "pack_id": "chapter_6_social_science_chapter_9_family_and_community_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 45,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "contents",
+      "language": "english",
+      "pack_id": "chapter_6_social_science_contents_english",
+      "subject": "social_science"
+    },
+    {
+      "artifact_counts": {
+        "content": 442,
+        "enrichment": 2,
+        "flashcards": 10,
+        "glossary": 10,
+        "quizzes": 5,
+        "retrieval_index": 2,
+        "summaries": 5
+      },
+      "chapter": "glossary",
+      "language": "english",
+      "pack_id": "chapter_6_social_science_glossary_english",
+      "subject": "social_science"
+    }
+  ],
+  "source_pdfs": [],
+  "subject_count": 3,
+  "subjects": {
+    "maths": 10,
+    "science": 29,
+    "social_science": 16
+  }
+}

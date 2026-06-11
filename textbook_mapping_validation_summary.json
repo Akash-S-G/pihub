@@ -1,0 +1,13 @@
+{
+  "chapters_with_exactly_one_pdf": 254,
+  "duplicate_chapter_ids": [],
+  "duplicate_chapter_titles": [
+    "7:maths:english:introduction",
+    "8:maths:english:introduction"
+  ],
+  "invalid_page_ranges": [],
+  "missing_pdfs": [],
+  "orphan_pdfs": [],
+  "total_entries": 254,
+  "valid": true
+}

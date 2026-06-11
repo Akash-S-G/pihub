@@ -1,0 +1,91 @@
+{
+  "updated_at": "2026-05-18T13:16:08.794461",
+  "reports": [
+    {
+      "report_file": "build_report_20260518T131120Z.json",
+      "report_path": "/home/akash/Desktop/PIHUB/backend/curriculum-builder/build_reports/build_report_20260518T131120Z.json",
+      "subject": "mathematics",
+      "grade": null,
+      "dry_run": true,
+      "created_at": "2026-05-18T13:11:20.650371",
+      "total_items": 143,
+      "completed": 0,
+      "skipped": 143,
+      "failed": 0,
+      "dry_run_items": 0
+    },
+    {
+      "report_file": "build_report_20260518T131205Z.json",
+      "report_path": "/home/akash/Desktop/PIHUB/backend/curriculum-builder/build_reports/build_report_20260518T131205Z.json",
+      "subject": "science",
+      "grade": null,
+      "dry_run": false,
+      "created_at": "2026-05-18T13:12:05.544674",
+      "total_items": 81,
+      "completed": 0,
+      "skipped": 81,
+      "failed": 0,
+      "dry_run_items": 0
+    },
+    {
+      "report_file": "build_report_20260518T131608Z.json",
+      "report_path": "/home/akash/Desktop/PIHUB/backend/curriculum-builder/build_reports/build_report_20260518T131608Z.json",
+      "subject": "social_science",
+      "grade": null,
+      "dry_run": true,
+      "created_at": "2026-05-18T13:16:08.794447",
+      "total_items": 92,
+      "completed": 0,
+      "skipped": 0,
+      "failed": 0,
+      "dry_run_items": 92
+    }
+  ],
+  "by_subject": {
+    "mathematics": [
+      {
+        "report_file": "build_report_20260518T131120Z.json",
+        "report_path": "/home/akash/Desktop/PIHUB/backend/curriculum-builder/build_reports/build_report_20260518T131120Z.json",
+        "subject": "mathematics",
+        "grade": null,
+        "dry_run": true,
+        "created_at": "2026-05-18T13:11:20.650371",
+        "total_items": 143,
+        "completed": 0,
+        "skipped": 143,
+        "failed": 0,
+        "dry_run_items": 0
+      }
+    ],
+    "science": [
+      {
+        "report_file": "build_report_20260518T131205Z.json",
+        "report_path": "/home/akash/Desktop/PIHUB/backend/curriculum-builder/build_reports/build_report_20260518T131205Z.json",
+        "subject": "science",
+        "grade": null,
+        "dry_run": false,
+        "created_at": "2026-05-18T13:12:05.544674",
+        "total_items": 81,
+        "completed": 0,
+        "skipped": 81,
+        "failed": 0,
+        "dry_run_items": 0
+      }
+    ],
+    "social_science": [
+      {
+        "report_file": "build_report_20260518T131608Z.json",
+        "report_path": "/home/akash/Desktop/PIHUB/backend/curriculum-builder/build_reports/build_report_20260518T131608Z.json",
+        "subject": "social_science",
+        "grade": null,
+        "dry_run": true,
+        "created_at": "2026-05-18T13:16:08.794447",
+        "total_items": 92,
+        "completed": 0,
+        "skipped": 0,
+        "failed": 0,
+        "dry_run_items": 92
+      }
+    ]
+  }
+}

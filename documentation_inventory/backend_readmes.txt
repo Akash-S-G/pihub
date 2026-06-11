@@ -1,0 +1,9 @@
+./README.md
+./backend/.venv/lib/python3.12/site-packages/pymupdf-1.27.2.3.dist-info/README.md
+./backend/.venv/lib/python3.12/site-packages/numpy/ma/README.rst
+./backend/curriculum-builder/README.md
+./backend/content-pipeline/app/content_pipeline/README.md
+./.venv/lib/python3.12/site-packages/pymupdf-1.27.2.3.dist-info/README.md
+./.venv/lib/python3.12/site-packages/numpy/ma/README.rst
+./.venv/lib/python3.12/site-packages/pip/_vendor/README.rst
+./.pytest_cache/README.md

@@ -1,0 +1,717 @@
+from __future__ import annotations
+
+import hashlib
+import json
+import logging
+import os
+import uuid
+import time
+from pathlib import Path
+from typing import Any
+
+from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, Request, UploadFile
+from fastapi.responses import FileResponse
+
+from api.schemas import (
+    ClassroomUpdateRequest,
+    DeviceRegisterRequest,
+    DeviceResponse,
+    HealthResponse,
+    ProgressRequest,
+    QuizAnswerRequest,
+    QuizSessionCreateRequest,
+    SyncRequest,
+)
+from backend.coordinator import BackendCoordinator
+from cache.pack_manager import PackManager
+from cache.store import PiHubStore
+from devices.manager import DeviceManager
+from distribution.pack_manager import PackDistributionManager
+from monitoring.health import HealthMonitor
+from network.discovery import ClassroomIntranet, NetworkDiscovery
+from sync.manager import build_sync_manifest, checksum_bytes, validate_pack_file
+from sync.sync_engine import SyncEngine
+from deployment.hotspot import HotspotNetworking
+from deployment.startup import DeploymentAutomation
+from deployment.sync_recovery import PersistentSyncQueue, TransferRecoveryCoordinator, SyncDiagnosticsService
+from deployment.load_manager import ClassroomLoadManager
+from deployment.pack_hardening import PackValidator, BroadcastCoordinator, IncrementalDistributionManager
+from deployment.cache_hardening import CacheValidator, CacheCleanupService, StorageDiagnosticsManager
+from deployment.backend_recovery import DeferredBackendSyncManager, BackendRecoveryCoordinator, PartialSyncRecoveryService
+from deployment.monitoring import ClassroomMetricsCollector, SyncMetricsService, NetworkDiagnosticsManager
+from deployment.validation import ClassroomValidator, TransferStressTest, RecoveryScenarios
+
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
+
+
+class Settings:
+    def __init__(self) -> None:
+        self.db_path = os.getenv("PIHUB_DB_PATH", "/storage/pihub.sqlite3")
+        self.admin_token = os.getenv("PIHUB_ADMIN_TOKEN", "change-me")
+        self.device_token_secret = os.getenv("PIHUB_DEVICE_TOKEN_SECRET", "change-me-too")
+        self.classroom_name = os.getenv("PIHUB_CLASSROOM_NAME", "Classroom A")
+        self.backend_url = os.getenv("BACKEND_URL", "http://gateway:8000")
+        self.base_dir = Path("/")
+        self.packs_dir = Path("/packs")
+        self.cache_dir = Path("/cache")
+        self.storage_dir = Path("/storage")
+        self.logs_dir = Path("/logs")
+
+
+settings = Settings()
+store = PiHubStore(settings.db_path)
+settings.packs_dir.mkdir(parents=True, exist_ok=True)
+settings.cache_dir.mkdir(parents=True, exist_ok=True)
+settings.storage_dir.mkdir(parents=True, exist_ok=True)
+settings.logs_dir.mkdir(parents=True, exist_ok=True)
+
+pack_manager = PackManager(store, settings.cache_dir, max_cache_size_mb=500)
+pack_distribution = PackDistributionManager(store, settings.storage_dir)
+sync_engine = SyncEngine(store)
+health_monitor = HealthMonitor(store)
+backend_coordinator = BackendCoordinator(store, settings.backend_url)
+network_discovery = NetworkDiscovery(settings.storage_dir / "network")
+classroom_intranet = ClassroomIntranet(network_discovery)
+device_manager = DeviceManager(store)
+
+# Deployment Validation Phase Services
+hotspot_network = HotspotNetworking(interface="wlan0", config_dir=settings.storage_dir / "network")
+deployment_automation = DeploymentAutomation()
+persistent_sync_queue = PersistentSyncQueue(settings.storage_dir / "sync_queue_persistent.json")
+transfer_recovery = TransferRecoveryCoordinator(settings.storage_dir / "transfer_recovery.json")
+sync_diagnostics = SyncDiagnosticsService(persistent_sync_queue, transfer_recovery)
+classroom_load_manager = ClassroomLoadManager(max_concurrent_transfers=3)
+pack_validator = PackValidator()
+broadcast_coordinator = BroadcastCoordinator()
+incremental_distribution = IncrementalDistributionManager()
+cache_validator = CacheValidator()
+cache_cleanup = CacheCleanupService(settings.cache_dir)
+storage_diagnostics = StorageDiagnosticsManager(settings.cache_dir)
+deferred_sync_manager = DeferredBackendSyncManager()
+backend_recovery = BackendRecoveryCoordinator(deferred_sync_manager)
+partial_sync_recovery = PartialSyncRecoveryService()
+metrics_collector = ClassroomMetricsCollector()
+sync_metrics = SyncMetricsService()
+network_diagnostics = NetworkDiagnosticsManager()
+classroom_validator = ClassroomValidator()
+transfer_stress_test = TransferStressTest()
+recovery_scenarios = RecoveryScenarios()
+
+app = FastAPI(title="pihub")
+
+
+def _log_tag(path: str) -> str:
+    if path.startswith("/sync"):
+        return "SYNC"
+    if path.startswith("/packs"):
+        return "PACK"
+    if path.startswith("/progress"):
+        return "PROGRESS"
+    if path.startswith("/quiz-sessions"):
+        return "PROGRESS"
+    if path.startswith("/network") or path.startswith("/devices") or path.startswith("/classroom"):
+        return "DISCOVERY"
+    return "REQUEST"
+
+
+@app.middleware("http")
+async def structured_logging(request: Request, call_next):
+    started = time.perf_counter()
+    tag = _log_tag(request.url.path)
+    logger.info("[%s] REQUEST_START method=%s path=%s", tag, request.method, request.url.path)
+    try:
+        response = await call_next(request)
+    except Exception as exc:
+        duration_ms = (time.perf_counter() - started) * 1000
+        logger.exception(
+            "[%s] REQUEST_ERROR method=%s path=%s duration_ms=%.2f error=%s",
+            tag,
+            request.method,
+            request.url.path,
+            duration_ms,
+            exc,
+        )
+        raise
+    duration_ms = (time.perf_counter() - started) * 1000
+    logger.info(
+        "[%s] REQUEST_END method=%s path=%s status=%s duration_ms=%.2f",
+        tag,
+        request.method,
+        request.url.path,
+        response.status_code,
+        duration_ms,
+    )
+    return response
+
+
+def require_admin(x_pihub_token: str | None = Header(default=None)) -> None:
+    if x_pihub_token != settings.admin_token:
+        raise HTTPException(status_code=401, detail="Admin token required")
+
+
+def issue_device_token(seed: str | None = None) -> str:
+    material = f"{seed or uuid.uuid4()}:{settings.device_token_secret}".encode("utf-8")
+    return hashlib.sha256(material).hexdigest()
+
+
+@app.get("/health", response_model=HealthResponse)
+def health() -> HealthResponse:
+    system_health = health_monitor.get_system_health()
+    return HealthResponse(status=system_health["status"], service="pihub", checks=system_health)
+
+
+@app.get("/classroom")
+def get_classroom() -> dict[str, Any]:
+    classroom = store.get_classroom()
+    classroom.setdefault("discovery_token", issue_device_token(classroom.get("classroom_name") or settings.classroom_name))
+    classroom["devices_online"] = len([d for d in store.list_devices() if d["status"] == "online"])
+    classroom["network"] = network_discovery.get_network_status()
+    return classroom
+
+
+@app.post("/classroom")
+def update_classroom(payload: ClassroomUpdateRequest, _: None = Depends(require_admin)) -> dict[str, Any]:
+    return store.upsert_classroom(payload.classroom_name, payload.teacher_name, payload.sync_mode, payload.metadata)
+
+
+@app.get("/devices")
+def list_devices() -> dict[str, Any]:
+    devices = []
+    for device in store.list_devices():
+        devices.append({key: value for key, value in device.items() if key != "auth_token"})
+    return {"devices": devices}
+
+
+@app.post("/devices", response_model=DeviceResponse)
+def register_device(payload: DeviceRegisterRequest) -> DeviceResponse:
+    token = issue_device_token()
+    device = store.register_device(payload.device_name, payload.role, payload.classroom, payload.metadata, token)
+    store.create_device_session(device["device_id"], payload.classroom or "default", payload.device_name)
+    classroom_intranet.announce_device(device["device_id"], payload.device_name, device.get("metadata", {}).get("device_ip", "0.0.0.0"), 8000)
+    return DeviceResponse(**device)
+
+
+@app.post("/devices/{device_id}/heartbeat")
+def device_heartbeat(device_id: str, x_device_token: str | None = Header(default=None)) -> dict[str, Any]:
+    device = store.get_device(device_id)
+    if device is None:
+        raise HTTPException(status_code=404, detail="Device not found")
+    if x_device_token != device.get("auth_token"):
+        raise HTTPException(status_code=401, detail="Device token required")
+    store.heartbeat(device_id)
+    sessions = store.list_device_sessions(device_id)
+    if sessions:
+        store.update_device_session(sessions[0]["session_id"], last_heartbeat=int(time.time()), status="active", sync_status="idle")
+    return {"status": "ok", "device_id": device_id}
+
+
+@app.post("/devices/{device_id}/reconnect")
+def reconnect_device(device_id: str, x_device_token: str | None = Header(default=None)) -> dict[str, Any]:
+    device = store.get_device(device_id)
+    if device is None:
+        raise HTTPException(status_code=404, detail="Device not found")
+    if x_device_token != device.get("auth_token"):
+        raise HTTPException(status_code=401, detail="Device token required")
+
+    store.heartbeat(device_id)
+    sessions = store.list_device_sessions(device_id)
+    if sessions:
+        store.update_device_session(
+            sessions[0]["session_id"],
+            last_heartbeat=int(time.time()),
+            status="active",
+            sync_status="recovering",
+        )
+    classroom_intranet.announce_device(device_id, device.get("device_name", device_id), device.get("metadata", {}).get("device_ip", "0.0.0.0"), 8000)
+    return {"status": "reconnected", "device_id": device_id}
+
+
+@app.get("/devices/{device_id}/status")
+def device_status(device_id: str) -> dict[str, Any]:
+    device = store.get_device(device_id)
+    if device is None:
+        raise HTTPException(status_code=404, detail="Device not found")
+    session = store.list_device_sessions(device_id)
+    return {"device": device, "session": session[0] if session else None, "trust": store.is_device_trusted(device_id)}
+
+
+@app.post("/devices/{device_id}/trust")
+def trust_device(device_id: str, _: None = Depends(require_admin)) -> dict[str, Any]:
+    store.trust_device(device_id, True, 1)
+    return {"device_id": device_id, "trusted": True}
+
+
+@app.get("/packs")
+def list_packs() -> dict[str, Any]:
+    return {"packs": store.list_packs(), "cached": pack_manager.list_cached_packs()}
+
+
+@app.post("/packs")
+async def create_pack(
+    file: UploadFile = File(...),
+    pack_name: str = Form(default=""),
+    version: str = Form(default="1.0.0"),
+    subject: str | None = Form(default=None),
+    grade: int | None = Form(default=None),
+    chapter: str | None = Form(default=None),
+    metadata: str = Form(default="{}"),
+    _: None = Depends(require_admin),
+) -> dict[str, Any]:
+    data = await file.read()
+    validate_pack_file(file.filename or pack_name, data)
+    target_name = file.filename or f"{pack_name or 'pack'}.zip"
+    target_path = settings.packs_dir / target_name
+    target_path.write_bytes(data)
+    pack_record = store.add_pack(
+        {
+            "pack_name": pack_name or target_name,
+            "version": version,
+            "subject": subject,
+            "grade": grade,
+            "chapter": chapter,
+            "file_path": str(target_path),
+            "checksum": checksum_bytes(data),
+            "size_bytes": len(data),
+            "metadata": json.loads(metadata),
+        }
+    )
+    pack_manager.cache_pack(
+        pack_record["pack_id"],
+        pack_record["pack_name"],
+        pack_record["version"],
+        str(target_path),
+        pack_record["checksum"],
+        len(data),
+        subject,
+        grade,
+        chapter,
+    )
+    pack_distribution.create_pack_manifest(
+        pack_record["pack_id"],
+        pack_record["pack_name"],
+        pack_record["version"],
+        pack_record["size_bytes"],
+        pack_record["checksum"],
+        subject,
+        grade,
+        chapter,
+        pack_record.get("metadata", {}),
+    )
+    return pack_record
+
+
+@app.get("/packs/{pack_id}")
+def get_pack(pack_id: str) -> dict[str, Any]:
+    pack = store.get_cached_pack(pack_id) or store.get_pack(pack_id)
+    if pack is None:
+        raise HTTPException(status_code=404, detail="Pack not found")
+    store.touch_pack(pack_id)
+    pack_manager.touch_cached_pack(pack_id)
+    return pack
+
+
+@app.get("/packs/{pack_id}/download")
+def download_pack(pack_id: str) -> FileResponse:
+    pack = store.get_cached_pack(pack_id) or store.get_pack(pack_id)
+    if pack is None:
+        raise HTTPException(status_code=404, detail="Pack not found")
+    store.touch_pack(pack_id)
+    pack_manager.touch_cached_pack(pack_id)
+    return FileResponse(pack["file_path"], filename=Path(pack["file_path"]).name)
+
+
+@app.post("/sync")
+def sync(payload: SyncRequest) -> dict[str, Any]:
+    if payload.action == "start":
+        session = store.start_session(
+            {
+                "device_id": payload.device_id,
+                "resource_type": payload.resource_type,
+                "resource_id": payload.resource_id,
+                "offset_bytes": 0,
+                "total_bytes": payload.total_bytes,
+                "status": "pending",
+                "checksum": payload.checksum,
+                "metadata": payload.metadata,
+            }
+        )
+        return {"session": session, "manifest": build_sync_manifest(session)}
+
+    if payload.session_id is None:
+        raise HTTPException(status_code=400, detail="session_id is required")
+
+    if payload.action == "status":
+        session = store.get_session(payload.session_id)
+        if session is None:
+            raise HTTPException(status_code=404, detail="Sync session not found")
+        return {"session": session, "manifest": build_sync_manifest(session)}
+
+    if payload.action == "advance":
+        session = store.update_session(
+            payload.session_id,
+            offset_bytes=payload.bytes_transferred or 0,
+            status="transferring",
+            checksum=payload.checksum,
+            metadata=payload.metadata,
+        )
+        if session is None:
+            raise HTTPException(status_code=404, detail="Sync session not found")
+        return {"session": session, "manifest": build_sync_manifest(session)}
+
+    if payload.action == "complete":
+        session = store.update_session(payload.session_id, status="complete", metadata=payload.metadata)
+        if session is None:
+            raise HTTPException(status_code=404, detail="Sync session not found")
+        return {"session": session, "manifest": build_sync_manifest(session)}
+
+    if payload.action == "retry":
+        session = store.increment_retry(payload.session_id)
+        if session is None:
+            raise HTTPException(status_code=404, detail="Sync session not found")
+        return {"session": session, "manifest": build_sync_manifest(session)}
+
+    raise HTTPException(status_code=400, detail="Unsupported sync action")
+
+
+@app.get("/sync")
+def sync_status() -> dict[str, Any]:
+    sessions = [build_sync_manifest(session) for session in store.list_sync_queue()]
+    return {"sessions": sessions, "status": sync_engine.get_sync_status()}
+
+
+@app.post("/progress")
+def record_progress(payload: ProgressRequest) -> dict[str, Any]:
+    progress = store.upsert_progress(payload.model_dump())
+    return {"status": "ok", "progress": progress}
+
+
+@app.get("/progress/{student_id}")
+def get_progress(student_id: str) -> dict[str, Any]:
+    return {"student_id": student_id, "progress": store.list_progress(student_id)}
+
+
+@app.post("/quiz-sessions")
+def create_quiz_session(payload: QuizSessionCreateRequest) -> dict[str, Any]:
+    session = store.create_quiz_session(payload.model_dump())
+    return {"status": "ok", "session": session}
+
+
+@app.get("/quiz-sessions/student/{student_id}")
+def list_student_quiz_sessions(student_id: str, active_only: bool = False) -> dict[str, Any]:
+    if active_only:
+        session = store.active_quiz_session(student_id)
+        return {"student_id": student_id, "sessions": [session] if session else []}
+    return {"student_id": student_id, "sessions": store.list_quiz_sessions(student_id)}
+
+
+@app.get("/quiz-sessions/{quiz_session_id}")
+def get_quiz_session(quiz_session_id: str) -> dict[str, Any]:
+    session = store.get_quiz_session(quiz_session_id)
+    if session is None:
+        raise HTTPException(status_code=404, detail="Quiz session not found")
+    return {"session": session}
+
+
+@app.post("/quiz-sessions/{quiz_session_id}/answer")
+def answer_quiz_session(quiz_session_id: str, payload: QuizAnswerRequest) -> dict[str, Any]:
+    session = store.advance_quiz_session(quiz_session_id, payload.model_dump())
+    if session is None:
+        raise HTTPException(status_code=404, detail="Quiz session not found")
+    return {"status": "ok", "session": session}
+
+
+@app.post("/sync/process")
+def process_sync_queue(_: None = Depends(require_admin)) -> dict[str, Any]:
+    return sync_engine.process_pending_syncs()
+
+
+@app.post("/sync/{session_id}/retry")
+def retry_sync(session_id: str, _: None = Depends(require_admin)) -> dict[str, Any]:
+    session = store.increment_retry(session_id)
+    if session is None:
+        raise HTTPException(status_code=404, detail="Sync session not found")
+    return {"session": session, "manifest": build_sync_manifest(session)}
+
+
+@app.get("/cache/stats")
+def cache_stats() -> dict[str, Any]:
+    return pack_manager.get_cache_stats()
+
+
+@app.get("/cache/health")
+def cache_health() -> dict[str, Any]:
+    return {"cache": pack_manager.get_cache_stats(), "backend": backend_coordinator.store.get_backend_sync_state()}
+
+
+@app.get("/sessions")
+def list_sessions() -> dict[str, Any]:
+    return {"sessions": store.list_device_sessions()}
+
+
+@app.get("/sessions/{session_id}")
+def get_session(session_id: str) -> dict[str, Any]:
+    session = store.get_device_session(session_id)
+    if session is None:
+        raise HTTPException(status_code=404, detail="Session not found")
+    return session
+
+
+@app.get("/network/status")
+def network_status() -> dict[str, Any]:
+    return network_discovery.get_network_status()
+
+
+@app.post("/network/session")
+def create_network_session(classroom_name: str | None = None, hotspot_enabled: bool = False, _: None = Depends(require_admin)) -> dict[str, Any]:
+    session = network_discovery.create_classroom_session(classroom_name or settings.classroom_name, hotspot_enabled=hotspot_enabled)
+    return {"session": session.__dict__ if hasattr(session, "__dict__") else session}
+
+
+@app.get("/network/devices")
+def discover_network_devices() -> dict[str, Any]:
+    return {"devices": classroom_intranet.discover_local_devices()}
+
+
+@app.post("/backend/sync")
+async def backend_sync(_: None = Depends(require_admin)) -> dict[str, Any]:
+    return await backend_coordinator.sync_classroom_metadata()
+
+
+@app.post("/backend/sync-now")
+async def backend_sync_now(_: None = Depends(require_admin)) -> dict[str, Any]:
+    return await backend_coordinator.sync_classroom_metadata()
+
+
+@app.get("/backend/status")
+def backend_status() -> dict[str, Any]:
+    return backend_coordinator.store.get_backend_sync_state()
+
+
+@app.get("/backend/health")
+async def backend_health(_: None = Depends(require_admin)) -> dict[str, Any]:
+    available = await backend_coordinator.check_backend_health()
+    return {"backend_available": available, "status": "ok" if available else "backend_unavailable"}
+
+
+@app.get("/health/resources")
+def health_resources(_: None = Depends(require_admin)) -> dict[str, Any]:
+    return health_monitor.get_resource_usage()
+
+
+@app.get("/health/diagnostics")
+def health_diagnostics() -> dict[str, Any]:
+    return {"system": health_monitor.get_system_health(), "backend": backend_coordinator.store.get_backend_sync_state()}
+
+
+@app.post("/broadcast/pack/{pack_id}")
+def broadcast_pack(pack_id: str, classroom: str | None = None, _: None = Depends(require_admin)) -> dict[str, Any]:
+    queue_id = sync_engine.broadcast_to_classroom("distribute_pack", "pack", pack_id, classroom)
+    manifest = pack_distribution.broadcast_pack_to_classroom(pack_id, classroom or settings.classroom_name)
+    return {"queue_id": queue_id, "manifest": manifest, "status": "queued"}
+
+
+@app.get("/packs/{pack_id}/distribution")
+def pack_distribution_status(pack_id: str) -> dict[str, Any]:
+    versions = pack_distribution.list_pack_versions(pack_id)
+    cached = pack_manager.get_cached_pack(pack_id)
+    return {"pack_id": pack_id, "versions": versions, "cached": cached}
+
+
+# Deployment Validation Phase 1-2: Hotspot & Startup
+@app.get("/deployment/hotspot/health")
+def hotspot_health(_: None = Depends(require_admin)) -> dict[str, Any]:
+    return hotspot_network.check_hotspot_health()
+
+
+@app.post("/deployment/hotspot/setup")
+def setup_hotspot(
+    ssid: str,
+    passphrase: str,
+    channel: int = 6,
+    _: None = Depends(require_admin),
+) -> dict[str, Any]:
+    return hotspot_network.setup_hotspot(ssid, passphrase, channel=channel)
+
+
+@app.post("/deployment/hotspot/recover")
+def recover_hotspot(_: None = Depends(require_admin)) -> dict[str, Any]:
+    return hotspot_network.recover_hotspot()
+
+
+@app.get("/deployment/hotspot/devices")
+def hotspot_devices(_: None = Depends(require_admin)) -> dict[str, Any]:
+    return hotspot_network.get_connected_devices()
+
+
+@app.get("/deployment/startup/validate")
+def validate_startup(_: None = Depends(require_admin)) -> dict[str, Any]:
+    return deployment_automation.validate_deployment()
+
+
+@app.get("/deployment/startup/containers")
+def startup_containers(_: None = Depends(require_admin)) -> dict[str, Any]:
+    return deployment_automation.ensure_all_containers_running()
+
+
+@app.post("/deployment/startup/containers/{container_name}/restart")
+def restart_container(container_name: str, _: None = Depends(require_admin)) -> dict[str, Any]:
+    return deployment_automation.docker_recovery.restart_container(container_name)
+
+
+@app.get("/deployment/status")
+def deployment_status(_: None = Depends(require_admin)) -> dict[str, Any]:
+    return deployment_automation.get_deployment_status()
+
+
+# Deployment Validation Phase 3: Synchronization Hardening
+@app.get("/deployment/sync/health")
+def sync_health(_: None = Depends(require_admin)) -> dict[str, Any]:
+    return sync_diagnostics.get_sync_health()
+
+
+@app.get("/deployment/sync/diagnostics")
+def sync_diagnostics_endpoint(_: None = Depends(require_admin)) -> dict[str, Any]:
+    return sync_diagnostics.get_sync_diagnostics()
+
+
+@app.get("/deployment/sync/interrupted")
+def interrupted_transfers(_: None = Depends(require_admin)) -> dict[str, Any]:
+    return {"interrupted_transfers": transfer_recovery.get_interrupted_transfers()}
+
+
+@app.get("/deployment/sync/queue/size")
+def sync_queue_size(_: None = Depends(require_admin)) -> dict[str, Any]:
+    return {"queue_size": persistent_sync_queue.get_size()}
+
+
+# Deployment Validation Phase 4: Classroom Load Management
+@app.get("/deployment/load/status")
+def load_status(_: None = Depends(require_admin)) -> dict[str, Any]:
+    return classroom_load_manager.get_classroom_load()
+
+
+@app.get("/deployment/load/statistics")
+def load_statistics(_: None = Depends(require_admin)) -> dict[str, Any]:
+    return classroom_load_manager.get_load_statistics()
+
+
+@app.post("/deployment/load/record-snapshot")
+def record_load_snapshot(_: None = Depends(require_admin)) -> dict[str, Any]:
+    classroom_load_manager.record_load_snapshot()
+    return {"status": "snapshot_recorded"}
+
+
+# Deployment Validation Phase 5: Pack Hardening
+@app.post("/deployment/packs/validate/{pack_id}")
+def validate_pack(pack_id: str, _: None = Depends(require_admin)) -> dict[str, Any]:
+    pack = store.get_pack(pack_id)
+    if not pack:
+        raise HTTPException(status_code=404, detail="Pack not found")
+    result = pack_validator.validate_pack(pack_id, pack["file_path"], pack["checksum"])
+    return result
+
+
+@app.get("/deployment/packs/versions/{pack_id}")
+def pack_versions(pack_id: str, _: None = Depends(require_admin)) -> dict[str, Any]:
+    versions = incremental_distribution.get_version_history(pack_id)
+    return {"pack_id": pack_id, "versions": versions}
+
+
+@app.post("/deployment/packs/broadcast")
+def create_broadcast(
+    broadcast_id: str,
+    pack_id: str,
+    target_devices: list[str] | None = None,
+    _: None = Depends(require_admin),
+) -> dict[str, Any]:
+    return broadcast_coordinator.create_broadcast(
+        broadcast_id,
+        pack_id,
+        target_devices or [],
+    )
+
+
+# Deployment Validation Phase 6: Cache Hardening
+@app.get("/deployment/cache/validation")
+def cache_validation(_: None = Depends(require_admin)) -> dict[str, Any]:
+    invalid = cache_validator.get_invalid_entries()
+    return {"invalid_entries": invalid}
+
+
+@app.post("/deployment/cache/cleanup")
+def cleanup_cache(days_old: int = 30, _: None = Depends(require_admin)) -> dict[str, Any]:
+    return cache_cleanup.cleanup_stale_entries(days_old)
+
+
+@app.get("/deployment/cache/storage")
+def storage_info(_: None = Depends(require_admin)) -> dict[str, Any]:
+    storage_diagnostics.record_usage_snapshot()
+    usage = storage_diagnostics.get_cache_usage()
+    trend = storage_diagnostics.get_storage_trend()
+    return {"usage": usage, "trend": trend}
+
+
+# Deployment Validation Phase 7: Backend Recovery
+@app.get("/deployment/backend/deferred-status")
+def deferred_status(_: None = Depends(require_admin)) -> dict[str, Any]:
+    return deferred_sync_manager.get_deferred_status()
+
+
+@app.get("/deployment/backend/connectivity")
+def backend_connectivity(_: None = Depends(require_admin)) -> dict[str, Any]:
+    return backend_recovery.get_backend_status()
+
+
+@app.get("/deployment/backend/resumable-syncs")
+def resumable_syncs(_: None = Depends(require_admin)) -> dict[str, Any]:
+    return {"resumable_syncs": partial_sync_recovery.get_resumable_syncs()}
+
+
+# Deployment Validation Phase 8: Monitoring
+@app.post("/deployment/metrics/classroom")
+def record_classroom_metrics(
+    active_devices: int,
+    total_devices: int,
+    pending_syncs: int,
+    cached_packs: int,
+    _: None = Depends(require_admin),
+) -> dict[str, Any]:
+    return metrics_collector.collect_classroom_metrics(
+        active_devices,
+        total_devices,
+        pending_syncs,
+        cached_packs,
+    )
+
+
+@app.get("/deployment/metrics/classroom-summary")
+def classroom_summary(_: None = Depends(require_admin)) -> dict[str, Any]:
+    return metrics_collector.get_classroom_summary()
+
+
+@app.get("/deployment/metrics/sync")
+def sync_metrics_endpoint(hours: int = 24, _: None = Depends(require_admin)) -> dict[str, Any]:
+    return sync_metrics.get_sync_metrics(hours)
+
+
+@app.get("/deployment/metrics/network")
+def network_health(_: None = Depends(require_admin)) -> dict[str, Any]:
+    return network_diagnostics.get_network_health()
+
+
+# Deployment Validation Phase 9: Real-world Validation
+@app.get("/deployment/validation/hotspot")
+def validate_hotspot(_: None = Depends(require_admin)) -> dict[str, Any]:
+    return classroom_validator.validate_hotspot_networking()
+
+
+@app.get("/deployment/validation/deployment")
+def validate_deployment_ready(_: None = Depends(require_admin)) -> dict[str, Any]:
+    return classroom_validator.validate_deployment_readiness()
+
+
+@app.get("/deployment/validation/scenarios")
+def validation_scenarios(_: None = Depends(require_admin)) -> dict[str, Any]:
+    return {"scenarios": recovery_scenarios.get_all_scenarios()}
