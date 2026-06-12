@@ -64,6 +64,8 @@ def _log_tag(path: str) -> str:
         return "RAG"
     if path.startswith("/experiments") or path.startswith("/experiment-templates") or path.startswith("/experiment-runs") or path.startswith("/analytics") or path.startswith("/experiment-metrics"):
         return "EXPERIMENT_GATEWAY"
+    if path.startswith("/api/voice"):
+        return "VOICE"
     if path.startswith("/ai") or path.startswith("/tutor") or path.startswith("/planner") or path.startswith("/metrics/tutor") or path.startswith("/metrics/retrieval"):
         return "TUTOR"
     if path.startswith("/progress"):
@@ -150,6 +152,26 @@ async def _post_json(base_url: str, path: str, payload: dict[str, Any]) -> dict[
     response = await app.state.http.post(f"{base_url}{path}", json=payload)
     if response.is_error:
         raise HTTPException(status_code=response.status_code, detail=response.text)
+    return response.json()
+
+
+async def _post_multipart(
+    base_url: str,
+    path: str,
+    file: UploadFile,
+    params: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    content = await file.read()
+    files = {
+        "file": (
+            file.filename or "audio.wav",
+            content,
+            file.content_type or "application/octet-stream",
+        )
+    }
+    response = await app.state.http.post(f"{base_url}{path}", params=params, files=files)
+    if response.is_error:
+        raise HTTPException(status_code=response.status_code, detail=_error_detail(response.text))
     return response.json()
 
 
@@ -443,6 +465,8 @@ def _capabilities() -> dict[str, bool]:
         "progress": True,
         "metrics": True,
         "experiments": True,
+        "voice": True,
+        "audio": True,
     }
 
 
@@ -489,6 +513,7 @@ def _discovery_payload() -> dict[str, Any]:
         "supports_rag": True,
         "supports_sync": True,
         "supports_assets": True,
+        "supports_voice": True,
     }
 
 
@@ -624,11 +649,13 @@ async def _proxy_stream(
     method: str,
     path: str,
     payload: dict[str, Any] | None = None,
+    headers: dict[str, str] | None = None,
 ) -> StreamingResponse:
     request = app.state.http.build_request(
         method,
         f"{base_url}{path}",
         json=payload,
+        headers=headers,
     )
     response = await app.state.http.send(request, stream=True)
 
@@ -644,7 +671,7 @@ async def _proxy_stream(
     content_type = response.headers.get("content-type", "application/octet-stream")
     passthrough_headers = {
         key: value
-        for key in ("content-length", "content-disposition", "etag", "last-modified", "accept-ranges")
+        for key in ("content-length", "content-disposition", "etag", "last-modified", "accept-ranges", "content-range", "cache-control")
         if (value := response.headers.get(key)) is not None
     }
     return StreamingResponse(
@@ -752,6 +779,7 @@ async def health() -> dict[str, Any]:
     status = "healthy"
     inference_ok = False
     experiment_ok = False
+    voice_ok = False
     database_ok = False
     pack_count = 0
     chunk_count = 0
@@ -806,6 +834,17 @@ async def health() -> dict[str, Any]:
             status = "degraded"
 
     try:
+        voice = await app.state.http.get(f"{settings.voice_service_url}/health")
+        checks["voice_service"] = voice.json()
+        voice_ok = voice.is_success
+        if voice.is_error and settings.voice_service_required:
+            status = "degraded"
+    except Exception as exc:  # pragma: no cover - network failure path
+        checks["voice_service"] = {"healthy": False, "error": str(exc)}
+        if settings.voice_service_required:
+            status = "degraded"
+
+    try:
         pihub = await app.state.http.get(f"{settings.pihub_url}/health")
         checks["pihub"] = pihub.json()
         database_ok = pihub.is_success
@@ -840,6 +879,7 @@ async def health() -> dict[str, Any]:
         "service": "gateway",
         "inference_service": inference_ok,
         "experiment_service": {"healthy": experiment_ok},
+        "voice_service": {"healthy": voice_ok},
         "database": database_ok,
         "pack_count": pack_count,
         "chunk_count": chunk_count,
@@ -1038,6 +1078,52 @@ async def ai_tutor(payload: dict[str, Any]) -> Any:
 @app.get("/ai/health")
 async def ai_health() -> dict[str, Any]:
     return await _proxy_to(settings.inference_service_url, "GET", "/ai/health")
+
+
+@app.post("/api/voice/query")
+async def voice_query(payload: dict[str, Any]) -> Any:
+    return await _proxy_to(settings.voice_service_url, "POST", "/voice/query", payload)
+
+
+@app.post("/api/voice/tts")
+async def voice_tts(payload: dict[str, Any]) -> Any:
+    return await _proxy_to(settings.voice_service_url, "POST", "/voice/tts", payload)
+
+
+@app.post("/api/voice/stt")
+async def voice_stt(
+    file: UploadFile = File(...),
+    language: str | None = Query(default=None),
+    enable_partial_transcripts: bool = Query(default=False),
+) -> dict[str, Any]:
+    return await _post_multipart(
+        settings.voice_service_url,
+        "/voice/stt",
+        file,
+        {
+            "language": language,
+            "enable_partial_transcripts": enable_partial_transcripts,
+        },
+    )
+
+
+@app.get("/api/voice/audio/{asset_id:path}")
+async def voice_audio(asset_id: str, request: Request) -> StreamingResponse:
+    headers: dict[str, str] = {}
+    range_header = request.headers.get("range")
+    if range_header:
+        headers["Range"] = range_header
+    return await _proxy_stream(
+        settings.voice_service_url,
+        "GET",
+        f"/voice/audio/{quote(asset_id, safe='')}",
+        headers=headers,
+    )
+
+
+@app.get("/api/voice/metrics")
+async def voice_metrics() -> dict[str, Any]:
+    return await _get_json(settings.voice_service_url, "/voice/metrics")
 
 
 @app.get("/sync")

@@ -190,7 +190,13 @@ This sprint intentionally creates the production architecture and contracts. The
 4. Distil-Whisper Large-v3 model adapter
 5. Svara TTS Q3_K_S llama.cpp adapter
 6. Gemma 4 12B curriculum RAG adapter
-7. Docker Compose registration after standalone service validation
+7. Runtime model adapter wiring after backend integration
+
+Docker Compose and gateway integration are now tracked in:
+
+```text
+backend/voice-service/VOICE_BACKEND_INTEGRATION_REPORT.md
+```
 
 ## Verdict
 

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from contextlib import asynccontextmanager
+from typing import Any
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,10 +20,23 @@ from tts import SvaraTTSEngine
 
 
 def create_app() -> FastAPI:
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        tts_engine = getattr(app.state, "tts_engine", None)
+        if hasattr(tts_engine, "warmup"):
+            await tts_engine.warmup()
+        try:
+            yield
+        finally:
+            tts_engine = getattr(app.state, "tts_engine", None)
+            if hasattr(tts_engine, "close"):
+                await tts_engine.close()
+
     app = FastAPI(
         title="IDP Voice Service",
         version="1.0.0",
         description="Voice questions, voice tutor, STT, TTS, pre-generated audio, streaming audio, and analytics.",
+        lifespan=lifespan,
     )
     app.add_middleware(
         CORSMiddleware,
@@ -60,9 +75,17 @@ app = create_app()
 
 @app.get("/health", tags=["health"])
 async def health() -> dict[str, object]:
+    tts_health: dict[str, Any] = {"loaded": False, "status": "unknown"}
+    tts_engine = getattr(app.state, "tts_engine", None)
+    if hasattr(tts_engine, "health_check"):
+        tts_health = await tts_engine.health_check()
+
     return {
         "status": "healthy",
         "service": "voice-service",
+        "voice_service": {
+            "tts": tts_health,
+        },
         "capabilities": {
             "voice_query": True,
             "stt": True,

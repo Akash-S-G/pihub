@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     pihub_url: str = Field(default="http://pihub:8020", alias="PIHUB_URL")
     experiment_service_url: str = Field(default="http://experiment-service:8040", alias="EXPERIMENT_SERVICE_URL")
     experiment_service_required: bool = Field(default=False, alias="EXPERIMENT_SERVICE_REQUIRED")
+    voice_service_url: str = Field(default="http://voice-service:8050", alias="VOICE_SERVICE_URL")
+    voice_service_required: bool = Field(default=False, alias="VOICE_SERVICE_REQUIRED")
     qdrant_url: str = Field(default="http://qdrant:6333", alias="QDRANT_URL")
     qdrant_collection: str = Field(default="educational_chunks", alias="QDRANT_COLLECTION")
 

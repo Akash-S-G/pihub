@@ -109,6 +109,7 @@ services:
       QDRANT_URL: ${QDRANT_URL:-http://qdrant:6333}
       PACK_SERVICE_URL: ${PACK_SERVICE_URL:-http://pack-service:8030}
       EXPERIMENT_SERVICE_URL: ${EXPERIMENT_SERVICE_URL:-http://experiment-service:8040}
+      VOICE_SERVICE_URL: ${VOICE_SERVICE_URL:-http://voice-service:8050}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
     depends_on:
       - content-pipeline
@@ -117,6 +118,7 @@ services:
       - qdrant
       - pack-service
       - experiment-service
+      - voice-service
     volumes:
       - shared_storage:/shared
       - backend_logs:/logs
@@ -167,6 +169,47 @@ services:
       - backend_logs:/logs
     expose:
       - "8040"
+
+  voice-service:
+    build:
+      context: .
+      dockerfile: voice-service/Dockerfile
+      network: host
+    container_name: pihub-voice-service
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      VOICE_AUDIO_ROOT: ${VOICE_AUDIO_ROOT:-/shared/voice/audio}
+      VOICE_AUDIO_MANIFEST: ${VOICE_AUDIO_MANIFEST:-/shared/voice/audio_manifest.json}
+      VOICE_TUTOR_URL: ${VOICE_TUTOR_URL:-http://inference-service:8010}
+      VOICE_TUTOR_PATH: ${VOICE_TUTOR_PATH:-/ai/tutor}
+      VOICE_TTS_ENABLED: ${VOICE_TTS_ENABLED:-true}
+      SVARA_GGUF_PATH: ${SVARA_GGUF_PATH:-/models/svara/svara-tts-v1.Q3_K_S.gguf}
+      SVARA_MODEL_PATH: ${SVARA_MODEL_PATH:-/models/svara/svara-tts-v1.Q3_K_S.gguf}
+      SVARA_SNAC_DECODER_PATH: ${SVARA_SNAC_DECODER_PATH:-/models/svara/snac_24khz-ONNX/onnx/decoder_model.onnx}
+      SVARA_SAMPLE_RATE: ${SVARA_SAMPLE_RATE:-24000}
+      SVARA_MAX_TOKENS: ${SVARA_MAX_TOKENS:-280}
+      SVARA_THREADS: ${SVARA_THREADS:-8}
+      SVARA_CONTEXT: ${SVARA_CONTEXT:-4096}
+      SVARA_GPU_LAYERS: ${SVARA_GPU_LAYERS:-99}
+      SVARA_BATCH_SIZE: ${SVARA_BATCH_SIZE:-512}
+      SVARA_TIMEOUT_SECONDS: ${SVARA_TIMEOUT_SECONDS:-300}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    depends_on:
+      - inference-service
+    volumes:
+      - shared_storage:/shared
+      - ./voice-service/models:/models/svara
+      - backend_logs:/logs
+    expose:
+      - "8050"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8050/health', timeout=2).read()"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
   nginx:
     image: nginx:1.27-alpine

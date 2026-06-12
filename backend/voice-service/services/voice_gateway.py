@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import time
+from pathlib import Path
 from typing import Any
 
 from analytics import VoiceMetrics
@@ -64,8 +65,9 @@ class VoiceGateway:
         tutor_result = await self.tutor.answer_with_context(request.question or "", filters)
         answer = str(tutor_result.get("answer") or "")
         context = tutor_result.get("context") or []
-        audio = await self.tts.synthesize(answer, "default", request.language, "wav")
-        audio_id = f"answer_{hashlib.sha256((key + answer).encode('utf-8')).hexdigest()[:24]}"
+        audio_result = await self._synthesize_audio(answer, "default", request.language, "wav")
+        audio = audio_result["content"]
+        audio_id = audio_result.get("audio_id") or f"answer_{hashlib.sha256((key + answer).encode('utf-8')).hexdigest()[:24]}"
         await self.audio_storage.put(audio_id, audio, "audio/wav")
         response = VoiceQueryResponse(
             answer_text=answer,
@@ -88,13 +90,36 @@ class VoiceGateway:
                 self.metrics.increment("audio_cache_hits")
                 return TTSResponse.model_validate(cached).model_copy(update={"cache_status": CacheStatus.hit})
         self.metrics.increment("audio_cache_misses")
-        audio = await self.tts.synthesize(request.text, request.voice, request.language, request.format)
-        audio_id = f"tts_{hashlib.sha256((key + str(len(audio))).encode('utf-8')).hexdigest()[:24]}"
+        audio_result = await self._synthesize_audio(request.text, request.voice, request.language, request.format)
+        audio = audio_result["content"]
+        audio_id = audio_result.get("audio_id") or f"tts_{hashlib.sha256((key + str(len(audio))).encode('utf-8')).hexdigest()[:24]}"
         await self.audio_storage.put(audio_id, audio, f"audio/{request.format}")
-        response = TTSResponse(audio_id=audio_id, audio_url=f"/voice/audio/{audio_id}", cache_status=CacheStatus.miss, format=request.format)
+        response = TTSResponse(
+            audio_id=audio_id,
+            audio_url=f"/voice/audio/{audio_id}",
+            cache_status=CacheStatus.miss,
+            format=request.format,
+            duration_ms=audio_result.get("duration_ms"),
+        )
         if request.cache:
             await self.cache.set(key, response.model_dump(), ttl_seconds=3600)
         return response
+
+    async def _synthesize_audio(self, text: str, voice: str, language: str, audio_format: str) -> dict[str, Any]:
+        if hasattr(self.tts, "synthesize_result"):
+            result = await self.tts.synthesize_result(text, voice, language, audio_format)  # type: ignore[attr-defined]
+            content = getattr(result, "content", None)
+            file_path = getattr(result, "file_path", None)
+            if content is None and file_path:
+                content = Path(file_path).read_bytes()
+            return {
+                "content": content,
+                "audio_id": result.audio_id,
+                "duration_ms": result.duration_ms,
+                "sample_rate": result.sample_rate,
+                "file_size": getattr(result, "file_size_bytes", getattr(result, "file_size", None)),
+            }
+        return {"content": await self.tts.synthesize(text, voice, language, audio_format)}
 
     @staticmethod
     def _query_key(request: VoiceQueryRequest) -> str:
