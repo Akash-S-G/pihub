@@ -53,3 +53,4 @@ backend/inference-service/models/
 /concept_precision_recovery_reports
 /docling_structured_chapters/
 TEMP/
+idp_curriculum_generation/
