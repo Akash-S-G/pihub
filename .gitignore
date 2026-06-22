@@ -54,3 +54,11 @@ backend/inference-service/models/
 /docling_structured_chapters/
 TEMP/
 idp_curriculum_generation/
+
+# Kaggle notebook experiments and generated curriculum outputs
+/IDP_CURRICULUM_GENERATION_PIPELINE.ipynb
+/idp_curriculum_generation.zip
+/idp_curriculum_generation_rebuilt/
+/KAGGLE_ARTIFACT_AUDIT_REPORT.md
+/CONTENT_QUALITY_1_*.md
+/CONTENT_QUALITY_1_*.json

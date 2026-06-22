@@ -20,6 +20,10 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from app.context import ExperimentContextProvider, PackContextProvider
+from app.language import LanguageAdapter
+from app.orchestration import TutorOrchestrator
+from app.sessions import SessionManager
 from shared.config import get_settings as get_shared_settings
 from shared.topic_normalization import normalize_subject, normalize_topic
 
@@ -151,6 +155,7 @@ class ContextResult(BaseModel):
 class InferenceResponse(BaseModel):
     answer: str
     model: str
+    language: str | None = None
     context: list[ContextResult] = Field(default_factory=list)
 
 
@@ -809,6 +814,18 @@ async def _chat_completion(system_prompt: str, user_prompt: str, request: ChatRe
     return event_stream()
 
 
+tutor_orchestrator = TutorOrchestrator(
+    session_manager=SessionManager(),
+    pack_context_provider=PackContextProvider(_retrieve_context_with_observability),
+    experiment_context_provider=ExperimentContextProvider(),
+    language_adapter=LanguageAdapter(),
+    build_system_prompt=_build_system_prompt,
+    build_user_prompt=_build_user_prompt,
+    chat_completion=_chat_completion,
+    active_model=lambda: manager.active_model,
+)
+
+
 @app.get("/metrics/tutor")
 async def tutor_metrics_endpoint() -> dict[str, Any]:
     return _metrics_summary()
@@ -891,14 +908,14 @@ async def ai_chat(request: ChatRequest) -> InferenceResponse:
 
 @app.post("/ai/tutor")
 async def ai_tutor(request: TutorRequest) -> Any:
-    total_start = time.perf_counter()
-    context, retrieval_diagnostics = await _retrieve_context_with_observability(request)
-    retrieval_ms = float(retrieval_diagnostics["retrieval_ms"])
-    chunks_retrieved = int(retrieval_diagnostics["chunks_retrieved"])
-    chunks_used = int(retrieval_diagnostics["chunks_used"])
+    result = await tutor_orchestrator.run(request)
+    retrieval_diagnostics = result.retrieval_diagnostics
+    retrieval_ms = float(retrieval_diagnostics.get("retrieval_ms", 0.0))
+    chunks_retrieved = result.chunks_retrieved
+    chunks_used = result.chunks_used
     rerank_ms = 0.0
     logger.info(
-        "[TUTOR] intent=%s topic=%s normalized_topic=%s retrieved_chunks=%s asset_used=%s response_source=%s fallback_reason=%s",
+        "[TUTOR] intent=%s topic=%s normalized_topic=%s retrieved_chunks=%s asset_used=%s response_source=%s fallback_reason=%s language=%s session_id=%s",
         request.intent,
         request.topic,
         retrieval_diagnostics.get("normalized_topic"),
@@ -906,32 +923,33 @@ async def ai_tutor(request: TutorRequest) -> Any:
         bool(request.asset_context),
         "inference_service",
         retrieval_diagnostics.get("fallback_reason"),
+        result.language,
+        result.session_id,
     )
-    # If no relevant context found, indicate this in system prompt
-    system_prompt = _build_system_prompt(request, request.hint_style)
-    if not context:
-        system_prompt += "\n[Note: No relevant educational context was found. Answer based on your knowledge.]"
-    
-    user_prompt = _build_user_prompt(request, context)
     if request.stream:
-        stream = await _chat_completion(system_prompt, user_prompt, request, stream=True)
         llm_start = time.perf_counter()
 
         async def measured_stream() -> AsyncIterator[str]:
             try:
-                async for chunk in stream:
+                if result.stream is None:
+                    return
+                async for chunk in result.stream:
                     yield chunk
             finally:
                 llm_ms = (time.perf_counter() - llm_start) * 1000
-                total_ms = (time.perf_counter() - total_start) * 1000
+                total_ms = result.metrics.context_latency_ms + llm_ms
                 _record_tutor_metric({
                     "retrieval_ms": round(retrieval_ms, 2),
                     "rerank_ms": round(rerank_ms, 2),
                     "llm_ms": round(llm_ms, 2),
                     "total_ms": round(total_ms, 2),
+                    "context_latency_ms": result.metrics.context_latency_ms,
+                    "language_adapter_latency_ms": result.metrics.language_adapter_latency_ms,
                     "chunks_retrieved": chunks_retrieved,
                     "chunks_used": chunks_used,
                     "stream": True,
+                    "language": result.language,
+                    "session_id": result.session_id,
                     "intent": request.intent,
                     "topic": request.topic,
                     "normalized_topic": retrieval_diagnostics.get("normalized_topic"),
@@ -941,18 +959,18 @@ async def ai_tutor(request: TutorRequest) -> Any:
                 })
 
         return StreamingResponse(measured_stream(), media_type="text/event-stream")
-    llm_start = time.perf_counter()
-    answer = await _chat_completion(system_prompt, user_prompt, request, stream=False)
-    llm_ms = (time.perf_counter() - llm_start) * 1000
-    total_ms = (time.perf_counter() - total_start) * 1000
     _record_tutor_metric({
         "retrieval_ms": round(retrieval_ms, 2),
         "rerank_ms": round(rerank_ms, 2),
-        "llm_ms": round(llm_ms, 2),
-        "total_ms": round(total_ms, 2),
+        "llm_ms": result.metrics.tutor_latency_ms,
+        "total_ms": result.metrics.total_response_latency_ms,
+        "context_latency_ms": result.metrics.context_latency_ms,
+        "language_adapter_latency_ms": result.metrics.language_adapter_latency_ms,
         "chunks_retrieved": chunks_retrieved,
         "chunks_used": chunks_used,
         "stream": False,
+        "language": result.language,
+        "session_id": result.session_id,
         "intent": request.intent,
         "topic": request.topic,
         "normalized_topic": retrieval_diagnostics.get("normalized_topic"),
@@ -960,4 +978,34 @@ async def ai_tutor(request: TutorRequest) -> Any:
         "asset_used": bool(request.asset_context),
         "response_source": "inference_service",
     })
-    return InferenceResponse(answer=answer, model=manager.active_model, context=context)
+    return InferenceResponse(answer=result.answer, model=result.model, language=result.language, context=result.context)
+
+
+@app.post("/ai/tutor/debug")
+async def ai_tutor_debug(request: TutorRequest) -> dict[str, Any]:
+    debug_request = request.model_copy(update={"stream": False})
+    result = await tutor_orchestrator.run(debug_request)
+
+    def dump_context_item(item: Any) -> Any:
+        if hasattr(item, "model_dump"):
+            return item.model_dump()
+        if isinstance(item, dict):
+            return item
+        return {
+            "text": str(item),
+        }
+
+    return {
+        "question": debug_request.question,
+        "language": result.language,
+        "model": result.model,
+        "retrieved_chunks": [dump_context_item(item) for item in result.context],
+        "retrieval_diagnostics": result.retrieval_diagnostics,
+        "experiment_context": result.experiment_context,
+        "session_context": result.session_context,
+        "system_prompt": result.system_prompt,
+        "user_prompt": result.user_prompt,
+        "final_prompt": result.final_prompt,
+        "answer": result.answer,
+        "metrics": result.metrics.model_dump(),
+    }
