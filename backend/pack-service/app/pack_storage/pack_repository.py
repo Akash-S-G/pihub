@@ -182,6 +182,17 @@ class PackRepository:
                 target.write_bytes(payload)
             else:
                 target.write_text(str(payload), encoding="utf-8")
+                
+        # Support custom generated pack artifacts
+        for key, payload in artifacts.items():
+            file_name = f"{key}.json"
+            if file_name not in default_artifacts:
+                target = pack_dir / file_name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                if isinstance(payload, (dict, list)):
+                    target.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+                else:
+                    target.write_text(str(payload), encoding="utf-8")
 
     def _archive_pack(self, pack_dir: Path) -> Path:
         archive_path = self.locator.archive_path(pack_dir)

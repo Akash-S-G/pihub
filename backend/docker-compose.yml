@@ -89,6 +89,7 @@ services:
       - qdrant
     volumes:
       - shared_storage:/shared
+      - ../generated_pack:/shared/generated_pack:ro
       - backend_logs:/logs
     expose:
       - "8001"
@@ -149,6 +150,7 @@ services:
       - qdrant
     volumes:
       - shared_storage:/shared
+      - ../generated_pack:/shared/generated_pack:ro
       - ../TEXTBOOKS:/shared/textbooks:ro
       - backend_logs:/logs
     expose:
@@ -167,6 +169,7 @@ services:
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
     volumes:
       - backend_logs:/logs
+      - ../phet_downloads:/shared/simulations:ro
     expose:
       - "8040"
 

@@ -12,8 +12,32 @@ service = ExperimentContentService()
 
 @router.get("/experiments/catalog")
 async def experiment_catalog() -> dict[str, object]:
+    import json
+    from pathlib import Path
+    
     experiments = service.catalog()
-    return {"experiments": experiments, "total": len(experiments)}
+    catalog_path = Path("/shared/simulations/catalog.json")
+    simulations = []
+    
+    if catalog_path.exists():
+        with catalog_path.open() as f:
+            simulations = json.load(f)
+            
+        for sim in simulations:
+            slug = sim.get("slug")
+            sim["local_url"] = f"/simulations/{slug}/index.html"
+            sim["manifest"] = {
+                "id": f"phet-{slug}",
+                "title": slug.replace("-", " ").title(),
+                "provider": "phet",
+                "type": "simulation"
+            }
+            
+    return {
+        "experiments": experiments, 
+        "simulations": simulations,
+        "total": len(experiments) + len(simulations)
+    }
 
 
 @router.get("/experiments/{experiment_id}/download")

@@ -36,8 +36,6 @@ def _parse_model(model_type: Any, payload: dict[str, Any]) -> Any:
     if hasattr(model_type, "model_validate"):
         return model_type.model_validate(payload)
     return model_type.parse_obj(payload)
-
-
 @router.get("/experiments")
 async def list_experiments(
     grade: int | None = Query(default=None),

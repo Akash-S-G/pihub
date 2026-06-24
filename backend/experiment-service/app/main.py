@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
@@ -40,6 +41,10 @@ app.include_router(ai_router)
 app.include_router(sharing_router)
 app.include_router(classroom_router)
 app.include_router(maintenance_router)
+
+import os
+if os.path.exists("/shared/simulations"):
+    app.mount("/simulations", StaticFiles(directory="/shared/simulations"), name="simulations")
 
 
 @app.middleware("http")

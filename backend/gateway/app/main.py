@@ -1652,6 +1652,11 @@ async def experiments_catalog() -> Any:
     return await app.state.experiment_client.get_catalog()
 
 
+@app.get("/simulations/{path:path}")
+async def proxy_simulations(path: str) -> StreamingResponse:
+    return await _proxy_stream(settings.experiment_service_url, "GET", f"/simulations/{path}")
+
+
 @app.get("/experiments/search")
 async def experiments_search(
     q: str | None = Query(default=None),

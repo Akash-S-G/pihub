@@ -20,6 +20,7 @@ from app.pdf_reader import PdfRegistrationService, PdfRepository
 from app.sync.delta_builder import DeltaBuilder
 from app.sync.sync_manifest_generator import SyncManifestGenerator
 from app.validation.pack_validator import PackValidator
+from app.generated_pack_importer import GeneratedPackImporter
 from shared.text_normalization import normalize_curriculum_name
 
 logger = logging.getLogger(__name__)
@@ -202,6 +203,23 @@ async def generate_pack(request: PackGenerationRequest) -> PackGenerationRespons
     except Exception as exc:  # pragma: no cover - surface runtime errors as HTTP errors
         logger.exception("Pack generation error")
         raise HTTPException(status_code=500, detail=str(exc))
+
+from pydantic import BaseModel
+class ImportGeneratedPackRequest(BaseModel):
+    source_dir: str = "/shared/generated_pack"
+
+@app.post("/packs/import/generated", tags=["Pack Import"])
+async def import_generated_pack(request: ImportGeneratedPackRequest) -> dict:
+    importer = GeneratedPackImporter(
+        pack_repository=app.state.pack_repository,
+        content_pipeline_url=os.getenv("CONTENT_PIPELINE_URL", "http://content-pipeline:8001")
+    )
+    try:
+        record = await importer.import_pack(Path(request.source_dir))
+        return {"status": "success", "pack": record}
+    except Exception as e:
+        logger.exception("Import failed")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 app.include_router(pack_router)

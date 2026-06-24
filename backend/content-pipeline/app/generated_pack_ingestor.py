@@ -1,0 +1,232 @@
+import json
+import logging
+import re
+from pathlib import Path
+from typing import Any
+
+logger = logging.getLogger(__name__)
+
+
+# Map long subject names to canonical curriculum subjects
+SUBJECT_NORMALIZATION = {
+    "mathematics": "maths",
+    "maths": "maths",
+    "science": "science",
+}
+
+
+def _normalize_subject(raw: str) -> str:
+    """Map raw subject strings to canonical curriculum subjects."""
+    raw_lower = raw.lower().strip()
+    if raw_lower in SUBJECT_NORMALIZATION:
+        return SUBJECT_NORMALIZATION[raw_lower]
+    # social_science variants
+    if "social" in raw_lower:
+        return "social_science"
+    # science keyword
+    if "science" in raw_lower:
+        return "science"
+    # maths keyword
+    if "math" in raw_lower:
+        return "maths"
+    # fallback: use snake_case
+    return re.sub(r"[^a-z0-9]+", "_", raw_lower).strip("_")
+
+
+def _parse_grade(raw: Any) -> int:
+    """Convert grade to int, defaulting to 0 for unknowns."""
+    try:
+        return int(str(raw).strip())
+    except (ValueError, TypeError):
+        return 0
+
+
+class GeneratedPackIngestor:
+    def __init__(self, pipeline: Any):
+        self.pipeline = pipeline
+
+    def ingest_pack(self, pack_id: str) -> dict[str, Any]:
+        """Ingest a generated_pack's artifacts into Qdrant via the pipeline."""
+        # Primary path: pack was saved via pack-service into shared packs dir
+        # The pack-service saves to /shared/packs/grade_0/mixed/generated_pack/<pack_id>/
+        # Try to find it; fall back to the raw generated_pack directory
+        candidate_paths = [
+            Path("/shared/packs") / pack_id,
+            Path("/shared/packs/grade_0/mixed/generated_pack") / pack_id,
+            Path("/shared/generated_pack"),
+        ]
+        pack_dir = None
+        for p in candidate_paths:
+            if p.exists() and p.is_dir():
+                pack_dir = p
+                break
+
+        if pack_dir is None:
+            raise ValueError(f"Pack directory not found for pack_id={pack_id}. Tried: {candidate_paths}")
+
+        logger.info("Ingesting generated_pack from: %s", pack_dir)
+        chunks: list[dict[str, Any]] = []
+
+        # ── concepts.json ─────────────────────────────────────────────────────
+        self._ingest_concepts(pack_dir, chunks)
+
+        # ── detailed_explanation.json ─────────────────────────────────────────
+        self._ingest_explanations(pack_dir, chunks)
+
+        # ── summary.json ─────────────────────────────────────────────────────
+        self._ingest_summaries(pack_dir, chunks)
+
+        # ── glossary.json ─────────────────────────────────────────────────────
+        self._ingest_glossary(pack_dir, chunks)
+
+        # ── flashcards.json ───────────────────────────────────────────────────
+        self._ingest_flashcards(pack_dir, chunks)
+
+        # Enrich & store
+        enriched_chunks = self.pipeline._enrich_chunks(
+            chunks, base_metadata={"source": "generated_pack"}
+        )
+
+        if enriched_chunks:
+            self.pipeline._store_chunks(enriched_chunks)
+            logger.info("Ingested %d chunks for pack %s", len(enriched_chunks), pack_id)
+
+        return {
+            "pack_id": pack_id,
+            "chunks_created": len(enriched_chunks),
+            "collection": self.pipeline.collection_name,
+            "pack_dir": str(pack_dir),
+        }
+
+    # ── Artifact parsers ──────────────────────────────────────────────────────
+
+    def _base_meta(self, item: dict) -> dict:
+        """Extract normalized grade/subject/chapter from a top-level artifact item."""
+        return {
+            "grade": _parse_grade(item.get("grade", 0)),
+            "subject": _normalize_subject(str(item.get("subject", "mixed"))),
+            "chapter": item.get("chapter_title", "Unknown Chapter"),
+            "source": "generated_pack",
+        }
+
+    def _ingest_concepts(self, pack_dir: Path, chunks: list) -> None:
+        f = pack_dir / "concepts.json"
+        if not f.exists():
+            return
+        try:
+            data = json.loads(f.read_text(encoding="utf-8"))
+            for item in data:
+                meta = self._base_meta(item)
+                for concept in item.get("payload", {}).get("concepts", []):
+                    name = concept.get("name", "")
+                    definition = concept.get("definition", "")
+                    if not name or not definition:
+                        continue
+                    text = f"Concept: {name}\nDefinition: {definition}"
+                    if concept.get("importance"):
+                        text += f"\nImportance: {concept['importance']}"
+                    chunks.append({
+                        "text": text,
+                        "metadata": {
+                            **meta,
+                            "section": "Concepts",
+                            "chunk_type": "concept",
+                            "topics": concept.get("keywords", []),
+                            "concepts": [name],
+                        },
+                    })
+        except Exception as e:
+            logger.error("Error parsing concepts.json: %s", e)
+
+    def _ingest_explanations(self, pack_dir: Path, chunks: list) -> None:
+        f = pack_dir / "detailed_explanation.json"
+        if not f.exists():
+            return
+        try:
+            data = json.loads(f.read_text(encoding="utf-8"))
+            for item in data:
+                meta = self._base_meta(item)
+                explanation = item.get("payload", {}).get("explanation", "")
+                if explanation:
+                    chunks.append({
+                        "text": explanation,
+                        "metadata": {
+                            **meta,
+                            "section": "Detailed Explanation",
+                            "chunk_type": "explanation",
+                            "topics": [meta["chapter"]],
+                        },
+                    })
+        except Exception as e:
+            logger.error("Error parsing detailed_explanation.json: %s", e)
+
+    def _ingest_summaries(self, pack_dir: Path, chunks: list) -> None:
+        f = pack_dir / "summary.json"
+        if not f.exists():
+            return
+        try:
+            data = json.loads(f.read_text(encoding="utf-8"))
+            for item in data:
+                meta = self._base_meta(item)
+                summary = item.get("payload", {}).get("summary", "")
+                if summary:
+                    chunks.append({
+                        "text": f"Summary: {summary}",
+                        "metadata": {
+                            **meta,
+                            "section": "Summary",
+                            "chunk_type": "summary",
+                            "topics": [meta["chapter"]],
+                        },
+                    })
+        except Exception as e:
+            logger.error("Error parsing summary.json: %s", e)
+
+    def _ingest_glossary(self, pack_dir: Path, chunks: list) -> None:
+        f = pack_dir / "glossary.json"
+        if not f.exists():
+            return
+        try:
+            data = json.loads(f.read_text(encoding="utf-8"))
+            for item in data:
+                meta = self._base_meta(item)
+                for entry in item.get("payload", {}).get("glossary", []):
+                    term = entry.get("term", "")
+                    definition = entry.get("definition", "")
+                    if term and definition:
+                        chunks.append({
+                            "text": f"Term: {term}\nDefinition: {definition}",
+                            "metadata": {
+                                **meta,
+                                "section": "Glossary",
+                                "chunk_type": "glossary",
+                                "topics": [term],
+                                "concepts": [term],
+                            },
+                        })
+        except Exception as e:
+            logger.error("Error parsing glossary.json: %s", e)
+
+    def _ingest_flashcards(self, pack_dir: Path, chunks: list) -> None:
+        f = pack_dir / "flashcards.json"
+        if not f.exists():
+            return
+        try:
+            data = json.loads(f.read_text(encoding="utf-8"))
+            for item in data:
+                meta = self._base_meta(item)
+                for card in item.get("payload", {}).get("flashcards", []):
+                    question = card.get("question", "")
+                    answer = card.get("answer", "")
+                    if question and answer:
+                        chunks.append({
+                            "text": f"Q: {question}\nA: {answer}",
+                            "metadata": {
+                                **meta,
+                                "section": "Flashcards",
+                                "chunk_type": "flashcard",
+                                "topics": [meta["chapter"]],
+                            },
+                        })
+        except Exception as e:
+            logger.error("Error parsing flashcards.json: %s", e)

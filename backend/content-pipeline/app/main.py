@@ -58,6 +58,7 @@ from app.educational_intelligence import (
 )
 from app.retrieval_engine.educational_retrieval_engine import EducationalRetrievalEngine
 from app.textbook_ingest import StructuredTextbookIngest
+from app.generated_pack_ingestor import GeneratedPackIngestor
 
 
 settings = get_settings()
@@ -801,12 +802,28 @@ async def ingest_textbook(
         metadata_model = Metadata.model_validate_json(metadata)
     except Exception as exc:
         raise HTTPException(status_code=400, detail=f"Invalid metadata: {exc}") from exc
-
     content = await file.read()
-    return await asyncio.to_thread(pipeline.ingest_pdf, file.filename or "textbook.pdf", content, metadata_model, source)
+    return await asyncio.to_thread(pipeline.ingest_pdf, file.filename or "upload.pdf", content, metadata_model, source)
+
+try:
+    from pydantic import BaseModel
+except Exception:
+    pass
+
+class IngestGeneratedPackRequest(BaseModel):
+    pack_id: str
+
+@app.post("/ingest/generated-pack")
+async def ingest_generated_pack(request: IngestGeneratedPackRequest) -> dict:
+    try:
+        ingestor = GeneratedPackIngestor(pipeline)
+        return await asyncio.to_thread(ingestor.ingest_pack, request.pack_id)
+    except Exception as e:
+        logger.exception("Generated pack ingestion failed")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/ingest/directory")
+@app.post("/ingest/directory", response_model=IngestResponse)
 async def ingest_directory(request: DirectoryIngestRequest) -> dict[str, Any]:
     directory = pipeline._resolve_content_path(request.directory)
     return await asyncio.to_thread(pipeline.ingest_textbook_directory, directory, request.recursive, request.source)

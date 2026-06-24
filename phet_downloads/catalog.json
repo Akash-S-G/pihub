@@ -1,0 +1,162 @@
+[
+  {
+    "slug": "acid-base-solutions",
+    "url": "https://phet.colorado.edu/sims/html/acid-base-solutions/latest/acid-base-solutions_en.html"
+  },
+  {
+    "slug": "arithmetic",
+    "url": "https://phet.colorado.edu/sims/html/arithmetic/latest/arithmetic_en.html"
+  },
+  {
+    "slug": "balancing-chemical-equations",
+    "url": "https://phet.colorado.edu/sims/html/balancing-chemical-equations/latest/balancing-chemical-equations_en.html"
+  },
+  {
+    "slug": "beers-law-lab",
+    "url": "https://phet.colorado.edu/sims/html/beers-law-lab/latest/beers-law-lab_en.html"
+  },
+  {
+    "slug": "bending-light",
+    "url": "https://phet.colorado.edu/sims/html/bending-light/latest/bending-light_en.html"
+  },
+  {
+    "slug": "blackbody-spectrum",
+    "url": "https://phet.colorado.edu/sims/html/blackbody-spectrum/latest/blackbody-spectrum_en.html"
+  },
+  {
+    "slug": "build-a-molecule",
+    "url": "https://phet.colorado.edu/sims/html/build-a-molecule/latest/build-a-molecule_en.html"
+  },
+  {
+    "slug": "build-an-atom",
+    "url": "https://phet.colorado.edu/sims/html/build-an-atom/latest/build-an-atom_en.html"
+  },
+  {
+    "slug": "calculus-grapher",
+    "url": "https://phet.colorado.edu/sims/html/calculus-grapher/latest/calculus-grapher_en.html"
+  },
+  {
+    "slug": "charges-and-fields",
+    "url": "https://phet.colorado.edu/sims/html/charges-and-fields/latest/charges-and-fields_en.html"
+  },
+  {
+    "slug": "collision-lab",
+    "url": "https://phet.colorado.edu/sims/html/collision-lab/latest/collision-lab_en.html"
+  },
+  {
+    "slug": "color-vision",
+    "url": "https://phet.colorado.edu/sims/html/color-vision/latest/color-vision_en.html"
+  },
+  {
+    "slug": "curve-fitting",
+    "url": "https://phet.colorado.edu/sims/html/curve-fitting/latest/curve-fitting_en.html"
+  },
+  {
+    "slug": "energy-forms-and-changes",
+    "url": "https://phet.colorado.edu/sims/html/energy-forms-and-changes/latest/energy-forms-and-changes_en.html"
+  },
+  {
+    "slug": "energy-skate-park",
+    "url": "https://phet.colorado.edu/sims/html/energy-skate-park/latest/energy-skate-park_en.html"
+  },
+  {
+    "slug": "faradays-law",
+    "url": "https://phet.colorado.edu/sims/html/faradays-law/latest/faradays-law_en.html"
+  },
+  {
+    "slug": "forces-and-motion-basics",
+    "url": "https://phet.colorado.edu/sims/html/forces-and-motion-basics/latest/forces-and-motion-basics_en.html"
+  },
+  {
+    "slug": "friction",
+    "url": "https://phet.colorado.edu/sims/html/friction/latest/friction_en.html"
+  },
+  {
+    "slug": "geometric-optics",
+    "url": "https://phet.colorado.edu/sims/html/geometric-optics/latest/geometric-optics_en.html"
+  },
+  {
+    "slug": "gravity-and-orbits",
+    "url": "https://phet.colorado.edu/sims/html/gravity-and-orbits/latest/gravity-and-orbits_en.html"
+  },
+  {
+    "slug": "molarity",
+    "url": "https://phet.colorado.edu/sims/html/molarity/latest/molarity_en.html"
+  },
+  {
+    "slug": "molecule-polarity",
+    "url": "https://phet.colorado.edu/sims/html/molecule-polarity/latest/molecule-polarity_en.html"
+  },
+  {
+    "slug": "molecule-shapes",
+    "url": "https://phet.colorado.edu/sims/html/molecule-shapes/latest/molecule-shapes_en.html"
+  },
+  {
+    "slug": "molecules-and-light",
+    "url": "https://phet.colorado.edu/sims/html/molecules-and-light/latest/molecules-and-light_en.html"
+  },
+  {
+    "slug": "my-solar-system",
+    "url": "https://phet.colorado.edu/sims/html/my-solar-system/latest/my-solar-system_en.html"
+  },
+  {
+    "slug": "natural-selection",
+    "url": "https://phet.colorado.edu/sims/html/natural-selection/latest/natural-selection_en.html"
+  },
+  {
+    "slug": "neuron",
+    "url": "https://phet.colorado.edu/sims/html/neuron/latest/neuron_en.html"
+  },
+  {
+    "slug": "normal-modes",
+    "url": "https://phet.colorado.edu/sims/html/normal-modes/latest/normal-modes_en.html"
+  },
+  {
+    "slug": "ohms-law",
+    "url": "https://phet.colorado.edu/sims/html/ohms-law/latest/ohms-law_en.html"
+  },
+  {
+    "slug": "pendulum-lab",
+    "url": "https://phet.colorado.edu/sims/html/pendulum-lab/latest/pendulum-lab_en.html"
+  },
+  {
+    "slug": "ph-scale",
+    "url": "https://phet.colorado.edu/sims/html/ph-scale/latest/ph-scale_en.html"
+  },
+  {
+    "slug": "plinko-probability",
+    "url": "https://phet.colorado.edu/sims/html/plinko-probability/latest/plinko-probability_en.html"
+  },
+  {
+    "slug": "projectile-motion",
+    "url": "https://phet.colorado.edu/sims/html/projectile-motion/latest/projectile-motion_en.html"
+  },
+  {
+    "slug": "reactants-products-and-leftovers",
+    "url": "https://phet.colorado.edu/sims/html/reactants-products-and-leftovers/latest/reactants-products-and-leftovers_en.html"
+  },
+  {
+    "slug": "resistance-in-a-wire",
+    "url": "https://phet.colorado.edu/sims/html/resistance-in-a-wire/latest/resistance-in-a-wire_en.html"
+  },
+  {
+    "slug": "rutherford-scattering",
+    "url": "https://phet.colorado.edu/sims/html/rutherford-scattering/latest/rutherford-scattering_en.html"
+  },
+  {
+    "slug": "states-of-matter",
+    "url": "https://phet.colorado.edu/sims/html/states-of-matter/latest/states-of-matter_en.html"
+  },
+  {
+    "slug": "vector-addition",
+    "url": "https://phet.colorado.edu/sims/html/vector-addition/latest/vector-addition_en.html"
+  },
+  {
+    "slug": "wave-interference",
+    "url": "https://phet.colorado.edu/sims/html/wave-interference/latest/wave-interference_en.html"
+  },
+  {
+    "slug": "wave-on-a-string",
+    "url": "https://phet.colorado.edu/sims/html/wave-on-a-string/latest/wave-on-a-string_en.html"
+  }
+]
