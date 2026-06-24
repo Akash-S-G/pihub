@@ -138,6 +138,7 @@ class PackRepository:
         default_artifacts = {
             "textbook.json": artifacts.get("textbook", {}),
             "content.json": artifacts.get("content", []),
+            "chapter_knowledge.json": artifacts.get("chapter_knowledge", self._build_chapter_knowledge(artifacts)),
             "concepts.json": artifacts.get("concepts", []),
             "examples.json": artifacts.get("examples", []),
             "worked_examples.json": artifacts.get("worked_examples", []),
@@ -213,4 +214,28 @@ class PackRepository:
         counts["enrichment"] = len(enrichment_value) if isinstance(enrichment_value, dict) else 0
         counts["retrieval_index"] = len(retrieval_index_value) if isinstance(retrieval_index_value, dict) else 0
         counts["textbook"] = len(textbook_value.get("sections", [])) if isinstance(textbook_value, dict) else 0
+        chapter_knowledge = artifacts.get("chapter_knowledge") or PackRepository._build_chapter_knowledge(artifacts)
+        counts["chapter_knowledge"] = len(chapter_knowledge) if isinstance(chapter_knowledge, dict) else 0
         return counts
+
+    @staticmethod
+    def _build_chapter_knowledge(artifacts: dict[str, Any]) -> dict[str, Any]:
+        glossary = artifacts.get("glossary") if isinstance(artifacts.get("glossary"), list) else []
+        enrichment = artifacts.get("enrichment") if isinstance(artifacts.get("enrichment"), dict) else {}
+        return {
+            "concepts": artifacts.get("concepts", []),
+            "definitions": [
+                {
+                    "term": item.get("term") or item.get("front") or "",
+                    "definition": item.get("definition") or item.get("back") or "",
+                    "example": item.get("example") or "",
+                }
+                for item in glossary
+                if isinstance(item, dict)
+            ],
+            "misconceptions": enrichment.get("common_misconceptions", []),
+            "relationships": enrichment.get("related_concepts", []) or enrichment.get("concept_relationships", []),
+            "examples": artifacts.get("examples", []),
+            "worked_examples": artifacts.get("worked_examples", []),
+            "formulas": artifacts.get("formulas", []),
+        }

@@ -1,9 +1,16 @@
-from __future__ import annotations
-
-from fastapi import APIRouter, File, Header, HTTPException, Request, UploadFile
+from fastapi import APIRouter, File, Header, HTTPException, Request, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.responses import Response, StreamingResponse
+import logging
+import json
+import time
+import asyncio
+import base64
+from services.tutor_adapter import InferenceTutorAdapter
 
 from models import STTRequest, STTResponse, TTSRequest, TTSResponse, VoiceQueryRequest, VoiceQueryResponse
+
+logger = logging.getLogger(__name__)
+seen_sessions = set()
 
 router = APIRouter()
 
@@ -66,6 +73,140 @@ async def get_audio_asset(request: Request, asset_id: str, range_header: str | N
 @router.get("/voice/metrics", tags=["voice", "analytics"])
 async def voice_metrics(request: Request) -> dict[str, object]:
     return request.app.state.voice_metrics.snapshot()
+
+
+@router.websocket("/voice/stream")
+async def voice_stream(websocket: WebSocket) -> None:
+    await websocket.accept()
+    
+    metrics = websocket.app.state.voice_metrics
+    metrics.increment("active_connections")
+    metrics.increment("voice_sessions")
+    
+    stt_engine = websocket.app.state.stt_engine
+    tutor_adapter = InferenceTutorAdapter()
+    
+    session_id = "unknown"
+    session_audio_chunks = bytearray()
+    language_state = "en"
+
+    try:
+        while True:
+            msg = await websocket.receive_text()
+            try:
+                data = json.loads(msg)
+            except json.JSONDecodeError as e:
+                logger.error(f"Malformed JSON in WS: {e}")
+                await websocket.send_json({"type": "error", "message": "Invalid JSON frame"})
+                continue
+                
+            msg_type = data.get("type")
+            
+            # session_start initialization
+            if msg_type == "session_start":
+                session_id = data.get("session_id") or "unknown"
+                language_state = data.get("language") or "en"
+                session_audio_chunks.clear()
+                if session_id in seen_sessions:
+                    metrics.increment("reconnects")
+                else:
+                    seen_sessions.add(session_id)
+                await websocket.send_json({"type": "session_acknowledged", "session_id": session_id})
+                
+            elif msg_type == "audio_chunk":
+                if session_id == "unknown":
+                    await websocket.send_json({"type": "error", "message": "Session not initialized"})
+                    await websocket.close()
+                    break
+                
+                chunk_b64 = data.get("data")
+                if chunk_b64:
+                    try:
+                        session_audio_chunks.extend(base64.b64decode(chunk_b64))
+                    except Exception as e:
+                        logger.error(f"Failed to decode audio chunk: {e}")
+
+            elif msg_type == "audio_complete":
+                if session_id == "unknown":
+                    await websocket.send_json({"type": "error", "message": "Session not initialized"})
+                    await websocket.close()
+                    break
+                    
+                language_state = data.get("language") or language_state
+                roundtrip_start = time.perf_counter()
+                
+                # STT stage
+                await websocket.send_json({"type": "transcribing"})
+                
+                try:
+                    stt_res = await stt_engine.transcribe(bytes(session_audio_chunks), language=language_state)
+                    transcript = stt_res.text or "unknown"
+                    language = stt_res.language or language_state
+                    metrics.observe("stt_latency_ms", stt_res.latency_ms)
+                except Exception as e:
+                    logger.error(f"STT transcription failed: {e}")
+                    metrics.increment("stt_failures")
+                    transcript = "unknown"
+                    language = language_state
+                    
+                # Tutor stage
+                await websocket.send_json({"type": "thinking"})
+                sim_context = data.get("simulation_context", {})
+                
+                tutor_start = time.perf_counter()
+                try:
+                    answer = await tutor_adapter.get_answer(
+                        question=transcript,
+                        language=language,
+                        session_id=session_id,
+                        simulation_context=sim_context
+                    )
+                except Exception as e:
+                    logger.error(f"Tutor call failed: {e}")
+                    answer = "I'm sorry, I couldn't reach the tutor service right now."
+                
+                tutor_latency = (time.perf_counter() - tutor_start) * 1000
+                metrics.observe("tutor_latency_ms", tutor_latency)
+                
+                # TTS stage
+                await websocket.send_json({"type": "generating_audio"})
+                tts_engine = websocket.app.state.tts_engine
+                
+                try:
+                    seq = 1
+                    async for audio_chunk in tts_engine.stream(answer, "default", language, "wav"):
+                        await websocket.send_json({
+                            "type": "audio_chunk",
+                            "sequence": seq,
+                            "data": base64.b64encode(audio_chunk).decode("utf-8")
+                        })
+                        seq += 1
+                except Exception as e:
+                    logger.error(f"TTS streaming failed: {e}")
+                    
+                await websocket.send_json({
+                    "type": "audio_complete",
+                    "session_id": session_id,
+                    "language": language
+                })
+                
+                roundtrip = (time.perf_counter() - roundtrip_start) * 1000
+                metrics.observe("voice_roundtrip_ms", roundtrip)
+                
+            else:
+                # Ignore unknown messages or log them if needed
+                pass
+                
+    except WebSocketDisconnect:
+        metrics.increment("disconnects")
+    except Exception as e:
+        logger.error(f"Error in voice stream: {e}")
+        try:
+            await websocket.send_json({"type": "error", "message": str(e)})
+        except Exception:
+            pass
+    finally:
+        metrics.increment("active_connections", -1)
 
 
 def _parse_range(header: str, size: int) -> tuple[int, int]:

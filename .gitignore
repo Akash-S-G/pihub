@@ -62,3 +62,11 @@ idp_curriculum_generation/
 /KAGGLE_ARTIFACT_AUDIT_REPORT.md
 /CONTENT_QUALITY_1_*.md
 /CONTENT_QUALITY_1_*.json
+
+# Local one-off notebook/debug helpers
+/fix_*.py
+/patch_*.py
+/rebuild.py
+/test_*.py
+/*.log
+venv/

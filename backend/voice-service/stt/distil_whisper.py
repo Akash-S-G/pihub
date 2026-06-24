@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from services.errors import not_configured
-from services.interfaces import STTEngine
+from .base import STTEngine, Transcript
 
 
 class DistilWhisperSTTEngine(STTEngine):
@@ -12,5 +12,5 @@ class DistilWhisperSTTEngine(STTEngine):
     STT is unavailable until the model runtime is configured.
     """
 
-    async def transcribe(self, audio: bytes, language: str | None = None) -> dict[str, object]:
+    async def transcribe(self, audio: bytes, language: str | None = None) -> Transcript:
         raise not_configured("Distil-Whisper Large-v3 STT")

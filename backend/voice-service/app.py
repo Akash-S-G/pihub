@@ -14,9 +14,9 @@ from audio import AudioManifestRegistry, FileSystemAudioStorage
 from cache import InMemoryVoiceCache
 from services.tutor_engine import RagTutorEngine
 from services.voice_gateway import VoiceGateway
-from stt import DistilWhisperSTTEngine
+from stt import get_stt_engine
 from streaming import VoiceStreamer
-from tts import SvaraTTSEngine
+from tts import get_tts_engine
 
 
 def create_app() -> FastAPI:
@@ -53,8 +53,8 @@ def create_app() -> FastAPI:
     storage = FileSystemAudioStorage(audio_root)
     manifests = AudioManifestRegistry(manifest_path or None)
     tutor = RagTutorEngine()
-    tts = SvaraTTSEngine()
-    stt = DistilWhisperSTTEngine()
+    tts = get_tts_engine()
+    stt = get_stt_engine()
 
     app.state.voice_metrics = metrics
     app.state.voice_cache = cache

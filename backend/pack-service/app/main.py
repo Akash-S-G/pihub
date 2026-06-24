@@ -7,6 +7,7 @@ from typing import Optional
 
 from fastapi import FastAPI, HTTPException
 
+from app.analytics.routes import router as analytics_router
 from app.api.pack_routes import router as pack_router
 from app.api.pdf_routes import router as pdf_router
 from app.api.preview_routes import router as preview_router
@@ -206,6 +207,7 @@ async def generate_pack(request: PackGenerationRequest) -> PackGenerationRespons
 app.include_router(pack_router)
 app.include_router(pdf_router)
 app.include_router(preview_router)
+app.include_router(analytics_router)
 
 
 if __name__ == "__main__":

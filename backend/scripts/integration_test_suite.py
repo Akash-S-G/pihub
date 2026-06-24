@@ -21,7 +21,7 @@ def test_health():
         check_status(response)
         data = json.loads(response.read().decode())
         assert "status" in data
-        assert data["status"] in ["ok", "degraded"]
+        assert data["status"] in ["ok", "degraded", "healthy"]
     print("OK")
 
 def test_pack_listing():

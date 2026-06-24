@@ -21,6 +21,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from app.context import ExperimentContextProvider, PackContextProvider
+from app.evaluation import evaluate_answer
 from app.language import LanguageAdapter
 from app.orchestration import TutorOrchestrator
 from app.sessions import SessionManager
@@ -83,6 +84,7 @@ class ChatRequest(BaseModel):
     topic_alias: str | None = None
     asset_context: list[dict[str, Any]] = Field(default_factory=list)
     asset_search: dict[str, Any] = Field(default_factory=dict)
+    simulation_context: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="before")
     @classmethod
@@ -1009,3 +1011,15 @@ async def ai_tutor_debug(request: TutorRequest) -> dict[str, Any]:
         "answer": result.answer,
         "metrics": result.metrics.model_dump(),
     }
+
+
+@app.post("/ai/tutor/evaluate")
+async def ai_tutor_evaluate(payload: dict[str, Any]) -> dict[str, Any]:
+    evaluation = evaluate_answer(
+        question=str(payload.get("question") or ""),
+        answer=str(payload.get("answer") or ""),
+        context=payload.get("context") if isinstance(payload.get("context"), list) else [],
+        language=str(payload.get("language") or "en"),
+        grade=payload.get("grade") if isinstance(payload.get("grade"), int) else None,
+    )
+    return evaluation.model_dump()

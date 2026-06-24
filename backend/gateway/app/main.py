@@ -13,7 +13,7 @@ from typing import Any
 from urllib.parse import quote, urlparse
 
 import httpx
-from fastapi import FastAPI, File, Form, HTTPException, Query, Request, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Query, Request, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, StreamingResponse
 from starlette.background import BackgroundTask
@@ -29,6 +29,33 @@ logging.basicConfig(level=getattr(logging, settings.log_level.upper(), logging.I
 logger = logging.getLogger(__name__)
 retrieval_metrics: deque[dict[str, Any]] = deque(maxlen=200)
 experiment_gateway_metrics = ExperimentGatewayMetrics()
+
+DEMO_TOPICS: list[dict[str, Any]] = [
+    {
+        "id": "grade6_science_water_cycle",
+        "title": "Water Cycle",
+        "grade": 6,
+        "subject": "science",
+        "chapter": "water cycle",
+        "sample_question": "Explain the water cycle with an example.",
+    },
+    {
+        "id": "grade6_science_photosynthesis",
+        "title": "Photosynthesis",
+        "grade": 6,
+        "subject": "science",
+        "chapter": "photosynthesis",
+        "sample_question": "What is photosynthesis?",
+    },
+    {
+        "id": "grade6_science_motion",
+        "title": "Motion",
+        "grade": 6,
+        "subject": "science",
+        "chapter": "motion",
+        "sample_question": "Explain motion in simple words.",
+    },
+]
 
 
 @asynccontextmanager
@@ -77,6 +104,8 @@ def _log_tag(path: str) -> str:
 
 @app.middleware("http")
 async def structured_logging(request: Request, call_next):
+    if request.scope.get("type") == "websocket":
+        return await call_next(request)
     started = time.perf_counter()
     tag = _log_tag(request.url.path)
     if request.url.path == "/ai/tutor":
@@ -587,6 +616,75 @@ async def _asset_response(asset_name: str, filters: dict[str, Any]) -> dict[str,
     return {"items": items, "total": len(items), "filters": {**params, "topic": topic}}
 
 
+async def _chapter_knowledge_assets(filters: dict[str, Any]) -> list[dict[str, Any]]:
+    params = {
+        "grade": filters.get("grade"),
+        "subject": normalize_subject(filters.get("subject")),
+        "chapter": filters.get("chapter"),
+    }
+    topic = str(filters.get("topic") or "").lower()
+    packs = await _pack_service_packs({key: value for key, value in params.items() if value is not None})
+    assets: list[dict[str, Any]] = []
+    for pack in packs[:2]:
+        pack_id = pack.get("pack_id")
+        if not pack_id:
+            continue
+        try:
+            preview = await _get_json(settings.pack_service_url, f"/packs/{pack_id}/preview")
+        except HTTPException:
+            continue
+        knowledge = preview.get("chapter_knowledge") or {}
+        if not isinstance(knowledge, dict):
+            continue
+        snippets = _chapter_knowledge_snippets(knowledge, topic)
+        if snippets:
+            assets.append({
+                "title": preview.get("manifest", {}).get("chapter") or pack.get("chapter") or pack_id,
+                "text": "\n".join(snippets[:8]),
+                "metadata": {
+                    "pack_id": pack_id,
+                    "grade": pack.get("grade"),
+                    "subject": pack.get("subject"),
+                    "chapter": pack.get("chapter"),
+                },
+            })
+    return assets[:2]
+
+
+def _chapter_knowledge_snippets(knowledge: dict[str, Any], topic: str) -> list[str]:
+    snippets: list[str] = []
+    for key in ("concepts", "definitions", "relationships", "examples", "worked_examples", "formulas"):
+        value = knowledge.get(key)
+        if not isinstance(value, list):
+            continue
+        for item in value:
+            text = _knowledge_item_text(item)
+            if not text:
+                continue
+            if topic and topic not in text.lower():
+                continue
+            snippets.append(f"{key}: {text}")
+    if not snippets and not topic:
+        for key in ("concepts", "definitions", "examples"):
+            value = knowledge.get(key)
+            if isinstance(value, list):
+                snippets.extend(f"{key}: {_knowledge_item_text(item)}" for item in value[:4] if _knowledge_item_text(item))
+    return snippets
+
+
+def _knowledge_item_text(item: Any) -> str:
+    if isinstance(item, str):
+        return item.strip()
+    if not isinstance(item, dict):
+        return ""
+    parts: list[str] = []
+    for key in ("concept", "term", "title", "definition", "description", "text", "example", "formula"):
+        value = item.get(key)
+        if value:
+            parts.append(str(value))
+    return " - ".join(parts).strip()
+
+
 async def _asset_search_bundle(payload: dict[str, Any], normalized_topic: str | None) -> dict[str, Any]:
     filters = {
         "grade": payload.get("grade"),
@@ -604,11 +702,12 @@ async def _asset_search_bundle(payload: dict[str, Any], normalized_topic: str | 
         "flashcards": flashcards.get("items", [])[:5],
         "quizzes": quizzes.get("items", [])[:5],
         "glossary": glossary.get("items", [])[:5],
+        "chapter_knowledge": await _chapter_knowledge_assets(filters),
     }
 
 
 def _asset_bundle_count(bundle: dict[str, Any]) -> int:
-    return sum(len(bundle.get(key, [])) for key in ("summaries", "flashcards", "quizzes", "glossary"))
+    return sum(len(bundle.get(key, [])) for key in ("summaries", "flashcards", "quizzes", "glossary", "chapter_knowledge"))
 
 
 def _asset_context(bundle: dict[str, Any]) -> list[dict[str, Any]]:
@@ -639,6 +738,13 @@ def _asset_context(bundle: dict[str, Any]) -> list[dict[str, Any]]:
             "source_type": "quiz",
             "title": item.get("question") or item.get("source_title"),
             "text": item.get("answer") or item.get("explanation"),
+            "metadata": item.get("metadata", {}),
+        })
+    for item in bundle.get("chapter_knowledge", []):
+        context.append({
+            "source_type": "chapter_knowledge",
+            "title": item.get("title"),
+            "text": item.get("text"),
             "metadata": item.get("metadata", {}),
         })
     return [item for item in context if item.get("text") or item.get("title")]
@@ -1075,6 +1181,16 @@ async def ai_tutor(payload: dict[str, Any]) -> Any:
     return result
 
 
+@app.post("/ai/tutor/debug")
+async def ai_tutor_debug(payload: dict[str, Any]) -> Any:
+    return await _proxy_to(settings.inference_service_url, "POST", "/ai/tutor/debug", payload)
+
+
+@app.post("/ai/tutor/evaluate")
+async def ai_tutor_evaluate(payload: dict[str, Any]) -> Any:
+    return await _proxy_to(settings.inference_service_url, "POST", "/ai/tutor/evaluate", payload)
+
+
 @app.get("/ai/health")
 async def ai_health() -> dict[str, Any]:
     return await _proxy_to(settings.inference_service_url, "GET", "/ai/health")
@@ -1124,6 +1240,59 @@ async def voice_audio(asset_id: str, request: Request) -> StreamingResponse:
 @app.get("/api/voice/metrics")
 async def voice_metrics() -> dict[str, Any]:
     return await _get_json(settings.voice_service_url, "/voice/metrics")
+
+
+import websockets
+
+@app.websocket("/voice/stream")
+@app.websocket("/api/voice/stream")
+async def voice_stream_proxy(websocket: WebSocket) -> None:
+    await websocket.accept()
+    target_url = settings.voice_service_url.replace("http://", "ws://").replace("https://", "wss://") + "/voice/stream"
+    logger.info(f"[GATEWAY] Proxying WebSocket connection to: {target_url}")
+    
+    session_id = "unknown"
+    start_time = time.time()
+    
+    try:
+        async with websockets.connect(target_url) as voice_ws:
+            async def client_to_service():
+                nonlocal session_id
+                try:
+                    while True:
+                        msg = await websocket.receive_text()
+                        try:
+                            data = json.loads(msg)
+                            if data.get("type") == "audio_start":
+                                session_id = data.get("session_id") or "unknown"
+                                logger.info(f"[GATEWAY] Session ID identified: {session_id}")
+                        except Exception:
+                            pass
+                        await voice_ws.send(msg)
+                except WebSocketDisconnect:
+                    logger.info(f"[GATEWAY] Client disconnected from session {session_id}")
+                except Exception as e:
+                    logger.error(f"[GATEWAY] Error forwarding client to service: {e}")
+
+            async def service_to_client():
+                try:
+                    while True:
+                        msg = await voice_ws.recv()
+                        if isinstance(msg, bytes):
+                            await websocket.send_bytes(msg)
+                        else:
+                            await websocket.send_text(msg)
+                except Exception as e:
+                    logger.debug(f"[GATEWAY] Voice service connection closed or errored: {e}")
+
+            await asyncio.gather(client_to_service(), service_to_client())
+    except Exception as e:
+        logger.error(f"[GATEWAY] Fail to connect to voice service: {e}")
+        try:
+            await websocket.send_json({"type": "error", "message": f"Voice service unavailable: {e}"})
+            await websocket.close()
+        except Exception:
+            pass
 
 
 @app.get("/sync")
@@ -1269,6 +1438,24 @@ async def packs_catalog() -> dict[str, Any]:
         "total_download_size_bytes": total_size,
         "total_download_size_mb": round(total_size / (1024 * 1024), 2),
     }
+
+
+@app.get("/packs/coverage")
+async def packs_coverage() -> dict[str, Any]:
+    return await _get_json(settings.pack_service_url, "/packs/coverage")
+
+
+@app.get("/packs/multilingual/plan")
+async def packs_multilingual_plan(
+    target_language: str = Query(default="hi"),
+    grade: int | None = Query(default=None),
+    subject: str | None = Query(default=None),
+) -> dict[str, Any]:
+    return await _get_json(
+        settings.pack_service_url,
+        "/packs/multilingual/plan",
+        params={"target_language": target_language, "grade": grade, "subject": subject},
+    )
 
 
 @app.get("/packs/recommended")
@@ -1511,6 +1698,57 @@ async def chapter_experiments(chapter_id: str) -> Any:
     return await app.state.experiment_client.get_chapter_experiments(chapter_id)
 
 
+@app.post("/classroom/sessions")
+async def classroom_session_create(payload: dict[str, Any]) -> Any:
+    return await _proxy_to(settings.experiment_service_url, "POST", "/classroom/sessions", payload)
+
+
+@app.get("/classroom/sessions")
+async def classroom_sessions(page: int = Query(default=1, ge=1), page_size: int = Query(default=50, ge=1, le=200)) -> Any:
+    return await _get_json(settings.experiment_service_url, "/classroom/sessions", params={"page": page, "page_size": page_size})
+
+
+@app.post("/classroom/sessions/{session_id}/assignments")
+async def classroom_assignment_create(session_id: str, payload: dict[str, Any]) -> Any:
+    return await _proxy_to(settings.experiment_service_url, "POST", f"/classroom/sessions/{quote(session_id, safe='')}/assignments", payload)
+
+
+@app.get("/classroom/sessions/{session_id}/assignments")
+async def classroom_assignments(
+    session_id: str,
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=50, ge=1, le=200),
+) -> Any:
+    return await _get_json(
+        settings.experiment_service_url,
+        f"/classroom/sessions/{quote(session_id, safe='')}/assignments",
+        params={"page": page, "page_size": page_size},
+    )
+
+
+@app.post("/classroom/assignments/{assignment_id}/submit")
+async def classroom_assignment_submit(assignment_id: str, payload: dict[str, Any]) -> Any:
+    return await _proxy_to(settings.experiment_service_url, "POST", f"/classroom/assignments/{quote(assignment_id, safe='')}/submit", payload)
+
+
+@app.get("/classroom/assignments/{assignment_id}/submissions")
+async def classroom_assignment_submissions(
+    assignment_id: str,
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=50, ge=1, le=200),
+) -> Any:
+    return await _get_json(
+        settings.experiment_service_url,
+        f"/classroom/assignments/{quote(assignment_id, safe='')}/submissions",
+        params={"page": page, "page_size": page_size},
+    )
+
+
+@app.get("/classroom/analytics")
+async def classroom_session_analytics() -> Any:
+    return await _get_json(settings.experiment_service_url, "/classroom/analytics")
+
+
 @app.get("/experiment-templates")
 async def experiment_templates() -> Any:
     return await app.state.experiment_client.get_templates()
@@ -1649,6 +1887,44 @@ async def planner_lesson(payload: dict[str, Any]) -> dict[str, Any]:
             "quizzes": len(quizzes),
         },
     }
+
+
+@app.get("/demo/topics")
+async def demo_topics() -> dict[str, Any]:
+    return {"topics": DEMO_TOPICS}
+
+
+@app.get("/demo")
+async def demo_index() -> dict[str, Any]:
+    return {
+        "status": "ready",
+        "topics": DEMO_TOPICS,
+        "endpoints": {
+            "tutor": "/demo/tutor",
+            "topics": "/demo/topics",
+            "coverage": "/packs/coverage",
+        },
+    }
+
+
+@app.post("/demo/tutor")
+async def demo_tutor(payload: dict[str, Any]) -> Any:
+    topic_id = str(payload.get("topic_id") or DEMO_TOPICS[0]["id"])
+    topic = next((item for item in DEMO_TOPICS if item["id"] == topic_id), DEMO_TOPICS[0])
+    demo_payload = {
+        "question": payload.get("question") or topic["sample_question"],
+        "grade": topic["grade"],
+        "subject": topic["subject"],
+        "chapter": topic["chapter"],
+        "topic": topic["title"],
+        "language": payload.get("language") or "en",
+        "stream": bool(payload.get("stream", False)),
+        "sessionState": {
+            "session_id": payload.get("session_id") or f"demo_{topic['id']}",
+            "student_id": payload.get("student_id") or "demo_student",
+        },
+    }
+    return await ai_tutor(demo_payload)
 
 
 @app.get("/metrics/tutor")

@@ -1,197 +1,185 @@
 # PIHUB Backend API Reference
 
-This document freezes the core backend API contracts for production integration.
+This document lists all the API endpoints available in the backend.
 
----
 
-## 1. Health APIs
+## Ai
 
-### Get System Health
-- **Endpoint:** `/health`
-- **Method:** `GET`
-- **Description:** Returns the aggregated health status of all backend services (Gateway, Content Pipeline, Inference, Pack Service, Qdrant).
+- **POST** `/ai/chat` - Ai Chat
+- **POST** `/ai/tutor` - Ai Tutor
+- **POST** `/ai/tutor/debug` - Ai Tutor Debug
+- **POST** `/ai/tutor/evaluate` - Ai Tutor Evaluate
+- **GET** `/ai/health` - Ai Health
 
-**Response Schema:**
-```json
-{
-  "status": "string",
-  "service": "string",
-  "checks": "object"
-}
-```
-**Example Response:**
-```json
-{
-  "status": "ok",
-  "service": "gateway",
-  "checks": {
-    "gateway": "ok",
-    "content_pipeline": {"status": "ok"},
-    "qdrant": {"status_code": 200, "body": "qdrant"}
-  }
-}
-```
+## Analytics
 
----
+- **GET** `/analytics/student/{student_id}` - Experiment Student Analytics
+- **GET** `/analytics/experiment/{experiment_id}` - Experiment Analytics
+- **GET** `/analytics/system` - Experiment System Analytics
+- **GET** `/analytics/top-experiments` - Experiment Top Analytics
 
-## 2. Tutor APIs
+## Api
 
-### Ask AI Tutor
-- **Endpoint:** `/ai/tutor`
-- **Method:** `POST`
-- **Description:** Submits a student question to the Concept Router and Local LLM. Returns an educational answer with the RAG context used.
+- **POST** `/api/voice/query` - Voice Query
+- **POST** `/api/voice/tts` - Voice Tts
+- **POST** `/api/voice/stt` - Voice Stt
+- **GET** `/api/voice/audio/{asset_id:path}` - Voice Audio
+- **GET** `/api/voice/metrics` - Voice Metrics
+- **GET** `/api/v1/pdf/catalog` - Pdf Catalog
+- **GET** `/api/v1/pdf/resolve` - Pdf Resolve
+- **GET** `/api/v1/pdf/book/{grade}/{subject}` - Pdf Book
+- **GET** `/api/v1/pdf/chapter/{chapter_id}/metadata` - Pdf Chapter Metadata
+- **GET** `/api/v1/pdf/chapter/{chapter_id}` - Pdf Chapter
+- **GET** `/api/v1/pdf/file/{book_id}` - Pdf File
 
-**Request Schema:**
-```json
-{
-  "question": "string (required)",
-  "grade": "integer (optional)",
-  "subject": "string (optional)",
-  "chapter": "string (optional)",
-  "topic": "string (optional)",
-  "language": "string (optional)",
-  "limit": "integer (optional, default: 5)",
-  "stream": "boolean (optional, default: false)",
-  "hint_style": "string (optional, default: 'guided')"
-}
-```
-**Example Request:**
-```json
-{
-  "question": "What is the surface area of a cylinder?",
-  "grade": 10,
-  "subject": "maths"
-}
-```
+## Chapters
 
-**Response Schema:**
-```json
-{
-  "answer": "string",
-  "model": "string",
-  "context": [
-    {
-      "id": "string",
-      "score": "float",
-      "text": "string",
-      "metadata": "object"
-    }
-  ]
-}
-```
+- **GET** `/chapters/{chapter_id}/experiments` - Chapter Experiments
 
----
+## Classroom
 
-## 3. Search APIs
+- **POST** `/classroom/sessions` - Classroom Session Create
+- **GET** `/classroom/sessions` - Classroom Sessions
+- **POST** `/classroom/sessions/{session_id}/assignments` - Classroom Assignment Create
+- **GET** `/classroom/sessions/{session_id}/assignments` - Classroom Assignments
+- **POST** `/classroom/assignments/{assignment_id}/submit` - Classroom Assignment Submit
+- **GET** `/classroom/assignments/{assignment_id}/submissions` - Classroom Assignment Submissions
+- **GET** `/classroom/analytics` - Classroom Session Analytics
+- **GET** `/classroom` - Classroom Get
+- **POST** `/classroom` - Classroom Post
 
-### RAG Search
-- **Endpoint:** `/rag/search`
-- **Method:** `POST`
-- **Description:** Performs semantic search across the educational curriculum chunks.
+## Content
 
-**Request Schema:**
-```json
-{
-  "query": "string (required)",
-  "limit": "integer (optional, default: 5)",
-  "metadata": "object (optional filters)"
-}
-```
-**Example Request:**
-```json
-{
-  "query": "Arithmetic Progressions",
-  "limit": 3,
-  "metadata": {"subject": "maths"}
-}
-```
+- **POST** `/content/upload` - Upload Content
 
-**Response Schema:**
-```json
-{
-  "query": "string",
-  "results": [
-    {
-      "id": "string",
-      "score": "float",
-      "text": "string",
-      "metadata": "object"
-    }
-  ]
-}
-```
+## Debug
 
----
+- **GET** `/debug/curriculum` - Debug Curriculum
+- **GET** `/debug/metadata` - Debug Metadata
+- **GET** `/debug/chunks` - Debug Chunks
+- **POST** `/debug/retrieval` - Debug Retrieval
+- **GET** `/debug/similarity` - Debug Similarity
+- **GET** `/debug/pack-preview` - Debug Pack Preview
 
-## 4. Pack APIs
+## Demo
 
-### Generate Pack
-- **Endpoint:** `/packs/generate` (Internal Pack Service)
-- **Method:** `POST`
-- **Description:** Compiles and compresses educational curriculum chunks, glossaries, quizzes, and embeddings into an offline-ready package.
+- **GET** `/demo/topics` - Demo Topics
+- **GET** `/demo` - Demo Index
+- **POST** `/demo/tutor` - Demo Tutor
 
-**Request Schema:**
-```json
-{
-  "pack_type": "string (class | chapter | language)",
-  "grade": "integer (optional)",
-  "subject": "string (optional)",
-  "chapter": "string (optional)",
-  "language": "string (optional, default: english)",
-  "compression": "string (optional, default: gzip)"
-}
-```
-**Example Request:**
-```json
-{
-  "pack_type": "chapter",
-  "grade": 5,
-  "subject": "maths",
-  "chapter": "animal jumps"
-}
-```
+## Devices
 
-**Response Schema:**
-```json
-{
-  "pack_id": "string",
-  "version": "string",
-  "status": "string",
-  "chunk_count": "integer",
-  "media_count": "integer",
-  "estimated_size_mb": "float",
-  "manifest_url": "string",
-  "download_url": "string"
-}
-```
+- **GET** `/devices` - Devices Get
+- **POST** `/devices` - Devices Post
 
-### List Packs
-- **Endpoint:** `/packs`
-- **Method:** `GET`
-- **Description:** Returns the global registry of all generated packs.
+## Discovery
 
-**Response Schema:**
-```json
-{
-  "packs": [
-    {
-      "pack_id": "string",
-      "size_mb": "float",
-      "status": "string",
-      "download_url": "string",
-      "manifest_url": "string"
-    }
-  ]
-}
-```
+- **GET** `/discovery` - Discovery
+- **GET** `/discovery/beacon` - Discovery Beacon
 
-## Error Responses (Global)
-All API endpoints will return standard HTTP error codes:
-- `400 Bad Request` for invalid schemas or missing fields.
-- `404 Not Found` for missing packs or chunks.
-- `500 Internal Server Error` for upstream network issues or pipeline failures.
-```json
-{
-  "detail": "Error message explanation"
-}
-```
+## Experiment-Metrics
+
+- **GET** `/experiment-metrics` - Experiment Metrics
+
+## Experiment-Runs
+
+- **POST** `/experiment-runs` - Experiment Run Create
+- **GET** `/experiment-runs/student/{student_id}` - Experiment Runs Student
+- **GET** `/experiment-runs/{run_id}` - Experiment Run Get
+- **POST** `/experiment-runs/{run_id}/events` - Experiment Run Event
+- **POST** `/experiment-runs/{run_id}/complete` - Experiment Run Complete
+
+## Experiment-Templates
+
+- **GET** `/experiment-templates` - Experiment Templates
+
+## Experiments
+
+- **GET** `/experiments` - Experiments Get
+- **GET** `/experiments/catalog` - Experiments Catalog
+- **GET** `/experiments/search` - Experiments Search
+- **GET** `/experiments/{experiment_id}/download` - Experiment Pack Download
+- **GET** `/experiments/{experiment_id}/certification` - Experiment Certification
+- **GET** `/experiments/{experiment_id}` - Experiment Get
+
+## Flashcards
+
+- **GET** `/flashcards` - Flashcards
+
+## Glossary
+
+- **GET** `/glossary` - Glossary
+
+## Health
+
+- **GET** `/health` - Health
+
+## Ingest
+
+- **POST** `/ingest/textbook` - Ingest Textbook
+- **POST** `/ingest/directory` - Ingest Directory
+
+## Metrics
+
+- **GET** `/metrics/tutor` - Tutor Metrics
+- **GET** `/metrics/retrieval` - Retrieval Metrics Endpoint
+
+## Packs
+
+- **GET** `/packs` - Packs Get
+- **GET** `/packs/sync` - Packs Sync
+- **GET** `/packs/catalog` - Packs Catalog
+- **GET** `/packs/coverage` - Packs Coverage
+- **GET** `/packs/multilingual/plan` - Packs Multilingual Plan
+- **GET** `/packs/recommended` - Packs Recommended
+- **POST** `/packs/generate` - Packs Generate
+- **GET** `/packs/{pack_id}/manifest` - Pack Manifest
+- **GET** `/packs/{pack_id}/download` - Pack Download
+
+## Planner
+
+- **POST** `/planner/lesson` - Planner Lesson
+
+## Progress
+
+- **POST** `/progress` - Progress Post
+- **GET** `/progress/{student_id}` - Progress Get
+
+## Quiz-Sessions
+
+- **POST** `/quiz-sessions` - Quiz Session Create
+- **GET** `/quiz-sessions/student/{student_id}` - Quiz Sessions Student
+- **GET** `/quiz-sessions/{quiz_session_id}` - Quiz Session Get
+- **POST** `/quiz-sessions/{quiz_session_id}/answer` - Quiz Session Answer
+
+## Quizzes
+
+- **GET** `/quizzes` - Quizzes
+
+## Rag
+
+- **POST** `/rag/search` - Rag Search
+- **GET** `/rag/chapter` - Rag Chapter
+- **GET** `/rag/subject` - Rag Subject
+
+## Summaries
+
+- **GET** `/summaries` - Summaries
+
+## Sync
+
+- **GET** `/sync` - Sync Get
+- **POST** `/sync` - Sync Post
+
+## Tutor
+
+- **GET** `/tutor/capabilities` - Tutor Capabilities
+
+## Upload
+
+- **POST** `/upload` - Upload Content
+
+## Websocket
+
+- **WS** `/api/voice/stream` - Voice Stream Proxy
+- **WS** `/voice/stream` - Voice Stream Proxy

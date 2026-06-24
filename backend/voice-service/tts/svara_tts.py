@@ -5,7 +5,7 @@ from pathlib import Path
 
 from config import get_runtime_settings
 from services.errors import VoiceServiceError
-from services.interfaces import TTSEngine
+from .base import TTSEngine
 from .providers import SvaraLocalProvider, SvaraProviderError
 
 

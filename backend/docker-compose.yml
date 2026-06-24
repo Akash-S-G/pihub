@@ -181,6 +181,10 @@ services:
       - .env
     environment:
       VOICE_AUDIO_ROOT: ${VOICE_AUDIO_ROOT:-/shared/voice/audio}
+      STT_PROVIDER: ${STT_PROVIDER:-faster_whisper}
+      WHISPER_MODEL: ${WHISPER_MODEL:-small}
+      WHISPER_DEVICE: ${WHISPER_DEVICE:-cpu}
+      WHISPER_COMPUTE_TYPE: ${WHISPER_COMPUTE_TYPE:-int8}
       VOICE_AUDIO_MANIFEST: ${VOICE_AUDIO_MANIFEST:-/shared/voice/audio_manifest.json}
       VOICE_TUTOR_URL: ${VOICE_TUTOR_URL:-http://inference-service:8010}
       VOICE_TUTOR_PATH: ${VOICE_TUTOR_PATH:-/ai/tutor}
@@ -209,7 +213,7 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 300s
 
   nginx:
     image: nginx:1.27-alpine

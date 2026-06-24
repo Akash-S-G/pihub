@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import time
+import logging
 from typing import Any, AsyncIterator, Awaitable, Callable
+
+logger = logging.getLogger(__name__)
 
 from pydantic import BaseModel, Field
 
@@ -10,7 +13,7 @@ from app.context.pack_context_provider import PackContextProvider
 from app.language.language_adapter import LanguageAdapter
 from app.monitoring.tutor_monitor import TutorLatencyBreakdown
 from app.sessions.session_manager import SessionManager
-from app.tutor.prompting import append_experiment_context, append_language_instruction, append_session_history
+from app.tutor.prompting import append_experiment_context, append_language_instruction
 
 
 BuildSystemPromptFn = Callable[[Any, str], str]
@@ -61,6 +64,8 @@ class TutorOrchestrator:
 
     async def run(self, request: Any) -> OrchestratedTutorResult:
         total_start = time.perf_counter()
+        sim_ctx = getattr(request, "simulation_context", {})
+        logger.info(f"[ORCHESTRATOR] Received simulation_context: {sim_ctx}")
         session = self.session_manager.get_or_create(request)
         target_language = self.language_adapter.detect_language(request)
 
@@ -77,7 +82,6 @@ class TutorOrchestrator:
         system_prompt = append_language_instruction(system_prompt, self.language_adapter.prompt_instruction(target_language))
 
         user_prompt = self.build_user_prompt(request, context_results)
-        user_prompt = append_session_history(user_prompt, session.chat_history)
         user_prompt = append_experiment_context(user_prompt, experiment_context)
         final_prompt = f"SYSTEM:\n{system_prompt}\n\nUSER:\n{user_prompt}"
 

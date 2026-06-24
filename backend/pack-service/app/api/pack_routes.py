@@ -53,6 +53,7 @@ def _load_artifacts(record: dict[str, Any]) -> dict[str, Any]:
     pack_dir = Path(record["pack_dir"])
     return {
         "content": _load_json(pack_dir / "content.json"),
+        "chapter_knowledge": _load_json(pack_dir / "chapter_knowledge.json") or {},
         "glossary": _load_json(pack_dir / "glossary.json"),
         "quizzes": _load_json(pack_dir / "quizzes.json"),
         "flashcards": _load_json(pack_dir / "flashcards.json"),
@@ -119,6 +120,7 @@ def get_pack_preview(pack_id: str, request: Request, version: str | None = Query
         glossary=[GlossaryEntry(**item) for item in artifacts.get("glossary", [])],
         quizzes=[QuizQuestion(**item) for item in artifacts.get("quizzes", [])],
         flashcards=[Flashcard(**item) for item in artifacts.get("flashcards", [])],
+        chapter_knowledge=artifacts.get("chapter_knowledge", {}),
         enrichment=EnrichmentResponse(**artifacts.get("enrichment", {})),
         quality_scores=quality.model_dump(),
     )

@@ -86,6 +86,7 @@ class PackPreviewResponse(BaseModel):
     glossary: list[GlossaryEntry] = Field(default_factory=list)
     quizzes: list[QuizQuestion] = Field(default_factory=list)
     flashcards: list[Flashcard] = Field(default_factory=list)
+    chapter_knowledge: dict[str, Any] = Field(default_factory=dict)
     enrichment: EnrichmentResponse = Field(default_factory=EnrichmentResponse)
     quality_scores: dict[str, float] = Field(default_factory=dict)
 
