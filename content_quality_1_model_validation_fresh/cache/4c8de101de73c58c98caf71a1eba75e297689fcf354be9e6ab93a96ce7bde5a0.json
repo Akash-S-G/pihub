@@ -1,9 +1,0 @@
-{
-  "items": [
-    {
-      "question": "string",
-      "answer": "string",
-      "difficulty": "easy|medium|hard"
-    }
-  ]
-}

@@ -695,7 +695,7 @@ class PackGenerator:
                 "subject": metadata.get("subject"),
                 "chapter": metadata.get("chapter"),
                 "language": metadata.get("language"),
-                "version": "1.0.0",
+                "version": "2.0.0",
                 "artifacts": artifacts,
                 "generation_metadata": {
                     **metadata,

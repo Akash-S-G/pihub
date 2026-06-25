@@ -168,7 +168,13 @@ class GeneratedPackIngestor:
             data = json.loads(f.read_text(encoding="utf-8"))
             for item in data:
                 meta = self._base_meta(item)
-                summary = item.get("payload", {}).get("summary", "")
+                # Kaggle output has summary_detailed and summary_short
+                summary = item.get("payload", {}).get("summary_detailed", "")
+                if not summary:
+                    summary = item.get("payload", {}).get("summary_short", "")
+                if not summary:
+                    summary = item.get("payload", {}).get("summary", "")
+                
                 if summary:
                     chunks.append({
                         "text": f"Summary: {summary}",
@@ -190,20 +196,40 @@ class GeneratedPackIngestor:
             data = json.loads(f.read_text(encoding="utf-8"))
             for item in data:
                 meta = self._base_meta(item)
-                for entry in item.get("payload", {}).get("glossary", []):
-                    term = entry.get("term", "")
-                    definition = entry.get("definition", "")
-                    if term and definition:
-                        chunks.append({
-                            "text": f"Term: {term}\nDefinition: {definition}",
-                            "metadata": {
-                                **meta,
-                                "section": "Glossary",
-                                "chunk_type": "glossary",
-                                "topics": [term],
-                                "concepts": [term],
-                            },
-                        })
+                payload = item.get("payload", {})
+                
+                # Kaggle output format: payload contains term and definition directly
+                term = payload.get("term", "")
+                definition = payload.get("definition", "")
+                
+                if not term or not definition:
+                    # Fallback to the old list format if it exists
+                    for entry in payload.get("glossary", []):
+                        t = entry.get("term", "")
+                        d = entry.get("definition", "")
+                        if t and d:
+                            chunks.append({
+                                "text": f"Term: {t}\nDefinition: {d}",
+                                "metadata": {
+                                    **meta,
+                                    "section": "Glossary",
+                                    "chunk_type": "glossary",
+                                    "topics": [t],
+                                    "concepts": [t],
+                                },
+                            })
+                    continue
+                
+                chunks.append({
+                    "text": f"Term: {term}\nDefinition: {definition}",
+                    "metadata": {
+                        **meta,
+                        "section": "Glossary",
+                        "chunk_type": "glossary",
+                        "topics": [term],
+                        "concepts": [term],
+                    },
+                })
         except Exception as e:
             logger.error("Error parsing glossary.json: %s", e)
 
@@ -215,18 +241,37 @@ class GeneratedPackIngestor:
             data = json.loads(f.read_text(encoding="utf-8"))
             for item in data:
                 meta = self._base_meta(item)
-                for card in item.get("payload", {}).get("flashcards", []):
-                    question = card.get("question", "")
-                    answer = card.get("answer", "")
-                    if question and answer:
-                        chunks.append({
-                            "text": f"Q: {question}\nA: {answer}",
-                            "metadata": {
-                                **meta,
-                                "section": "Flashcards",
-                                "chunk_type": "flashcard",
-                                "topics": [meta["chapter"]],
-                            },
-                        })
+                payload = item.get("payload", {})
+                
+                # Kaggle output format: payload contains front and back directly
+                question = payload.get("front", "")
+                answer = payload.get("back", "")
+                
+                if not question or not answer:
+                    # Fallback to the old list format if it exists
+                    for card in payload.get("flashcards", []):
+                        q = card.get("question", "")
+                        a = card.get("answer", "")
+                        if q and a:
+                            chunks.append({
+                                "text": f"Q: {q}\nA: {a}",
+                                "metadata": {
+                                    **meta,
+                                    "section": "Flashcards",
+                                    "chunk_type": "flashcard",
+                                    "topics": [meta["chapter"]],
+                                },
+                            })
+                    continue
+                
+                chunks.append({
+                    "text": f"Q: {question}\nA: {answer}",
+                    "metadata": {
+                        **meta,
+                        "section": "Flashcards",
+                        "chunk_type": "flashcard",
+                        "topics": [meta["chapter"]],
+                    },
+                })
         except Exception as e:
             logger.error("Error parsing flashcards.json: %s", e)

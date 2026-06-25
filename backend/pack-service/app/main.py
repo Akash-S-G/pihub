@@ -222,6 +222,21 @@ async def import_generated_pack(request: ImportGeneratedPackRequest) -> dict:
         raise HTTPException(status_code=500, detail=str(e))
 
 
+class ImportPhetRequest(BaseModel):
+    source_dir: str = "/shared/phet_downloads"
+
+@app.post("/packs/import/phet", tags=["Pack Import"])
+async def import_phet_simulations(request: ImportPhetRequest) -> dict:
+    from app.importers.phet_importer import PhetImporter
+    importer = PhetImporter(pack_repository=app.state.pack_repository)
+    try:
+        record = await importer.import_simulations(Path(request.source_dir))
+        return {"status": "success", "pack": record}
+    except Exception as e:
+        logger.exception("PHET Import failed")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 app.include_router(pack_router)
 app.include_router(pdf_router)
 app.include_router(preview_router)

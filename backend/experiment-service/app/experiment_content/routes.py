@@ -16,7 +16,10 @@ async def experiment_catalog() -> dict[str, object]:
     from pathlib import Path
     
     experiments = service.catalog()
-    catalog_path = Path("/shared/simulations/catalog.json")
+    pack_catalog_path = Path("/shared/packs/phet_simulations_v1/simulations/catalog.json")
+    default_catalog_path = Path("/shared/simulations/catalog.json")
+    catalog_path = pack_catalog_path if pack_catalog_path.exists() else default_catalog_path
+    
     simulations = []
     
     if catalog_path.exists():

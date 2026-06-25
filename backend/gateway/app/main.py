@@ -60,7 +60,7 @@ DEMO_TOPICS: list[dict[str, Any]] = [
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.http = httpx.AsyncClient(timeout=120.0)
+    app.state.http = httpx.AsyncClient(timeout=300.0)
     app.state.experiment_client = ExperimentServiceClient(
         app.state.http,
         settings.experiment_service_url,
@@ -171,14 +171,20 @@ async def _proxy_get(path: str, params: dict[str, Any]) -> dict[str, Any]:
 
 
 async def _get_json(base_url: str, path: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
-    response = await app.state.http.get(f"{base_url}{path}", params=params)
+    try:
+        response = await app.state.http.get(f"{base_url}{path}", params=params)
+    except httpx.RequestError as exc:
+        raise HTTPException(status_code=503, detail=f"Service unavailable: {str(exc)}")
     if response.is_error:
         raise HTTPException(status_code=response.status_code, detail=response.text)
     return response.json()
 
 
 async def _post_json(base_url: str, path: str, payload: dict[str, Any]) -> dict[str, Any]:
-    response = await app.state.http.post(f"{base_url}{path}", json=payload)
+    try:
+        response = await app.state.http.post(f"{base_url}{path}", json=payload)
+    except httpx.RequestError as exc:
+        raise HTTPException(status_code=503, detail=f"Service unavailable: {str(exc)}")
     if response.is_error:
         raise HTTPException(status_code=response.status_code, detail=response.text)
     return response.json()
@@ -198,7 +204,10 @@ async def _post_multipart(
             file.content_type or "application/octet-stream",
         )
     }
-    response = await app.state.http.post(f"{base_url}{path}", params=params, files=files)
+    try:
+        response = await app.state.http.post(f"{base_url}{path}", params=params, files=files)
+    except httpx.RequestError as exc:
+        raise HTTPException(status_code=503, detail=f"Service unavailable: {str(exc)}")
     if response.is_error:
         raise HTTPException(status_code=response.status_code, detail=_error_detail(response.text))
     return response.json()
@@ -763,7 +772,10 @@ async def _proxy_stream(
         json=payload,
         headers=headers,
     )
-    response = await app.state.http.send(request, stream=True)
+    try:
+        response = await app.state.http.send(request, stream=True)
+    except httpx.RequestError as exc:
+        raise HTTPException(status_code=503, detail=f"Service unavailable: {str(exc)}")
 
     if response.is_error:
         body = await response.aread()
@@ -1246,6 +1258,7 @@ import websockets
 
 @app.websocket("/voice/stream")
 @app.websocket("/api/voice/stream")
+@app.websocket("/api/v1/voice/stream")
 async def voice_stream_proxy(websocket: WebSocket) -> None:
     await websocket.accept()
     target_url = settings.voice_service_url.replace("http://", "ws://").replace("https://", "wss://") + "/voice/stream"

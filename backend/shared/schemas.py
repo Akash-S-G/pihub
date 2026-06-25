@@ -11,6 +11,7 @@ class Metadata(BaseModel):
     chapter: str | None = None
     topic: str | None = None
     language: str | None = None
+    source: str | None = None
 
 
 class IngestResponse(BaseModel):

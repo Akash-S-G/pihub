@@ -1,0 +1,27 @@
+[
+  {
+    "question": "What type of bond is formed between carbon atoms in a molecule of methane?",
+    "options": ["Ionic bond", "Covalent bond", "Hydrogen bond", "Metallic bond"],
+    "answer": "Covalent bond"
+  },
+  {
+    "question": "Which of the following is an allotrope of carbon?",
+    "options": ["Methane", "Ethanol", "Graphite", "Benzene"],
+    "answer": "Graphite"
+  },
+  {
+    "question": "What is the property of carbon that allows it to form long chains with other carbon atoms called?",
+    "options": ["Catenation", "Tetravalency", "Isomerism", "Homologation"],
+    "answer": "Catenation"
+  },
+  {
+    "question": "What is the general formula for alkanes?",
+    "options": ["CnH2n", "CnH2n-2", "CnH2n+2", "CnHn"],
+    "answer": "CnH2n+2"
+  },
+  {
+    "question": "Which functional group is present in an alcohol?",
+    "options": ["-COOH", "-CHO", "-OH", "-Cl"],
+    "answer": "-OH"
+  }
+]

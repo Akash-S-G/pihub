@@ -446,8 +446,10 @@ async def _search_context(query: str, limit: int, metadata: dict[str, Any]) -> l
         payload["metadata"] = metadata
     response = await manager.http.post(f"{shared_settings.content_pipeline_url}/rag/search", json=payload)
     if response.is_error:
+        logger.error(f"[RAG] content-pipeline error: {response.text}")
         return []
     data = response.json().get("results", [])
+    logger.info(f"[RAG] content-pipeline returned {len(data)} results for payload {payload}")
     return [ContextResult.model_validate(item) for item in data]
 
 
@@ -458,12 +460,18 @@ async def _retrieve_context_with_observability(request: ChatRequest) -> tuple[li
     if normalized_topic and normalized_topic not in request.question.lower():
         query = f"{request.question} {normalized_topic}"
 
+    language_map = {"en": "english", "hi": "hindi", "kn": "kannada"}
+    normalized_lang = request.language
+    if normalized_lang:
+        normalized_lang = language_map.get(normalized_lang.lower(), normalized_lang)
+
     metadata = {key: value for key, value in {
         "grade": request.grade,
         "subject": normalize_subject(request.subject),
         "chapter": request.chapter,
         "topic": normalized_topic,
-        "language": request.language,
+        "language": normalized_lang,
+        "source": "generated_pack",
     }.items() if value is not None}
 
     started = time.perf_counter()

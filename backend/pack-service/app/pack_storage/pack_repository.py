@@ -193,6 +193,16 @@ class PackRepository:
                     target.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
                 else:
                     target.write_text(str(payload), encoding="utf-8")
+                    
+        # Support static assets copying
+        if "static_dir" in artifacts and artifacts["static_dir"]:
+            import shutil
+            static_dir = Path(artifacts["static_dir"])
+            if static_dir.exists() and static_dir.is_dir():
+                static_target = pack_dir / "simulations"
+                if static_target.exists():
+                    shutil.rmtree(static_target)
+                shutil.copytree(static_dir, static_target)
 
     def _archive_pack(self, pack_dir: Path) -> Path:
         archive_path = self.locator.archive_path(pack_dir)

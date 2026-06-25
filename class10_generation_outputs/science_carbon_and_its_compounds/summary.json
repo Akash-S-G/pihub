@@ -1,0 +1,21 @@
+{
+  "title": "Carbon and its Compounds",
+  "sections": [
+    {
+      "heading": "Bonding in Carbon",
+      "content": "Carbon forms covalent bonds by sharing its four valence electrons with other atoms to achieve a noble gas configuration."
+    },
+    {
+      "heading": "Versatile Nature of Carbon",
+      "content": "Carbon has unique properties like tetravalency and catenation, allowing it to form millions of organic compounds."
+    },
+    {
+      "heading": "Saturated and Unsaturated Compounds",
+      "content": "Saturated compounds contain single bonds, while unsaturated compounds contain double or triple bonds between carbon atoms."
+    },
+    {
+      "heading": "Functional Groups & Homologous Series",
+      "content": "Heteroatoms or groups like alcohols, aldehydes, and ketones confer specific properties. A homologous series is a group of compounds differing by a -CH2- unit."
+    }
+  ]
+}
