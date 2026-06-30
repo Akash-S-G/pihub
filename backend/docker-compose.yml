@@ -187,6 +187,7 @@ services:
     environment:
       VOICE_AUDIO_ROOT: ${VOICE_AUDIO_ROOT:-/shared/voice/audio}
       STT_PROVIDER: faster_whisper
+      TTS_PROVIDER: ${TTS_PROVIDER:-auto}
       WHISPER_MODEL: ${WHISPER_MODEL:-small}
       WHISPER_DEVICE: ${WHISPER_DEVICE:-cpu}
       WHISPER_COMPUTE_TYPE: ${WHISPER_COMPUTE_TYPE:-int8}
@@ -194,11 +195,10 @@ services:
       VOICE_TUTOR_URL: ${VOICE_TUTOR_URL:-http://inference-service:8010}
       VOICE_TUTOR_PATH: ${VOICE_TUTOR_PATH:-/ai/tutor}
       VOICE_TTS_ENABLED: ${VOICE_TTS_ENABLED:-true}
-      SVARA_GGUF_PATH: ${SVARA_GGUF_PATH:-/models/svara/svara-tts-v1.Q3_K_S.gguf}
-      SVARA_MODEL_PATH: ${SVARA_MODEL_PATH:-/models/svara/svara-tts-v1.Q3_K_S.gguf}
+      SVARA_MODEL_PATH: ${SVARA_MODEL_PATH:-/models/svara/svara-tts-v1.Q4_K_M.gguf}
       SVARA_SNAC_DECODER_PATH: ${SVARA_SNAC_DECODER_PATH:-/models/svara/snac_24khz-ONNX/onnx/decoder_model.onnx}
       SVARA_SAMPLE_RATE: ${SVARA_SAMPLE_RATE:-24000}
-      SVARA_MAX_TOKENS: ${SVARA_MAX_TOKENS:-280}
+      SVARA_MAX_TOKENS: ${SVARA_MAX_TOKENS:-512}
       SVARA_THREADS: ${SVARA_THREADS:-8}
       SVARA_CONTEXT: ${SVARA_CONTEXT:-4096}
       SVARA_GPU_LAYERS: ${SVARA_GPU_LAYERS:-99}
@@ -210,6 +210,7 @@ services:
     volumes:
       - shared_storage:/shared
       - ./voice-service/models:/models/svara
+      - /home/akash/Desktop/voice-benchmark/svara_tts_onnx_benchmark/models/snac_24khz-ONNX/onnx/decoder_model.onnx:/models/svara/snac_24khz-ONNX/onnx/decoder_model.onnx:ro
       - backend_logs:/logs
     expose:
       - "8050"

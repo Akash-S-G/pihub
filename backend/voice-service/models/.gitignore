@@ -1,0 +1,5 @@
+*
+!.gitignore
+!snac_24khz-ONNX/
+!snac_24khz-ONNX/**
+!README.md

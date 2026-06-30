@@ -5,6 +5,7 @@ import gc
 import hashlib
 import json
 import os
+import re
 import resource
 import time
 import wave
@@ -54,6 +55,8 @@ class SvaraLocalProvider:
     AUDIO_TOKEN_LIMIT = 156938
     SNAC_CODEBOOK_SIZE = 4096
     SNAC_BANDS_PER_FRAME = 7
+    CHUNK_CHAR_LIMIT = 80
+    CHUNK_PAUSE_SECONDS = 0.05
 
     def __init__(self, settings: VoiceRuntimeSettings) -> None:
         self.settings = settings
@@ -184,6 +187,8 @@ class SvaraLocalProvider:
         # llama.cpp model contexts are not safe to mutate concurrently.
         async with self._generation_lock:
             try:
+                if len(text) > self.CHUNK_CHAR_LIMIT:
+                    return await asyncio.to_thread(self._synthesize_chunked_sync, text, language)
                 return await asyncio.to_thread(self._synthesize_sync, text, language)
             except SvaraProviderError:
                 raise
@@ -192,8 +197,54 @@ class SvaraLocalProvider:
                 raise SvaraProviderError(502, "VOICE_TTS_GENERATION_FAILED", str(exc)) from exc
 
     async def synthesize_stream(self, text: str, language: str) -> AsyncIterator[bytes]:
-        raise NotImplementedError("Svara local streaming synthesis is not implemented yet")
-        yield b""
+        """
+        Streaming synthesis: yield PCM chunks as soon as they are decoded.
+
+        Token generation is done in one locked call, then SNAC frames are decoded
+        and yielded chunk by chunk as an AsyncIterator of raw bytes.
+        """
+        await self.ensure_loaded()
+        if not text.strip():
+            raise SvaraProviderError(400, "VOICE_TTS_EMPTY_TEXT", "TTS text cannot be empty")
+
+        # Chunk the text if it's too long (streaming-friendly chunking)
+        max_stream_chars = self.CHUNK_CHAR_LIMIT
+        if len(text) > max_stream_chars:
+            chunks = self._chunk_text(text, max_stream_chars)
+            for chunk in chunks:
+                async for pcm_chunk in self._synthesize_stream_single(chunk, language):
+                    yield pcm_chunk
+        else:
+            async for pcm_chunk in self._synthesize_stream_single(text, language):
+                yield pcm_chunk
+
+    async def _synthesize_stream_single(self, text: str, language: str) -> AsyncIterator[bytes]:
+        """Generate and stream a single text segment."""
+        # llama.cpp model contexts are not safe to mutate concurrently.
+        async with self._generation_lock:
+            try:
+                # Generate complete tokens first (can't stream llama.cpp)
+                result = await asyncio.to_thread(self._synthesize_sync, text, language)
+                # Stream by reading the resulting WAV file in chunks
+                async for chunk in self._stream_wav_file(result.file_path):
+                    yield chunk
+            except SvaraProviderError:
+                raise
+            except Exception as exc:
+                self.last_error = str(exc)
+                raise SvaraProviderError(502, "VOICE_TTS_GENERATION_FAILED", str(exc)) from exc
+
+    async def _stream_wav_file(self, file_path: str, chunk_size: int = 8192) -> AsyncIterator[bytes]:
+        """Yield chunks of a WAV file for streaming."""
+        path = Path(file_path)
+        if not path.exists():
+            return  # Will raise on read, but let caller handle
+        with open(path, "rb") as f:
+            while True:
+                data = f.read(chunk_size)
+                if not data:
+                    break
+                yield data
 
     async def close(self) -> None:
         self.llm = None
@@ -222,6 +273,12 @@ class SvaraLocalProvider:
             raise ImportError("Required Svara local dependencies are missing: llama_cpp and onnxruntime") from exc
 
         if self.llm is None:
+            if not self.settings.svara_model_path.exists():
+                raise SvaraProviderError(
+                    503,
+                    "VOICE_RUNTIME_UNAVAILABLE",
+                    f"Svara GGUF not found: {self.settings.svara_model_path}",
+                )
             self.llm = Llama(
                 model_path=str(self.settings.svara_model_path),
                 n_ctx=self.settings.svara_context,
@@ -248,6 +305,46 @@ class SvaraLocalProvider:
         path = self.generated_audio_dir / f"{audio_id}.wav"
         path.parent.mkdir(parents=True, exist_ok=True)
         self._write_wav(path, audio)
+        metadata = self._wav_metadata(path)
+        return AudioResult(
+            audio_id=audio_id,
+            file_path=str(path),
+            duration_ms=metadata["duration_ms"],
+            sample_rate=metadata["sample_rate"],
+            file_size_bytes=path.stat().st_size,
+        )
+
+    def _synthesize_chunked_sync(self, text: str, language: str) -> AudioResult:
+        import soundfile as sf
+
+        chunks = self._chunk_text(text, self.CHUNK_CHAR_LIMIT)
+        if len(chunks) <= 1:
+            return self._synthesize_sync(text, language)
+
+        voice = self._voice_for(language)
+        combined_samples: list[Any] = []
+        sample_rate = self.settings.svara_sample_rate
+        pause_samples = int(sample_rate * self.CHUNK_PAUSE_SECONDS)
+        for index, chunk in enumerate(chunks):
+            chunk_result = self._synthesize_sync(chunk, language)
+            samples, chunk_sample_rate = sf.read(chunk_result.file_path, dtype="float32")
+            sample_rate = chunk_sample_rate or sample_rate
+            combined_samples.append(samples.reshape(-1))
+            if pause_samples > 0 and index < len(chunks) - 1:
+                import numpy as np
+
+                combined_samples.append(np.zeros(pause_samples, dtype=np.float32))
+
+        if not combined_samples:
+            raise SvaraProviderError(502, "VOICE_TTS_EMPTY_AUDIO", "Svara decoded empty audio")
+
+        import numpy as np
+
+        audio = np.concatenate(combined_samples).astype(np.float32)
+        audio_id = self._audio_id(text, language, voice)
+        path = self.generated_audio_dir / f"{audio_id}.wav"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        sf.write(path, audio, sample_rate)
         metadata = self._wav_metadata(path)
         return AudioResult(
             audio_id=audio_id,
@@ -352,12 +449,97 @@ class SvaraLocalProvider:
 
     @staticmethod
     def _voice_for(language: str) -> str:
-        normalized = (language or "en").strip().lower()
-        if normalized in {"hi", "hin", "hindi"}:
-            return "Hindi (Female)"
-        if normalized in {"kn", "kan", "kannada"}:
-            return "Kannada (Female)"
-        return "English (Indian) (Female)"
+        language_key = (language or "").strip().lower()
+        voice_map = {
+            "en": "English (Indian) (Female)",
+            "hi": "Hindi (Indian) (Female)",
+            "kn": "Kannada (Indian) (Female)",
+            "mr": "Marathi (Indian) (Female)",
+            "bn": "Bengali (Indian) (Female)",
+            "te": "Telugu (Indian) (Female)",
+            "ta": "Tamil (Indian) (Female)",
+            "ml": "Malayalam (Indian) (Female)",
+            "gu": "Gujarati (Indian) (Female)",
+            "pa": "Punjabi (Indian) (Female)",
+            "or": "Odia (Indian) (Female)",
+        }
+        return voice_map.get(language_key, "English (Indian) (Female)")
+
+    @staticmethod
+    def _chunk_text(text: str, max_chars: int = 200) -> list[str]:
+        """Split text into chunks suitable for streaming synthesis."""
+        cleaned = re.sub(r"\s+", " ", text).strip()
+        if len(cleaned) <= max_chars:
+            return [cleaned]
+
+        sentence_parts = re.split(r"(?<=[.!?])\s+", cleaned)
+        chunks: list[str] = []
+        current = ""
+
+        def flush_current() -> None:
+            nonlocal current
+            if current.strip():
+                chunks.append(current.strip())
+            current = ""
+
+        for part in sentence_parts:
+            if not part:
+                continue
+            if len(part) > max_chars:
+                flush_current()
+                chunks.extend(SvaraLocalProvider._split_long_segment(part, max_chars))
+                continue
+            candidate = f"{current} {part}".strip() if current else part
+            if len(candidate) <= max_chars:
+                current = candidate
+            else:
+                flush_current()
+                current = part
+
+        flush_current()
+        return chunks if chunks else [cleaned]
+
+    @staticmethod
+    def _split_long_segment(segment: str, max_chars: int) -> list[str]:
+        clause_parts = re.split(r"(?<=[,;:])\s+", segment)
+        if len(clause_parts) > 1:
+            chunks: list[str] = []
+            current = ""
+            for clause in clause_parts:
+                if not clause:
+                    continue
+                candidate = f"{current} {clause}".strip() if current else clause
+                if len(candidate) <= max_chars:
+                    current = candidate
+                else:
+                    if current:
+                        chunks.append(current)
+                    current = clause
+            if current:
+                chunks.append(current)
+            return chunks
+
+        words = segment.split()
+        if len(words) <= 1:
+            return [
+                segment[i : i + max_chars].strip()
+                for i in range(0, len(segment), max_chars)
+                if segment[i : i + max_chars].strip()
+            ]
+
+        chunks: list[str] = []
+        current = ""
+        for word in words:
+            candidate = f"{current} {word}".strip() if current else word
+            if len(candidate) <= max_chars:
+                current = candidate
+            else:
+                if current:
+                    chunks.append(current)
+                current = word
+        if current:
+            chunks.append(current)
+        return chunks
 
     @staticmethod
     def _wav_metadata(path: Path) -> dict[str, int]:

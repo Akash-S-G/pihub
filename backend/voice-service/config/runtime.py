@@ -44,12 +44,14 @@ class VoiceRuntimeSettings:
 def get_runtime_settings() -> VoiceRuntimeSettings:
     return VoiceRuntimeSettings(
         voice_tts_enabled=_bool_env("VOICE_TTS_ENABLED", True),
-        svara_model_path=Path(os.getenv("SVARA_GGUF_PATH") or os.getenv("SVARA_MODEL_PATH", "/models/svara/svara-tts-v1.Q3_K_S.gguf")),
+        svara_model_path=Path(
+            os.getenv("SVARA_MODEL_PATH", "/models/svara/svara-tts-v1.Q4_K_M.gguf")
+        ),
         svara_snac_decoder_path=Path(
             os.getenv("SVARA_SNAC_DECODER_PATH", "/models/svara/snac_24khz-ONNX/onnx/decoder_model.onnx")
         ),
         svara_sample_rate=_int_env("SVARA_SAMPLE_RATE", 24000),
-        svara_max_tokens=_int_env("SVARA_MAX_TOKENS", 280),
+        svara_max_tokens=_int_env("SVARA_MAX_TOKENS", 512),
         svara_threads=_int_env("SVARA_THREADS", 8),
         svara_context=_int_env("SVARA_CONTEXT", 4096),
         svara_gpu_layers=_int_env("SVARA_GPU_LAYERS", 99),

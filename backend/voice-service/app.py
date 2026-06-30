@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import os
 from pathlib import Path
 from contextlib import asynccontextmanager
@@ -23,11 +24,18 @@ def create_app() -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         tts_engine = getattr(app.state, "tts_engine", None)
+        warmup_task = None
         if hasattr(tts_engine, "warmup"):
-            await tts_engine.warmup()
+            warmup_task = asyncio.create_task(tts_engine.warmup())
+            app.state.tts_warmup_task = warmup_task
         try:
             yield
         finally:
+            if warmup_task is not None:
+                try:
+                    await warmup_task
+                except Exception:
+                    pass
             tts_engine = getattr(app.state, "tts_engine", None)
             if hasattr(tts_engine, "close"):
                 await tts_engine.close()

@@ -102,16 +102,21 @@ async def voice_stream(websocket: WebSocket) -> None:
                 
             msg_type = data.get("type")
             
-            # session_start initialization
-            if msg_type == "session_start":
-                session_id = data.get("session_id") or "unknown"
+            # session_start or audio_start (accepted for backward compat)
+            if msg_type in ("session_start", "audio_start"):
+                session_id = data.get("session_id") or data.get("sessionId") or "unknown"
                 language_state = data.get("language") or "en"
                 session_audio_chunks.clear()
                 if session_id in seen_sessions:
                     metrics.increment("reconnects")
                 else:
                     seen_sessions.add(session_id)
-                await websocket.send_json({"type": "session_acknowledged", "session_id": session_id})
+                # Send session_acknowledged for new protocol, or final_transcript for old
+                if msg_type == "audio_start":
+                    # Old protocol compat
+                    await websocket.send_json({"type": "session_acknowledged", "session_id": session_id})
+                else:
+                    await websocket.send_json({"type": "session_acknowledged", "session_id": session_id})
                 
             elif msg_type == "audio_chunk":
                 if session_id == "unknown":

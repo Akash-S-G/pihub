@@ -91,7 +91,7 @@ def _log_tag(path: str) -> str:
         return "RAG"
     if path.startswith("/experiments") or path.startswith("/experiment-templates") or path.startswith("/experiment-runs") or path.startswith("/analytics") or path.startswith("/experiment-metrics"):
         return "EXPERIMENT_GATEWAY"
-    if path.startswith("/api/voice"):
+    if path.startswith("/api/voice") or path.startswith("/voice"):
         return "VOICE"
     if path.startswith("/ai") or path.startswith("/tutor") or path.startswith("/planner") or path.startswith("/metrics/tutor") or path.startswith("/metrics/retrieval"):
         return "TUTOR"
@@ -766,16 +766,14 @@ async def _proxy_stream(
     payload: dict[str, Any] | None = None,
     headers: dict[str, str] | None = None,
 ) -> StreamingResponse:
-    request = app.state.http.build_request(
+    response = await _send_with_retry(
+        base_url,
         method,
-        f"{base_url}{path}",
-        json=payload,
+        path,
+        payload=payload,
         headers=headers,
+        stream=True,
     )
-    try:
-        response = await app.state.http.send(request, stream=True)
-    except httpx.RequestError as exc:
-        raise HTTPException(status_code=503, detail=f"Service unavailable: {str(exc)}")
 
     if response.is_error:
         body = await response.aread()
@@ -805,11 +803,7 @@ async def _proxy_to(base_url: str, method: str, path: str, payload: dict[str, An
     if isinstance(payload, dict) and payload.get("stream") is True:
         return await _proxy_stream(base_url, method, path, payload)
 
-    response = await app.state.http.request(
-        method,
-        f"{base_url}{path}",
-        json=payload
-    )
+    response = await _send_with_retry(base_url, method, path, payload=payload)
 
     if response.is_error:
         raise HTTPException(
@@ -836,6 +830,36 @@ async def _proxy_to(base_url: str, method: str, path: str, payload: dict[str, An
         status_code=502,
         detail=f"Unexpected response type from inference service: {content_type}"
     )
+
+
+async def _send_with_retry(
+    base_url: str,
+    method: str,
+    path: str,
+    payload: dict[str, Any] | None = None,
+    headers: dict[str, str] | None = None,
+    stream: bool = False,
+    retries: int = 3,
+) -> httpx.Response:
+    url = f"{base_url}{path}"
+    retryable = base_url == settings.voice_service_url
+    delay = 0.25
+    last_error: Exception | None = None
+
+    for attempt in range(1, retries + 1):
+        try:
+            if stream:
+                request = app.state.http.build_request(method, url, json=payload, headers=headers)
+                return await app.state.http.send(request, stream=True)
+            return await app.state.http.request(method, url, json=payload, headers=headers)
+        except httpx.RequestError as exc:
+            last_error = exc
+            if not retryable or attempt >= retries:
+                break
+            await asyncio.sleep(delay)
+            delay *= 2
+
+    raise HTTPException(status_code=503, detail=f"Service unavailable: {last_error}")
 
 
 async def _planner_tutor_response(payload: dict[str, Any], normalized_topic: str | None) -> dict[str, Any]:
@@ -1208,16 +1232,19 @@ async def ai_health() -> dict[str, Any]:
     return await _proxy_to(settings.inference_service_url, "GET", "/ai/health")
 
 
+@app.post("/voice/query")
 @app.post("/api/voice/query")
 async def voice_query(payload: dict[str, Any]) -> Any:
     return await _proxy_to(settings.voice_service_url, "POST", "/voice/query", payload)
 
 
+@app.post("/voice/tts")
 @app.post("/api/voice/tts")
 async def voice_tts(payload: dict[str, Any]) -> Any:
     return await _proxy_to(settings.voice_service_url, "POST", "/voice/tts", payload)
 
 
+@app.post("/voice/stt")
 @app.post("/api/voice/stt")
 async def voice_stt(
     file: UploadFile = File(...),
@@ -1235,6 +1262,7 @@ async def voice_stt(
     )
 
 
+@app.get("/voice/audio/{asset_id:path}")
 @app.get("/api/voice/audio/{asset_id:path}")
 async def voice_audio(asset_id: str, request: Request) -> StreamingResponse:
     headers: dict[str, str] = {}
@@ -1249,6 +1277,7 @@ async def voice_audio(asset_id: str, request: Request) -> StreamingResponse:
     )
 
 
+@app.get("/voice/metrics")
 @app.get("/api/voice/metrics")
 async def voice_metrics() -> dict[str, Any]:
     return await _get_json(settings.voice_service_url, "/voice/metrics")

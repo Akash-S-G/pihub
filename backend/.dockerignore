@@ -1,0 +1,10 @@
+.git
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+.venv
+voice-service/models/hf-cache
+voice-service/models/.cache
+voice-service/models/.hf
+voice-service/models/*.gguf
