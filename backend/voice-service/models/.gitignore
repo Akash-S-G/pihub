@@ -2,4 +2,6 @@
 !.gitignore
 !snac_24khz-ONNX/
 !snac_24khz-ONNX/**
+!gemma4_audio/
+!gemma4_audio/**
 !README.md

@@ -141,6 +141,11 @@ The gateway proxies to these internal service routes:
 - `VoiceMetrics` tracks counters and latency samples in memory.
 - `VoiceStreamer` supports chunked audio streaming for TTS flows.
 - `RagTutorEngine` calls the existing inference-service tutor endpoint over HTTP.
+- `VoiceBackendManager` selects the active STT backend and falls back from Gemma to Faster Whisper when needed.
+
+See also:
+
+- [Voice backend switching](docs/VOICE_BACKEND_SWITCHING.md)
 
 ## Endpoint Behavior Notes
 

@@ -24,10 +24,16 @@ def create_app() -> FastAPI:
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         tts_engine = getattr(app.state, "tts_engine", None)
+        stt_engine = getattr(app.state, "stt_engine", None)
         warmup_task = None
         if hasattr(tts_engine, "warmup"):
             warmup_task = asyncio.create_task(tts_engine.warmup())
             app.state.tts_warmup_task = warmup_task
+        if hasattr(stt_engine, "initialize"):
+            try:
+                await stt_engine.initialize()
+            except Exception:
+                pass
         try:
             yield
         finally:
@@ -39,6 +45,12 @@ def create_app() -> FastAPI:
             tts_engine = getattr(app.state, "tts_engine", None)
             if hasattr(tts_engine, "close"):
                 await tts_engine.close()
+            stt_engine = getattr(app.state, "stt_engine", None)
+            if hasattr(stt_engine, "shutdown"):
+                try:
+                    await stt_engine.shutdown()
+                except Exception:
+                    pass
 
     app = FastAPI(
         title="IDP Voice Service",
@@ -88,11 +100,20 @@ async def health() -> dict[str, object]:
     if hasattr(tts_engine, "health_check"):
         tts_health = await tts_engine.health_check()
 
+    stt_health: dict[str, Any] = {"loaded": False, "status": "unknown"}
+    stt_engine = getattr(app.state, "stt_engine", None)
+    if hasattr(stt_engine, "health"):
+        try:
+            stt_health = await stt_engine.health()
+        except Exception as exc:
+            stt_health = {"loaded": False, "status": "error", "last_error": str(exc)}
+
     return {
         "status": "healthy",
         "service": "voice-service",
         "voice_service": {
             "tts": tts_health,
+            "stt": stt_health,
         },
         "capabilities": {
             "voice_query": True,
@@ -102,4 +123,11 @@ async def health() -> dict[str, object]:
             "pre_generated_audio": True,
             "range_requests": True,
         },
+        "voice_backend": stt_health.get("voice_backend") or getattr(stt_engine, "active_backend_name", "faster_whisper"),
+        "backend_loaded": bool(stt_health.get("loaded", False)),
+        "streaming_supported": bool(stt_health.get("streaming_supported", True)),
+        "fallback_active": bool(stt_health.get("fallback_active", False)),
+        "model_name": stt_health.get("model_name") or stt_health.get("model"),
+        "backend_latency": stt_health.get("backend_latency"),
+        "last_error": stt_health.get("last_error"),
     }

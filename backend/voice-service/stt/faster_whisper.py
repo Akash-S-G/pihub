@@ -1,71 +1,131 @@
 from __future__ import annotations
 
-import os
-import time
-import tempfile
-import logging
 import asyncio
-from .base import STTEngine, Transcript
+import os
+import tempfile
+import time
+import logging
+from collections.abc import AsyncIterator
+
+from .base import Transcript, TranscriptEvent, VoiceBackend
 
 logger = logging.getLogger(__name__)
 
-class FasterWhisperSTTEngine(STTEngine):
+
+class FasterWhisperBackend(VoiceBackend):
     _model_instance = None
 
     def __init__(self) -> None:
         self.model_size = os.getenv("WHISPER_MODEL", "small")
         self.device = os.getenv("WHISPER_DEVICE", "cpu")
         self.compute_type = os.getenv("WHISPER_COMPUTE_TYPE", "int8")
+        self.last_error: str | None = None
         self._load_model()
 
-    def _load_model(self):
-        if FasterWhisperSTTEngine._model_instance is None:
-            try:
-                from faster_whisper import WhisperModel
-                logger.info(f"Loading Faster Whisper model '{self.model_size}' on {self.device} with compute type {self.compute_type}")
-                FasterWhisperSTTEngine._model_instance = WhisperModel(
-                    self.model_size, 
-                    device=self.device, 
-                    compute_type=self.compute_type,
-                    download_root="/models"
-                )
-                logger.info("Faster Whisper model loaded successfully")
-            except Exception as e:
-                logger.error(f"Failed to load Faster Whisper model: {e}")
-                raise
+    def _load_model(self) -> None:
+        if FasterWhisperBackend._model_instance is not None:
+            return
+        try:
+            from faster_whisper import WhisperModel
+
+            logger.info(
+                "Loading Faster Whisper model '%s' on %s with compute type %s",
+                self.model_size,
+                self.device,
+                self.compute_type,
+            )
+            FasterWhisperBackend._model_instance = WhisperModel(
+                self.model_size,
+                device=self.device,
+                compute_type=self.compute_type,
+                download_root="/models",
+            )
+            logger.info("Faster Whisper model loaded successfully")
+        except Exception as exc:
+            self.last_error = str(exc)
+            logger.error("Failed to load Faster Whisper model: %s", exc)
+            raise
 
     @property
     def model(self):
-        return FasterWhisperSTTEngine._model_instance
+        return FasterWhisperBackend._model_instance
 
     async def transcribe(self, audio: bytes, language: str | None = None) -> Transcript:
-        start_time = time.perf_counter()
-        
-        # faster-whisper needs a file-like object or a path
-        # Write bytes to a temporary file
-        def run_transcribe():
+        started = time.perf_counter()
+
+        def run_transcribe() -> tuple[str, object, list[str], list[dict[str, object]]]:
             with tempfile.NamedTemporaryFile(suffix=".wav", delete=True) as tmp:
                 tmp.write(audio)
                 tmp.flush()
-                
-                kwargs = {}
+
+                kwargs: dict[str, object] = {}
                 if language:
                     kwargs["language"] = language
-                    
-                segments, info = self.model.transcribe(tmp.name, beam_size=5, **kwargs)
-                
-                # force evaluation of generator to get all text before file closes
-                text = " ".join([segment.text for segment in segments]).strip()
-                return text, info
-        
-        loop = asyncio.get_running_loop()
-        text, info = await loop.run_in_executor(None, run_transcribe)
 
-        latency_ms = (time.perf_counter() - start_time) * 1000
-        
+                segments, info = self.model.transcribe(tmp.name, beam_size=5, **kwargs)
+                collected: list[str] = []
+                partials: list[str] = []
+                timestamps: list[dict[str, object]] = []
+                for segment in segments:
+                    text = (segment.text or "").strip()
+                    if not text:
+                        continue
+                    collected.append(text)
+                    partials.append(" ".join(collected).strip())
+                    timestamps.append(
+                        {
+                            "start": getattr(segment, "start", None),
+                            "end": getattr(segment, "end", None),
+                            "text": text,
+                        }
+                    )
+                return " ".join(collected).strip(), info, partials, timestamps
+
+        loop = asyncio.get_running_loop()
+        text, info, partials, timestamps = await loop.run_in_executor(None, run_transcribe)
+        latency_ms = (time.perf_counter() - started) * 1000
+
         return Transcript(
             text=text,
-            language=info.language,
-            confidence=info.language_probability,
-            latency_ms=latency_ms
+            language=str(getattr(info, "language", language or "en") or language or "en"),
+            confidence=getattr(info, "language_probability", None),
+            latency_ms=latency_ms,
+            partial_transcripts=partials,
+            timestamps=timestamps,
+            metadata={"backend": "faster_whisper"},
         )
+
+    async def transcribe_stream(self, audio: bytes, language: str | None = None) -> AsyncIterator[TranscriptEvent]:
+        transcript = await self.transcribe(audio, language)
+        for partial in transcript.partial_transcripts:
+            yield TranscriptEvent(type="partial_transcript", text=partial, language=transcript.language)
+        yield TranscriptEvent(
+            type="final_transcript",
+            text=transcript.text,
+            language=transcript.language,
+            confidence=transcript.confidence,
+            metadata={"backend": "faster_whisper"},
+        )
+
+    async def health(self) -> dict[str, object]:
+        return {
+            "loaded": self.model is not None,
+            "status": "ready" if self.model is not None else "unavailable",
+            "model": self.model_size,
+            "device": self.device,
+            "compute_type": self.compute_type,
+            "last_error": self.last_error,
+        }
+
+    async def metrics(self) -> dict[str, object]:
+        return {
+            "voice_backend": "faster_whisper",
+            "backend_loaded": self.model is not None,
+            "streaming_supported": True,
+            "fallback_active": False,
+            "model_name": self.model_size,
+            "last_error": self.last_error,
+        }
+
+
+FasterWhisperSTTEngine = FasterWhisperBackend

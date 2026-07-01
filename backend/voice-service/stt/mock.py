@@ -1,7 +1,7 @@
 import os
-from .base import STTEngine, Transcript
+from .base import Transcript, VoiceBackend
 
-class MockSTTEngine(STTEngine):
+class MockSTTEngine(VoiceBackend):
     def __init__(self) -> None:
         self.mock_text = os.getenv("MOCK_STT_TEXT", "What is photosynthesis?")
 
@@ -12,3 +12,16 @@ class MockSTTEngine(STTEngine):
             confidence=0.95,
             latency_ms=10.0
         )
+
+    async def health(self) -> dict[str, object]:
+        return {"loaded": True, "status": "mock", "model": "mock"}
+
+    async def metrics(self) -> dict[str, object]:
+        return {
+            "voice_backend": "mock",
+            "backend_loaded": True,
+            "streaming_supported": True,
+            "fallback_active": False,
+            "model_name": "mock",
+            "last_error": None,
+        }

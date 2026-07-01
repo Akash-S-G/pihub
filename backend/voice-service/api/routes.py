@@ -6,6 +6,7 @@ import time
 import asyncio
 import base64
 from services.tutor_adapter import InferenceTutorAdapter
+from stt.base import Transcript
 
 from models import STTRequest, STTResponse, TTSRequest, TTSResponse, VoiceQueryRequest, VoiceQueryResponse
 
@@ -13,6 +14,54 @@ logger = logging.getLogger(__name__)
 seen_sessions = set()
 
 router = APIRouter()
+
+
+def _chunk_text(text: str, max_chars: int = 80) -> list[str]:
+    text = " ".join(text.split())
+    if not text:
+        return []
+    chunks: list[str] = []
+    current = ""
+    for sentence in text.replace("?", ".").split("."):
+        sentence = sentence.strip()
+        if not sentence:
+            continue
+        sentence = sentence + "."
+        if len(current) + len(sentence) + 1 <= max_chars:
+            current = f"{current} {sentence}".strip()
+        else:
+            if current:
+                chunks.append(current)
+            if len(sentence) <= max_chars:
+                current = sentence
+            else:
+                words = sentence.split()
+                buffer = ""
+                for word in words:
+                    candidate = f"{buffer} {word}".strip()
+                    if len(candidate) > max_chars and buffer:
+                        chunks.append(buffer)
+                        buffer = word
+                    else:
+                        buffer = candidate
+                current = buffer
+    if current:
+        chunks.append(current)
+    return chunks
+
+
+def _normalize_transcript(result: Transcript | dict[str, object], language: str | None = None) -> Transcript:
+    if isinstance(result, Transcript):
+        return result
+    return Transcript(
+        text=str(result.get("transcript") or result.get("text") or ""),
+        language=str(result.get("language") or language or "en"),
+        confidence=result.get("confidence"),
+        latency_ms=float(result.get("latency_ms") or 0.0),
+        partial_transcripts=[str(item) for item in list(result.get("partial_transcripts") or [])],
+        timestamps=[dict(item) for item in list(result.get("timestamps") or []) if isinstance(item, dict)],
+        metadata=dict(result.get("metadata") or {}),
+    )
 
 
 @router.post("/voice/query", response_model=VoiceQueryResponse, tags=["voice"])
@@ -26,7 +75,14 @@ async def voice_tts(request: Request, payload: TTSRequest) -> TTSResponse | Stre
     gateway = request.app.state.voice_gateway
     if payload.stream:
         streamer = request.app.state.voice_streamer
-        return StreamingResponse(streamer.tts.stream(payload.text, payload.voice, payload.language, payload.format), media_type=f"audio/{payload.format}")
+        return StreamingResponse(
+            streamer.tts.stream(payload.text, payload.voice, payload.language, payload.format),
+            media_type="audio/L16",
+            headers={
+                "X-Audio-Sample-Rate": "24000",
+                "X-Audio-Channels": "1",
+            },
+        )
     return await gateway.tts_only(payload)
 
 
@@ -39,13 +95,13 @@ async def voice_stt(
 ) -> STTResponse:
     request.app.state.voice_metrics.increment("stt_requests")
     audio = await file.read()
-    result = await request.app.state.stt_engine.transcribe(audio, language)
+    result = _normalize_transcript(await request.app.state.stt_engine.transcribe(audio, language), language)
     return STTResponse(
-        transcript=str(result.get("transcript") or ""),
-        language=str(result.get("language") or language or "unknown"),
-        partial_transcripts=list(result.get("partial_transcripts") or []) if enable_partial_transcripts else [],
-        confidence=result.get("confidence"),
-        metrics=dict(result.get("metrics") or {}),
+        transcript=result.text,
+        language=result.language,
+        partial_transcripts=list(result.partial_transcripts) if enable_partial_transcripts else [],
+        confidence=result.confidence,
+        metrics={"latency_ms": result.latency_ms, **dict(result.metadata)},
     )
 
 
@@ -144,7 +200,36 @@ async def voice_stream(websocket: WebSocket) -> None:
                 await websocket.send_json({"type": "transcribing"})
                 
                 try:
-                    stt_res = await stt_engine.transcribe(bytes(session_audio_chunks), language=language_state)
+                    stt_started = time.perf_counter()
+                    stt_res: Transcript | None = None
+                    async for event in stt_engine.transcribe_stream(bytes(session_audio_chunks), language=language_state):
+                        if event.type == "partial_transcript":
+                            await websocket.send_json({
+                                "type": "partial_transcript",
+                                "text": event.text,
+                                "language": event.language or language_state,
+                            })
+                        elif event.type == "final_transcript":
+                            stt_res = Transcript(
+                                text=event.text,
+                                language=event.language or language_state,
+                                confidence=event.confidence,
+                                latency_ms=0.0,
+                                metadata=dict(event.metadata),
+                            )
+                            await websocket.send_json({
+                                "type": "final_transcript",
+                                "text": stt_res.text,
+                                "language": stt_res.language,
+                                "confidence": stt_res.confidence,
+                            })
+                    if stt_res is None:
+                        stt_res = _normalize_transcript(
+                            await stt_engine.transcribe(bytes(session_audio_chunks), language=language_state),
+                            language_state,
+                        )
+                    if not stt_res.latency_ms:
+                        stt_res.latency_ms = (time.perf_counter() - stt_started) * 1000
                     transcript = stt_res.text or "unknown"
                     language = stt_res.language or language_state
                     metrics.observe("stt_latency_ms", stt_res.latency_ms)
@@ -153,6 +238,8 @@ async def voice_stream(websocket: WebSocket) -> None:
                     metrics.increment("stt_failures")
                     transcript = "unknown"
                     language = language_state
+                    await websocket.send_json({"type": "error", "message": f"STT failed: {e}"})
+                    continue
                     
                 # Tutor stage
                 await websocket.send_json({"type": "thinking"})
@@ -172,6 +259,11 @@ async def voice_stream(websocket: WebSocket) -> None:
                 
                 tutor_latency = (time.perf_counter() - tutor_start) * 1000
                 metrics.observe("tutor_latency_ms", tutor_latency)
+
+                answer_chunks = _chunk_text(answer, max_chars=96)
+                for chunk in answer_chunks:
+                    await websocket.send_json({"type": "response_chunk", "text": chunk})
+                await websocket.send_json({"type": "response_complete"})
                 
                 # TTS stage
                 await websocket.send_json({"type": "generating_audio"})

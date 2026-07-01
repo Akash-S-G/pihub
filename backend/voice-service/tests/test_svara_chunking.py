@@ -44,3 +44,15 @@ def test_chunk_text_splits_long_clauses_before_words() -> None:
     assert len(chunks) >= 2
     assert all(len(chunk) <= 55 for chunk in chunks)
     assert any("," in chunk for chunk in chunks)
+
+
+def test_split_for_generation_breaks_down_long_chunks() -> None:
+    text = (
+        "In a water cycle, evaporation moves water upward, condensation forms clouds, "
+        "and precipitation returns water to rivers and oceans."
+    )
+
+    pieces = SvaraLocalProvider._split_for_generation(text)
+
+    assert len(pieces) >= 2
+    assert all(len(piece) <= SvaraLocalProvider.CHUNK_CHAR_LIMIT for piece in pieces)

@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import re
+import contextlib
 import resource
 import time
 import wave
@@ -55,8 +56,10 @@ class SvaraLocalProvider:
     AUDIO_TOKEN_LIMIT = 156938
     SNAC_CODEBOOK_SIZE = 4096
     SNAC_BANDS_PER_FRAME = 7
-    CHUNK_CHAR_LIMIT = 80
+    CHUNK_CHAR_LIMIT = 64
+    STREAM_CHUNK_CHAR_LIMIT = 48
     CHUNK_PAUSE_SECONDS = 0.05
+    MAX_RECURSIVE_SPLIT_DEPTH = 4
 
     def __init__(self, settings: VoiceRuntimeSettings) -> None:
         self.settings = settings
@@ -198,41 +201,47 @@ class SvaraLocalProvider:
 
     async def synthesize_stream(self, text: str, language: str) -> AsyncIterator[bytes]:
         """
-        Streaming synthesis: yield PCM chunks as soon as they are decoded.
+        Stream raw PCM chunks as soon as each synthesized text chunk is ready.
 
-        Token generation is done in one locked call, then SNAC frames are decoded
-        and yielded chunk by chunk as an AsyncIterator of raw bytes.
+        The non-streaming `synthesize()` path still returns a finished WAV.
         """
         await self.ensure_loaded()
         if not text.strip():
             raise SvaraProviderError(400, "VOICE_TTS_EMPTY_TEXT", "TTS text cannot be empty")
 
-        # Chunk the text if it's too long (streaming-friendly chunking)
-        max_stream_chars = self.CHUNK_CHAR_LIMIT
-        if len(text) > max_stream_chars:
-            chunks = self._chunk_text(text, max_stream_chars)
-            for chunk in chunks:
-                async for pcm_chunk in self._synthesize_stream_single(chunk, language):
-                    yield pcm_chunk
-        else:
-            async for pcm_chunk in self._synthesize_stream_single(text, language):
-                yield pcm_chunk
+        chunks = self._chunk_text(text, self.STREAM_CHUNK_CHAR_LIMIT)
+        if not chunks:
+            chunks = [text.strip()]
 
-    async def _synthesize_stream_single(self, text: str, language: str) -> AsyncIterator[bytes]:
-        """Generate and stream a single text segment."""
-        # llama.cpp model contexts are not safe to mutate concurrently.
-        async with self._generation_lock:
+        queue: asyncio.Queue[tuple[str, bytes | None, str | None]] = asyncio.Queue(maxsize=2)
+        done_token = ("done", None, None)
+
+        async def producer() -> None:
             try:
-                # Generate complete tokens first (can't stream llama.cpp)
-                result = await asyncio.to_thread(self._synthesize_sync, text, language)
-                # Stream by reading the resulting WAV file in chunks
-                async for chunk in self._stream_wav_file(result.file_path):
-                    yield chunk
-            except SvaraProviderError:
-                raise
+                for chunk in chunks:
+                    async with self._generation_lock:
+                        result = await asyncio.to_thread(self._synthesize_sync, chunk, language)
+                    pcm = await asyncio.to_thread(self._pcm_bytes_from_wav, result.file_path)
+                    await queue.put(("chunk", pcm, None))
             except Exception as exc:
-                self.last_error = str(exc)
-                raise SvaraProviderError(502, "VOICE_TTS_GENERATION_FAILED", str(exc)) from exc
+                await queue.put(("error", None, str(exc)))
+            finally:
+                await queue.put(done_token)
+
+        producer_task = asyncio.create_task(producer())
+        try:
+            while True:
+                kind, data, message = await queue.get()
+                if kind == "done":
+                    break
+                if kind == "error":
+                    raise SvaraProviderError(502, "VOICE_TTS_GENERATION_FAILED", message or "Svara stream failed")
+                if data:
+                    yield data
+        finally:
+            producer_task.cancel()
+            with contextlib.suppress(asyncio.CancelledError):
+                await producer_task
 
     async def _stream_wav_file(self, file_path: str, chunk_size: int = 8192) -> AsyncIterator[bytes]:
         """Yield chunks of a WAV file for streaming."""
@@ -294,9 +303,16 @@ class SvaraLocalProvider:
         if self.llm is None or self.decoder is None:
             raise SvaraProviderError(503, "VOICE_RUNTIME_UNAVAILABLE", "Svara local provider is not loaded")
 
+        return self._synthesize_with_fallback_sync(text, language, depth=0)
+
+    def _synthesize_with_fallback_sync(self, text: str, language: str, depth: int) -> AudioResult:
         voice = self._voice_for(language)
         prompt_ids = self._prompt_tokens(voice, text)
-        generated_tokens = self._generate_audio_tokens(prompt_ids)
+        generated_tokens, truncated = self._generate_audio_tokens(prompt_ids)
+        if truncated and depth < self.MAX_RECURSIVE_SPLIT_DEPTH:
+            pieces = self._split_for_generation(text)
+            if len(pieces) > 1:
+                return self._stitch_piece_outputs_sync(pieces, language, depth + 1)
         codes = self._snac_codes(prompt_ids + generated_tokens, len(prompt_ids))
         audio = self._decode_snac(codes)
         audio = self._normalize_audio(audio)
@@ -305,6 +321,40 @@ class SvaraLocalProvider:
         path = self.generated_audio_dir / f"{audio_id}.wav"
         path.parent.mkdir(parents=True, exist_ok=True)
         self._write_wav(path, audio)
+        metadata = self._wav_metadata(path)
+        return AudioResult(
+            audio_id=audio_id,
+            file_path=str(path),
+            duration_ms=metadata["duration_ms"],
+            sample_rate=metadata["sample_rate"],
+            file_size_bytes=path.stat().st_size,
+        )
+
+    def _stitch_piece_outputs_sync(self, pieces: list[str], language: str, depth: int) -> AudioResult:
+        import numpy as np
+        import soundfile as sf
+
+        voice = self._voice_for(language)
+        combined_samples: list[Any] = []
+        sample_rate = self.settings.svara_sample_rate
+        pause_samples = int(sample_rate * self.CHUNK_PAUSE_SECONDS)
+
+        for index, piece in enumerate(pieces):
+            piece_result = self._synthesize_with_fallback_sync(piece, language, depth)
+            samples, piece_sample_rate = sf.read(piece_result.file_path, dtype="float32")
+            sample_rate = piece_sample_rate or sample_rate
+            combined_samples.append(samples.reshape(-1))
+            if pause_samples > 0 and index < len(pieces) - 1:
+                combined_samples.append(np.zeros(pause_samples, dtype=np.float32))
+
+        if not combined_samples:
+            raise SvaraProviderError(502, "VOICE_TTS_EMPTY_AUDIO", "Svara decoded empty audio")
+
+        audio = np.concatenate(combined_samples).astype(np.float32)
+        audio_id = self._audio_id(" ".join(pieces), language, voice)
+        path = self.generated_audio_dir / f"{audio_id}.wav"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        sf.write(path, audio, sample_rate)
         metadata = self._wav_metadata(path)
         return AudioResult(
             audio_id=audio_id,
@@ -358,8 +408,9 @@ class SvaraLocalProvider:
         body = self.llm.tokenize(f"{voice}: {text}".encode("utf-8"), add_bos=False, special=True)
         return [self.START_OF_HUMAN, self.llm.token_bos(), *body, self.END_OF_TEXT, self.END_OF_HUMAN]
 
-    def _generate_audio_tokens(self, prompt_ids: list[int]) -> list[int]:
+    def _generate_audio_tokens(self, prompt_ids: list[int]) -> tuple[list[int], bool]:
         generated: list[int] = []
+        truncated = True
         for token in self.llm.generate(
             prompt_ids,
             temp=0.6,
@@ -371,8 +422,11 @@ class SvaraLocalProvider:
             value = int(token)
             generated.append(value)
             if value == self.END_OF_SPEECH or len(generated) >= self.settings.svara_max_tokens:
+                truncated = value != self.END_OF_SPEECH and len(generated) >= self.settings.svara_max_tokens
                 break
-        return generated
+        else:
+            truncated = False
+        return generated, truncated
 
     def _snac_codes(self, tokens: list[int], input_len: int) -> dict[str, Any]:
         import numpy as np
@@ -442,6 +496,21 @@ class SvaraLocalProvider:
         except ImportError as exc:
             raise SvaraProviderError(503, "VOICE_RUNTIME_DEPENDENCY_MISSING", "Required dependency missing: soundfile") from exc
         sf.write(path, audio, self.settings.svara_sample_rate)
+
+    def _pcm_bytes_from_wav(self, file_path: str) -> bytes:
+        try:
+            import numpy as np
+            import soundfile as sf
+        except ImportError as exc:
+            raise SvaraProviderError(503, "VOICE_RUNTIME_DEPENDENCY_MISSING", "Required dependency missing: soundfile or numpy") from exc
+
+        samples, _sample_rate = sf.read(file_path, dtype="float32")
+        audio = np.asarray(samples, dtype=np.float32).reshape(-1)
+        if audio.size == 0:
+            return b""
+        audio = np.clip(audio, -1.0, 1.0)
+        pcm16 = (audio * 32767.0).astype(np.int16)
+        return pcm16.tobytes()
 
     def _audio_id(self, text: str, language: str, voice: str) -> str:
         payload = f"{language}|{voice}|{self.settings.model_name}|{text}".encode("utf-8")
@@ -540,6 +609,26 @@ class SvaraLocalProvider:
         if current:
             chunks.append(current)
         return chunks
+
+    @staticmethod
+    def _split_for_generation(text: str) -> list[str]:
+        cleaned = re.sub(r"\s+", " ", text).strip()
+        if len(cleaned) <= SvaraLocalProvider.CHUNK_CHAR_LIMIT:
+            return [cleaned]
+
+        chunks = SvaraLocalProvider._chunk_text(cleaned, SvaraLocalProvider.CHUNK_CHAR_LIMIT)
+        if len(chunks) > 1:
+            return chunks
+
+        words = cleaned.split()
+        if len(words) <= 1:
+            midpoint = max(1, len(cleaned) // 2)
+            return [part for part in (cleaned[:midpoint].strip(), cleaned[midpoint:].strip()) if part]
+
+        midpoint = max(1, len(words) // 2)
+        left = " ".join(words[:midpoint]).strip()
+        right = " ".join(words[midpoint:]).strip()
+        return [part for part in (left, right) if part]
 
     @staticmethod
     def _wav_metadata(path: Path) -> dict[str, int]:
