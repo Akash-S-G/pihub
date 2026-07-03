@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 
 QDRANT_URL = os.getenv("QDRANT_URL", "http://qdrant:6333")
-QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION", "educational_chunks")
+QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION", "educational_chunks_bge_m3")
 PACK_STORAGE_PATH = os.getenv("PACK_STORAGE_PATH", "/shared/packs")
 CURRICULUM_GRAPH_PATH = os.getenv("CURRICULUM_GRAPH_PATH", "/shared/work/curriculum_graph.json")
 PDF_LIBRARY_PATH = os.getenv("PDF_LIBRARY_PATH", "/shared/textbooks")

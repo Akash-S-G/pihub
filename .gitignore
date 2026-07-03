@@ -70,3 +70,4 @@ idp_curriculum_generation/
 /test_*.py
 /*.log
 venv/
+textbook_artifacts/

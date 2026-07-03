@@ -10,3 +10,6 @@ pymupdf>=1.24.0
 watchdog>=4.0.0
 pytesseract>=0.3.13
 pillow>=11.0.0
+sentence-transformers>=3.0.1
+torch>=2.3.0
+transformers>=4.44.0

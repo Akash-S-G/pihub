@@ -21,10 +21,14 @@ class Settings(BaseSettings):
     voice_service_url: str = Field(default="http://voice-service:8050", alias="VOICE_SERVICE_URL")
     voice_service_required: bool = Field(default=False, alias="VOICE_SERVICE_REQUIRED")
     qdrant_url: str = Field(default="http://qdrant:6333", alias="QDRANT_URL")
-    qdrant_collection: str = Field(default="educational_chunks", alias="QDRANT_COLLECTION")
+    qdrant_collection: str = Field(default="educational_chunks_bge_m3", alias="QDRANT_COLLECTION")
 
-    embedding_model_name: str = Field(default="BAAI/bge-small-en-v1.5", alias="EMBEDDING_MODEL_NAME")
+    embedding_model_name: str = Field(default="BAAI/bge-m3", alias="EMBEDDING_MODEL_NAME")
     embedding_device: str = Field(default="cpu", alias="EMBEDDING_DEVICE")
+    embedding_cache_dir: str = Field(default="/shared/models/sentence-transformers/embedding", alias="EMBEDDING_CACHE_DIR")
+    local_retrieval_model_name: str = Field(default="BAAI/bge-m3", alias="LOCAL_RETRIEVAL_MODEL_NAME")
+    local_retrieval_device: str = Field(default="cpu", alias="LOCAL_RETRIEVAL_DEVICE")
+    local_retrieval_cache_dir: str = Field(default="/shared/models/sentence-transformers/retrieval", alias="LOCAL_RETRIEVAL_CACHE_DIR")
 
     upload_dir: str = Field(default="/shared/uploads", alias="UPLOAD_DIR")
     work_dir: str = Field(default="/shared/work", alias="WORK_DIR")

@@ -56,6 +56,7 @@ from app.educational_intelligence import (
     QuizGenerator,
     SummaryGenerator,
 )
+from app.retrieval_engine.hybrid_chunk_store import HybridChunkStore, RetrievalHit
 from app.retrieval_engine.educational_retrieval_engine import EducationalRetrievalEngine
 from app.textbook_ingest import StructuredTextbookIngest
 from app.generated_pack_ingestor import GeneratedPackIngestor
@@ -93,14 +94,91 @@ class SimpleEmbeddingModel:
         return vector
 
 
+class SentenceTransformerEmbeddingModel:
+    def __init__(self, model_name: str, device: str = "cpu", cache_dir: str | None = None) -> None:
+        self.model_name = model_name
+        self.device = device
+        self.cache_dir = Path(cache_dir) if cache_dir else None
+        self._model: Any | None = None
+        self._dimension: int | None = None
+
+    def get_sentence_embedding_dimension(self) -> int:
+        self._ensure_loaded()
+        if self._dimension is None:
+            return 384
+        return self._dimension
+
+    def encode(self, texts: list[str] | str, normalize_embeddings: bool = True) -> list[list[float]]:
+        self._ensure_loaded()
+        if self._model is None:
+            fallback = SimpleEmbeddingModel()
+            return fallback.encode(texts, normalize_embeddings=normalize_embeddings)
+        if isinstance(texts, str):
+            texts = [texts]
+        embeddings = self._model.encode(
+            texts,
+            normalize_embeddings=normalize_embeddings,
+            show_progress_bar=False,
+        )
+        if hasattr(embeddings, "tolist"):
+            embeddings = embeddings.tolist()
+        return [[float(value) for value in row] for row in embeddings]
+
+    def _ensure_loaded(self) -> None:
+        if self._model is not None or self._dimension is not None:
+            return
+        try:
+            from sentence_transformers import SentenceTransformer
+        except Exception:
+            self._model = None
+            self._dimension = 384
+            return
+        try:
+            load_target = self._resolve_local_model_path()
+            self._model = SentenceTransformer(str(load_target or self.model_name), device=self.device)
+            self._dimension = int(self._model.get_sentence_embedding_dimension())
+        except Exception:
+            self._model = None
+            self._dimension = 384
+
+    def _resolve_local_model_path(self) -> Path | None:
+        model_path = Path(self.model_name)
+        if model_path.exists():
+            return model_path
+        if self.cache_dir is None:
+            return None
+        local_dir = self.cache_dir / re.sub(r"[^A-Za-z0-9._-]+", "_", self.model_name)
+        if local_dir.exists() and any(local_dir.iterdir()):
+            return local_dir
+        try:
+            from huggingface_hub import snapshot_download
+        except Exception:
+            return None
+        try:
+            local_dir.parent.mkdir(parents=True, exist_ok=True)
+            snapshot_download(
+                repo_id=self.model_name,
+                local_dir=str(local_dir),
+                local_dir_use_symlinks=False,
+                resume_download=True,
+            )
+            return local_dir
+        except Exception:
+            return None
+
+
 class Pipeline:
+    LEGACY_COLLECTION_NAMES = ("educational_chunks",)
+
     def __init__(self) -> None:
         self.client = make_qdrant_client(settings.qdrant_url)
         self.embedding_model: SimpleEmbeddingModel | None = None
+        self.local_retrieval_model: Any | None = None
         self.collection_name = settings.qdrant_collection
         self.upload_dir = Path(settings.upload_dir)
         self.work_dir = Path(settings.work_dir)
         self.content_dir = Path(settings.content_dir)
+        self.retrieval_snapshot_path = self.work_dir / "hybrid_chunk_index.json"
         self.curriculum_graph_path = Path(settings.curriculum_graph_path)
         self.curriculum_relation_graph_path = Path(settings.curriculum_relation_graph_path)
         self.textbook_ingestor = StructuredTextbookIngest()
@@ -119,6 +197,12 @@ class Pipeline:
         self.relation_graph = self.graph_storage.load() if self.enable_curriculum_graph_engine else {}
         self.enable_educational_retrieval_engine = settings.enable_educational_retrieval_engine
         self.retrieval_engine = EducationalRetrievalEngine()
+        self.hybrid_store = HybridChunkStore(
+            snapshot_path=self.retrieval_snapshot_path,
+            model_name=settings.local_retrieval_model_name,
+            device=settings.local_retrieval_device,
+            cache_dir=settings.local_retrieval_cache_dir,
+        )
         self.summary_generator = SummaryGenerator()
         self.glossary_extractor = GlossaryExtractor()
         self.quiz_generator = QuizGenerator()
@@ -131,11 +215,27 @@ class Pipeline:
         self.content_dir.mkdir(parents=True, exist_ok=True)
         self.curriculum_graph_path.parent.mkdir(parents=True, exist_ok=True)
         self.curriculum_relation_graph_path.parent.mkdir(parents=True, exist_ok=True)
+        self.retrieval_snapshot_path.parent.mkdir(parents=True, exist_ok=True)
 
     def _load_model(self) -> SimpleEmbeddingModel:
         if self.embedding_model is None:
-            self.embedding_model = SimpleEmbeddingModel()
+            self.embedding_model = SentenceTransformerEmbeddingModel(
+                settings.embedding_model_name,
+                settings.embedding_device,
+                settings.embedding_cache_dir,
+            )
         return self.embedding_model
+
+    def _load_local_retrieval_model(self) -> Any | None:
+        if self.local_retrieval_model is None:
+            model = SentenceTransformerEmbeddingModel(
+                settings.local_retrieval_model_name,
+                settings.local_retrieval_device,
+                settings.local_retrieval_cache_dir,
+            )
+            model._ensure_loaded()
+            self.local_retrieval_model = model if model._model is not None else None
+        return self.local_retrieval_model
 
     def _vector_size(self) -> int:
         return self._load_model().get_sentence_embedding_dimension()
@@ -173,7 +273,156 @@ class Pipeline:
         )
 
     def ensure_ready(self) -> None:
-        ensure_collection(self.client, self.collection_name, self._vector_size())
+        ensure_collection(self.client, self.collection_name, self._vector_size(), settings.qdrant_url)
+        if not self.hybrid_store.is_ready():
+            self.hybrid_store.load_snapshot()
+        if not self.hybrid_store.is_ready():
+            self._hydrate_hybrid_store()
+
+    def reset_rag_state(self) -> dict[str, Any]:
+        logger.info("Resetting RAG collection %s", self.collection_name)
+        try:
+            self.client.delete_collection(collection_name=self.collection_name)
+        except Exception as exc:
+            logger.warning("Could not delete collection %s cleanly: %s", self.collection_name, str(exc)[:300])
+        ensure_collection(self.client, self.collection_name, self._vector_size(), settings.qdrant_url)
+        self.hybrid_store.clear()
+        if self.enable_curriculum_graph_engine:
+            self.relation_graph = {}
+            self.graph_storage.save(self.relation_graph)
+        self.ingestion_log.clear()
+        return {
+            "collection": self.collection_name,
+            "hybrid_snapshot": str(self.retrieval_snapshot_path),
+            "status": "reset",
+        }
+
+    def _collection_point_count(self, collection_name: str) -> int:
+        try:
+            response = self.client.count(collection_name=collection_name, exact=True)
+            return int(getattr(response, "count", 0) or 0)
+        except Exception:
+            try:
+                points, _ = self.client.scroll(
+                    collection_name=collection_name,
+                    limit=1,
+                    with_payload=False,
+                    with_vectors=False,
+                )
+                return len(points)
+            except Exception:
+                return 0
+
+    def _migrate_legacy_collection_if_needed(self) -> None:
+        current_count = self._collection_point_count(self.collection_name)
+        if current_count > 0:
+            return
+        for legacy_collection in self.LEGACY_COLLECTION_NAMES:
+            if legacy_collection == self.collection_name:
+                continue
+            legacy_count = self._collection_point_count(legacy_collection)
+            if legacy_count <= 0:
+                continue
+            logger.info(
+                "Migrating Qdrant collection %s -> %s (%s points)",
+                legacy_collection,
+                self.collection_name,
+                legacy_count,
+            )
+            migrated_chunks: list[dict[str, Any]] = []
+            offset = None
+            while True:
+                points, offset = self.client.scroll(
+                    collection_name=legacy_collection,
+                    limit=256,
+                    offset=offset,
+                    with_payload=True,
+                    with_vectors=False,
+                )
+                for point in points:
+                    payload = point.payload or {}
+                    migrated_chunks.append(
+                        {
+                            "chunk_id": str(point.id),
+                            "text": str(payload.get("text", "")),
+                            "metadata": {k: v for k, v in payload.items() if k != "text"},
+                        }
+                    )
+                if offset is None:
+                    break
+            if migrated_chunks:
+                texts = [chunk["text"] for chunk in migrated_chunks]
+                embedding_texts = []
+                for chunk in migrated_chunks:
+                    metadata = chunk.get("metadata", {})
+                    prefix_parts = [
+                        str(metadata.get("grade") or ""),
+                        str(metadata.get("subject") or ""),
+                        str(metadata.get("chapter") or ""),
+                        str(metadata.get("section") or ""),
+                        " ".join(metadata.get("topics", [])),
+                        " ".join(metadata.get("concepts", [])),
+                    ]
+                    prefix = " ".join(part for part in prefix_parts if part).strip()
+                    embedding_texts.append(f"{prefix}\n\n{chunk['text']}" if prefix else chunk["text"])
+
+                embeddings = self._load_model().encode(embedding_texts, normalize_embeddings=True)
+                metadatas = [chunk["metadata"] for chunk in migrated_chunks]
+                point_ids = upsert_chunks(self.client, self.collection_name, embeddings, texts, metadatas)
+                try:
+                    self.hybrid_store.upsert(
+                        [
+                            {
+                                "chunk_id": str(point_ids[idx]),
+                                "text": chunk["text"],
+                                "metadata": {**chunk["metadata"], "retrieval_source": "legacy_migration"},
+                            }
+                            for idx, chunk in enumerate(migrated_chunks)
+                        ]
+                    )
+                except Exception as exc:
+                    logger.warning("Hybrid retrieval store migration update failed: %s", str(exc)[:300])
+                self.curriculum_graph.build_from_chunks(migrated_chunks)
+                self.curriculum_graph.save(self.curriculum_graph_path)
+                glossary_entries = self.glossary_extractor.extract(migrated_chunks)
+                try:
+                    self._rebuild_concept_index(chunks=migrated_chunks, glossary_entries=glossary_entries)
+                except Exception:
+                    pass
+                if self.enable_curriculum_graph_engine:
+                    self.relation_graph = self.graph_builder.build(migrated_chunks, existing=self.relation_graph)
+                    self.graph_storage.save(self.relation_graph)
+            break
+
+    def _hydrate_hybrid_store(self) -> None:
+        try:
+            documents: list[dict[str, Any]] = []
+            offset = None
+            while True:
+                points, offset = self.client.scroll(
+                    collection_name=self.collection_name,
+                    limit=256,
+                    offset=offset,
+                    with_payload=True,
+                    with_vectors=False,
+                )
+                for point in points:
+                    payload = point.payload or {}
+                    text = str(payload.get("text", ""))
+                    metadata = {k: v for k, v in payload.items() if k != "text"}
+                    documents.append(
+                        {
+                            "chunk_id": str(point.id),
+                            "text": text,
+                            "metadata": metadata,
+                        }
+                    )
+                if offset is None:
+                    break
+            if documents:
+                self.hybrid_store.upsert(documents)
+        except Exception as exc:
+            logger.warning("Hybrid retrieval store hydration failed: %s", str(exc)[:300])
 
     def _resolve_content_path(self, raw_path: str) -> Path:
         candidate = Path(raw_path)
@@ -321,6 +570,22 @@ class Pipeline:
         point_ids = upsert_chunks(self.client, self.collection_name, embeddings, texts, metadatas)
         logger.info("Upserted %d vectors into collection %s", len(point_ids), self.collection_name)
         print(f"[store] upserted_vectors count={len(point_ids)} collection={self.collection_name}")
+        try:
+            self.hybrid_store.upsert(
+                [
+                    {
+                        "chunk_id": str(point_ids[idx]),
+                        "text": chunk["text"],
+                        "metadata": {
+                            **chunk["metadata"],
+                            "retrieval_source": "local_hybrid",
+                        },
+                    }
+                    for idx, chunk in enumerate(chunks)
+                ]
+            )
+        except Exception as exc:
+            logger.warning("Hybrid retrieval store update failed: %s", str(exc)[:300])
         self.curriculum_graph.build_from_chunks(chunks)
         self.curriculum_graph.save(self.curriculum_graph_path)
         glossary_entries = self.glossary_extractor.extract(chunks)
@@ -461,9 +726,163 @@ class Pipeline:
             "results": results,
         }
 
+    def _query_boost_terms(self, query: str, inferred_topics: list[str], prerequisite_topics: list[str], related_topics: list[str]) -> list[str]:
+        terms: list[str] = []
+        for bucket in (inferred_topics, prerequisite_topics, related_topics):
+            for term in bucket:
+                normalized = normalize_curriculum_name(str(term))
+                if normalized and normalized not in terms:
+                    terms.append(normalized)
+        for token in self._tokenize_text(query):
+            if token not in terms:
+                terms.append(token)
+        return terms[:24]
+
+    def _merge_hits(self, hits: list[Any]) -> list[RetrievalHit]:
+        merged: dict[str, RetrievalHit] = {}
+        for hit in hits:
+            if isinstance(hit, dict):
+                hit_id = str(hit.get("id") or "")
+                score = float(hit.get("score") or 0.0)
+                payload = dict(hit.get("payload") or hit.get("metadata") or {})
+                payload_text = str(hit.get("text") or payload.get("text") or "")
+                if payload_text:
+                    payload["text"] = payload_text
+                source = str(hit.get("source") or payload.get("retrieval_source") or "hybrid")
+            else:
+                hit_id = str(getattr(hit, "id", ""))
+                score = float(getattr(hit, "score", 0.0) or 0.0)
+                payload = dict(getattr(hit, "payload", {}) or {})
+                source = str(getattr(hit, "source", payload.get("retrieval_source") or "hybrid"))
+            if not hit_id:
+                continue
+            payload.setdefault("retrieval_source", source)
+            payload.setdefault("text", str(payload.get("text") or ""))
+            payload["retrieval_source"] = source
+            current = merged.get(hit_id)
+            if current is None or score > current.score:
+                merged[hit_id] = RetrievalHit(id=hit_id, score=score, payload=payload, source=source)
+            else:
+                current.payload.update({k: v for k, v in payload.items() if k not in current.payload})
+                current.score = max(current.score, score)
+                if source not in current.source:
+                    current.source = f"{current.source}|{source}"
+        return sorted(merged.values(), key=lambda item: item.score, reverse=True)
+
+    def _retrieve_candidate_hits(
+        self,
+        query: str,
+        limit: int,
+        requested_filters: dict[str, Any],
+        routed_filters: dict[str, Any],
+        inferred_subject: str | None,
+        inferred_topics: list[str],
+        prerequisite_topics: list[str],
+        related_topics: list[str],
+    ) -> tuple[list[RetrievalHit], dict[str, Any]]:
+        search_limit = max(limit * 10, 30)
+        boost_terms = self._query_boost_terms(query, inferred_topics, prerequisite_topics, related_topics)
+        qfilter = build_filter(requested_filters)
+        expanded_query = " ".join(part for part in [query, " ".join(boost_terms)] if part).strip()
+        query_vector = self._load_model().encode([expanded_query or query], normalize_embeddings=True)[0]
+
+        dense_hits = self.client.search(
+            collection_name=self.collection_name,
+            query_vector=query_vector,
+            limit=search_limit,
+            query_filter=qfilter,
+            with_payload=True,
+        )
+        dense_filter_fallback_used = False
+        if not dense_hits and qfilter is not None:
+            dense_hits = self.client.search(
+                collection_name=self.collection_name,
+                query_vector=query_vector,
+                limit=search_limit,
+                query_filter=None,
+                with_payload=True,
+            )
+            dense_filter_fallback_used = True
+        candidate_hits: list[Any] = [
+            {
+                "id": str(hit.id),
+                "score": float(hit.score) if hit.score is not None else 0.0,
+                "text": str((hit.payload or {}).get("text", "")),
+                "payload": {**(hit.payload or {}), "retrieval_source": "qdrant_dense"},
+                "source": "qdrant_dense",
+            }
+            for hit in dense_hits
+        ]
+
+        lexical_hits = self.hybrid_store.search(
+            query=query,
+            limit=search_limit,
+            filters=requested_filters or None,
+            boost_terms=boost_terms,
+        )
+        lexical_filter_fallback_used = False
+        if not lexical_hits and requested_filters:
+            lexical_hits = self.hybrid_store.search(
+                query=query,
+                limit=search_limit,
+                filters=None,
+                boost_terms=boost_terms,
+            )
+            lexical_filter_fallback_used = True
+        candidate_hits.extend(lexical_hits)
+
+        chapter_candidates: list[str] = []
+        confidence = 0.0
+        if self.enable_curriculum_graph_engine:
+            chapter_candidates, confidence, _ = self.concept_index.route_query_to_chapters(query, self.curriculum_graph)
+
+        chapter_hit_count = 0
+        if chapter_candidates and confidence >= 0.35:
+            for chapter in chapter_candidates[:3]:
+                chapter_filters = {"chapter": chapter}
+                if inferred_subject:
+                    chapter_filters["subject"] = inferred_subject
+                chapter_dense_hits = self.client.search(
+                    collection_name=self.collection_name,
+                    query_vector=query_vector,
+                    limit=max(6, limit * 3),
+                    query_filter=build_filter(chapter_filters),
+                    with_payload=True,
+                )
+                chapter_hit_count += len(chapter_dense_hits)
+                candidate_hits.extend(
+                    {
+                        "id": str(hit.id),
+                        "score": float(hit.score) if hit.score is not None else 0.0,
+                        "text": str((hit.payload or {}).get("text", "")),
+                        "payload": {**(hit.payload or {}), "retrieval_source": "chapter_dense"},
+                        "source": "chapter_dense",
+                    }
+                    for hit in chapter_dense_hits
+                )
+                chapter_lexical_hits = self.hybrid_store.search(
+                    query=query,
+                    limit=max(6, limit * 3),
+                    filters=chapter_filters,
+                    boost_terms=boost_terms,
+                )
+                candidate_hits.extend(chapter_lexical_hits)
+
+        merged = self._merge_hits(candidate_hits)
+        diagnostics = {
+            "dense_hits": len(dense_hits),
+            "lexical_hits": len(lexical_hits),
+            "dense_filter_fallback_used": dense_filter_fallback_used,
+            "lexical_filter_fallback_used": lexical_filter_fallback_used,
+            "chapter_candidates": chapter_candidates[:5],
+            "chapter_candidate_confidence": round(confidence, 3),
+            "chapter_hits": chapter_hit_count,
+            "boost_terms": boost_terms[:12],
+        }
+        return merged, diagnostics
+
     def _search(self, query: str, limit: int, filters: dict[str, Any] | None = None) -> SearchResponse:
         self.ensure_ready()
-        query_vector = self._load_model().encode([query], normalize_embeddings=True)[0]
         requested_filters = dict(filters or {})
         routed_filters = dict(requested_filters)
         inferred_subject = self.curriculum_graph.infer_subject_for_query(query)
@@ -486,14 +905,15 @@ class Pipeline:
         if self.enable_educational_retrieval_engine and "topic" in routed_filters and "topic" not in requested_filters:
             routed_filters.pop("topic", None)
 
-        qfilter = build_filter(routed_filters)
-        search_limit = max(limit * 4, 20) if self.enable_educational_retrieval_engine else max(limit * 2, 10)
-        hits = self.client.search(
-            collection_name=self.collection_name,
-            query_vector=query_vector,
-            limit=search_limit,
-            query_filter=qfilter,
-            with_payload=True,
+        hits, _retrieval_debug = self._retrieve_candidate_hits(
+            query=query,
+            limit=limit,
+            requested_filters=requested_filters,
+            routed_filters=routed_filters,
+            inferred_subject=inferred_subject,
+            inferred_topics=inferred_topics,
+            prerequisite_topics=prerequisite_topics,
+            related_topics=related_topics,
         )
         if self.enable_educational_retrieval_engine:
             results = self.retrieval_engine.rank(
@@ -543,13 +963,15 @@ class Pipeline:
             if inferred_topics and "topic" not in routed_filters:
                 routed_filters["topic"] = inferred_topics[0]
 
-        query_vector = self._load_model().encode([query], normalize_embeddings=True)[0]
-        hits = self.client.search(
-            collection_name=self.collection_name,
-            query_vector=query_vector,
-            limit=max(limit * 2, 10),
-            query_filter=build_filter(routed_filters),
-            with_payload=True,
+        hits, retrieval_debug = self._retrieve_candidate_hits(
+            query=query,
+            limit=limit,
+            requested_filters=metadata or {},
+            routed_filters=routed_filters,
+            inferred_subject=inferred_subject,
+            inferred_topics=expanded_topics or inferred_topics,
+            prerequisite_topics=prerequisite_topics,
+            related_topics=related_topics,
         )
         if self.enable_educational_retrieval_engine:
             results = self.retrieval_engine.rank(
@@ -584,6 +1006,7 @@ class Pipeline:
             "prerequisite_topics": prerequisite_topics,
             "related_topics": related_topics,
             "applied_filters": routed_filters,
+            "retrieval_debug": retrieval_debug,
             "results": results,
         }
 
@@ -827,6 +1250,11 @@ async def ingest_generated_pack(request: IngestGeneratedPackRequest) -> dict:
 async def ingest_directory(request: DirectoryIngestRequest) -> dict[str, Any]:
     directory = pipeline._resolve_content_path(request.directory)
     return await asyncio.to_thread(pipeline.ingest_textbook_directory, directory, request.recursive, request.source)
+
+
+@app.post("/admin/reset-rag")
+async def reset_rag() -> dict[str, Any]:
+    return await asyncio.to_thread(pipeline.reset_rag_state)
 
 
 @app.post("/rag/search", response_model=SearchResponse)

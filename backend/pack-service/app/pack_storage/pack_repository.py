@@ -138,6 +138,8 @@ class PackRepository:
         default_artifacts = {
             "textbook.json": artifacts.get("textbook", {}),
             "content.json": artifacts.get("content", []),
+            "chapter_notes.json": artifacts.get("chapter_notes", []),
+            "key_points.json": artifacts.get("key_points", []),
             "chapter_knowledge.json": artifacts.get("chapter_knowledge", self._build_chapter_knowledge(artifacts)),
             "concepts.json": artifacts.get("concepts", []),
             "examples.json": artifacts.get("examples", []),
@@ -147,6 +149,8 @@ class PackRepository:
             "activities.json": artifacts.get("activities", []),
             "questions.json": artifacts.get("questions", []),
             "glossary.json": artifacts.get("glossary", []),
+            "misconceptions.json": artifacts.get("misconceptions", []),
+            "applications.json": artifacts.get("applications", []),
             "quizzes.json": artifacts.get("quizzes", []),
             "flashcards.json": artifacts.get("flashcards", []),
             "summaries.json": artifacts.get("summaries", []),
@@ -215,6 +219,8 @@ class PackRepository:
         counts: dict[str, int] = {}
         for key in (
             "content",
+            "chapter_notes",
+            "key_points",
             "concepts",
             "examples",
             "worked_examples",
@@ -223,6 +229,8 @@ class PackRepository:
             "activities",
             "questions",
             "glossary",
+            "misconceptions",
+            "applications",
             "quizzes",
             "flashcards",
             "summaries",

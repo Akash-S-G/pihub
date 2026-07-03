@@ -83,6 +83,10 @@ services:
       QDRANT_COLLECTION: ${QDRANT_COLLECTION:-educational_chunks}
       EMBEDDING_MODEL_NAME: ${EMBEDDING_MODEL_NAME:-BAAI/bge-small-en-v1.5}
       EMBEDDING_DEVICE: ${EMBEDDING_DEVICE:-cpu}
+      EMBEDDING_CACHE_DIR: ${EMBEDDING_CACHE_DIR:-/shared/models/sentence-transformers/embedding}
+      LOCAL_RETRIEVAL_MODEL_NAME: ${LOCAL_RETRIEVAL_MODEL_NAME:-BAAI/bge-small-en-v1.5}
+      LOCAL_RETRIEVAL_DEVICE: ${LOCAL_RETRIEVAL_DEVICE:-cpu}
+      LOCAL_RETRIEVAL_CACHE_DIR: ${LOCAL_RETRIEVAL_CACHE_DIR:-/shared/models/sentence-transformers/retrieval}
       UPLOAD_DIR: ${UPLOAD_DIR:-/shared/uploads}
       WORK_DIR: ${WORK_DIR:-/shared/work}
     depends_on:

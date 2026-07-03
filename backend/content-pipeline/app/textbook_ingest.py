@@ -77,6 +77,17 @@ class TextbookMetadataExtractor:
         parts = [p for p in file_path.parts]
         metadata: dict[str, Any] = {}
         subject_candidate: str | None = None
+        filename = normalize_curriculum_name(file_path.stem)
+        filename_tokens = set(re.findall(r"[a-z0-9]+", filename.lower()))
+
+        language_aliases = {
+            "english": {"english", "eng"},
+            "kannada": {"kannada", "kan", "kannada_medium"},
+            "hindi": {"hindi", "hin"},
+            "marathi": {"marathi", "mar"},
+            "tamil": {"tamil", "tam"},
+            "telugu": {"telugu", "tel"},
+        }
 
         # Flexible grade extraction: handle 'class 8', 'grade 8', 'class_8', 'class8 part 1'
         for i, part in enumerate(parts):
@@ -107,23 +118,34 @@ class TextbookMetadataExtractor:
                         subject_candidate = normalize_curriculum_name(next_part)
                 break
 
-        # If subject still not found, look for known subject tokens anywhere in path
+        # If subject still not found, prefer filename tokens and then path tokens.
         if "subject" not in metadata:
             SUBJECT_TOKENS = ["math", "maths", "mathematics", "science", "social", "social_science", "english", "kannada"]
-            for part in parts:
-                low = part.lower()
-                for token in SUBJECT_TOKENS:
-                    if token in low:
-                        # normalize
-                        if "math" in token:
-                            metadata["subject"] = "mathematics"
-                        elif "social" in token:
-                            metadata["subject"] = "social_science"
-                        else:
-                            metadata["subject"] = normalize_curriculum_name(token)
-                        break
-                if "subject" in metadata:
+            for token in SUBJECT_TOKENS:
+                if token in filename_tokens:
+                    if "math" in token:
+                        metadata["subject"] = "mathematics"
+                    elif "social" in token:
+                        metadata["subject"] = "social_science"
+                    else:
+                        metadata["subject"] = normalize_curriculum_name(token)
                     break
+            if "subject" not in metadata:
+                for part in parts:
+                    low = normalize_curriculum_name(part).lower()
+                    if not low or "medium" in low:
+                        continue
+                    for token in SUBJECT_TOKENS:
+                        if low == token or low.endswith(f"_{token}") or low.startswith(f"{token}_"):
+                            if "math" in token:
+                                metadata["subject"] = "mathematics"
+                            elif "social" in token:
+                                metadata["subject"] = "social_science"
+                            else:
+                                metadata["subject"] = normalize_curriculum_name(token)
+                            break
+                    if "subject" in metadata:
+                        break
 
         if "subject" not in metadata and subject_candidate:
             metadata["subject"] = subject_candidate
@@ -139,13 +161,17 @@ class TextbookMetadataExtractor:
             metadata["language"] = "english"
         
         # Extract textbook name / chapter from filename and sanitize
-        filename = normalize_curriculum_name(file_path.stem)
         # cleanup trailing dashes, separators, and trailing numbers
         name = re.sub(r"[\(\)\[\]]", "", filename)
         name = normalize_curriculum_name(name)
         metadata["textbook_name"] = name
         # Also expose a cleaned 'chapter' field for downstream use
         metadata["chapter"] = name
+
+        for language, aliases in language_aliases.items():
+            if any(alias in str(file_path).lower() for alias in aliases):
+                metadata["language"] = language
+                break
         
         return metadata
 

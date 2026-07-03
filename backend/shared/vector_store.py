@@ -4,6 +4,7 @@ import uuid
 from dataclasses import dataclass
 from typing import Any
 
+import httpx
 from qdrant_client import QdrantClient
 from qdrant_client.http import models as qmodels
 
@@ -22,10 +23,35 @@ def make_qdrant_client(url: str) -> QdrantClient:
     return QdrantClient(url=url)
 
 
-def ensure_collection(client: QdrantClient, collection_name: str, vector_size: int) -> None:
-    collections = {collection.name for collection in client.get_collections().collections}
-    if collection_name in collections:
-        return
+def ensure_collection(client: QdrantClient, collection_name: str, vector_size: int, qdrant_url: str | None = None) -> None:
+    if qdrant_url:
+        try:
+            response = httpx.get(f"{qdrant_url.rstrip('/')}/collections/{collection_name}", timeout=10.0)
+            if response.status_code == 200:
+                payload = response.json()
+                existing_size = (
+                    payload.get("result", {})
+                    .get("config", {})
+                    .get("params", {})
+                    .get("vectors", {})
+                    .get("size")
+                )
+                if existing_size is not None and int(existing_size) != int(vector_size):
+                    raise RuntimeError(
+                        f"Qdrant collection {collection_name} already exists with vector size {existing_size}, expected {vector_size}."
+                    )
+                return
+            if response.status_code != 404:
+                response.raise_for_status()
+        except Exception:
+            pass
+
+    try:
+        collections = {collection.name for collection in client.get_collections().collections}
+        if collection_name in collections:
+            return
+    except Exception:
+        pass
 
     client.create_collection(
         collection_name=collection_name,

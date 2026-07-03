@@ -195,6 +195,18 @@ class SummarySchema(BaseModel):
     importantFacts: list[str] = Field(default_factory=list)
 
 
+class ChapterNotesSchema(BaseModel):
+    chapter_title: str
+    one_sentence_summary: str
+    core_points: list[str] = Field(default_factory=list)
+    important_formulas: list[str] = Field(default_factory=list)
+    experiments: list[str] = Field(default_factory=list)
+    key_terms: list[str] = Field(default_factory=list)
+    misconceptions: list[str] = Field(default_factory=list)
+    real_world_applications: list[str] = Field(default_factory=list)
+    quiz_focus: list[str] = Field(default_factory=list)
+
+
 class FlashcardSchema(BaseModel):
     question: str
     answer: str
@@ -231,6 +243,26 @@ class LearningObjectiveSchema(BaseModel):
 
 class LearningObjectivesSchema(BaseModel):
     items: list[LearningObjectiveSchema] = Field(default_factory=list)
+
+
+class MisconceptionItemSchema(BaseModel):
+    misconception: str
+    correction: str
+    why_students_confuse_it: str
+
+
+class MisconceptionsSchema(BaseModel):
+    items: list[MisconceptionItemSchema] = Field(default_factory=list)
+
+
+class ApplicationItemSchema(BaseModel):
+    concept: str
+    real_world_use: str
+    explanation: str
+
+
+class ApplicationsSchema(BaseModel):
+    items: list[ApplicationItemSchema] = Field(default_factory=list)
 
 
 class PromptCache:
@@ -633,19 +665,22 @@ def _content_user_prompt(request: ContentGenerationRequest, artifact: str) -> st
 async def _ollama_generate(prompt: str, system_prompt: str) -> str:
     payload = {
         "model": settings.gemma_content_model,
-        "prompt": prompt,
-        "system": system_prompt,
+        "messages": [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": prompt},
+        ],
         "stream": False,
         "options": {
             "temperature": settings.content_generation_temperature,
             "top_p": settings.content_generation_top_p,
         },
     }
-    response = await manager.http.post(f"{settings.ollama_base_url.rstrip('/')}/api/generate", json=payload, timeout=180.0)
+    response = await manager.http.post(f"{settings.ollama_base_url.rstrip('/')}/api/chat", json=payload, timeout=180.0)
     if response.is_error:
         raise HTTPException(status_code=response.status_code, detail=response.text)
     body = response.json()
-    return str(body.get("response") or "")
+    message = body.get("message") or {}
+    return str(message.get("content") or "")
 
 
 async def _content_completion(system_prompt: str, user_prompt: str) -> str:
@@ -687,70 +722,7 @@ async def _generate_content_json(
         except Exception as exc:
             last_error = str(exc)
             logger.warning("[CONTENT_GENERATION] invalid_json artifact=%s attempt=%s error=%s", artifact, attempt + 1, last_error[:300])
-
-    if settings.content_generation_allow_fallback:
-        model = schema_model.model_validate(_fallback_content_artifact(artifact, request))
-        manager.prompt_cache.set(cache_key, model.model_dump_json())
-        return model
     raise HTTPException(status_code=502, detail=f"Invalid {artifact} JSON from content model: {last_error}")
-
-
-def _fallback_content_artifact(artifact: str, request: ContentGenerationRequest) -> dict[str, Any]:
-    sentences = [part.strip() for part in re.split(r"(?<=[.!?])\s+", request.content) if len(part.strip()) > 20]
-    concepts = request.concepts or _fallback_terms(request.content)
-    if artifact == "summary":
-        return {
-            "title": request.title,
-            "summary": " ".join(sentences[:4])[:1200],
-            "keyPoints": sentences[:5],
-            "importantFacts": sentences[5:10] or sentences[:3],
-        }
-    if artifact == "flashcards":
-        return {
-            "items": [
-                {"question": f"What is {term}?", "answer": _sentence_with_term(sentences, term), "difficulty": "medium"}
-                for term in concepts[:12]
-            ]
-        }
-    if artifact == "quiz":
-        return {
-            "items": [
-                {
-                    "question": f"Which statement best explains {term}?",
-                    "options": [_sentence_with_term(sentences, term), "A related but incomplete idea", "A page heading", "An unrelated term"],
-                    "answer": _sentence_with_term(sentences, term),
-                    "explanation": f"The answer is supported by the source: {_sentence_with_term(sentences, term)}",
-                }
-                for term in concepts[:5]
-            ]
-        }
-    if artifact == "glossary":
-        return {"items": [{"term": term.title(), "definition": _sentence_with_term(sentences, term)} for term in concepts[:15]]}
-    if artifact == "learning-objectives":
-        return {"items": [{"objective": f"Explain {term}."} for term in concepts[:5]]}
-    return {}
-
-
-def _fallback_terms(text: str) -> list[str]:
-    terms = re.findall(r"\b([A-Z][A-Za-z]*(?:\s+[A-Za-z][A-Za-z]*){0,3})\b", text)
-    seen = set()
-    output = []
-    for term in terms:
-        lowered = term.lower()
-        if lowered in {"the", "this", "that", "chapter", "activity", "exercise"} or lowered in seen:
-            continue
-        seen.add(lowered)
-        output.append(term)
-        if len(output) >= 20:
-            break
-    return output or ["the concept"]
-
-
-def _sentence_with_term(sentences: list[str], term: str) -> str:
-    for sentence in sentences:
-        if term.lower() in sentence.lower():
-            return sentence[:360]
-    return sentences[0][:360] if sentences else term
 
 
 async def _chat_completion(system_prompt: str, user_prompt: str, request: ChatRequest, stream: bool = False) -> Any:
@@ -856,6 +828,16 @@ async def generate_summary(request: ContentGenerationRequest) -> SummarySchema:
     )
 
 
+@app.post("/ai/content/chapter-notes", response_model=ChapterNotesSchema)
+async def generate_chapter_notes(request: ContentGenerationRequest) -> ChapterNotesSchema:
+    return await _generate_content_json(
+        "chapter notes",
+        request,
+        ChapterNotesSchema,
+        '{"chapter_title": string, "one_sentence_summary": string, "core_points": string[], "important_formulas": string[], "experiments": string[], "key_terms": string[], "misconceptions": string[], "real_world_applications": string[], "quiz_focus": string[]}',
+    )
+
+
 @app.post("/ai/content/flashcards", response_model=FlashcardsSchema)
 async def generate_flashcards(request: ContentGenerationRequest) -> FlashcardsSchema:
     return await _generate_content_json(
@@ -893,6 +875,26 @@ async def generate_learning_objectives(request: ContentGenerationRequest) -> Lea
         request,
         LearningObjectivesSchema,
         '{"items": [{"objective": string}]}',
+    )
+
+
+@app.post("/ai/content/misconceptions", response_model=MisconceptionsSchema)
+async def generate_misconceptions(request: ContentGenerationRequest) -> MisconceptionsSchema:
+    return await _generate_content_json(
+        "misconceptions",
+        request,
+        MisconceptionsSchema,
+        '{"items": [{"misconception": string, "correction": string, "why_students_confuse_it": string}]}',
+    )
+
+
+@app.post("/ai/content/applications", response_model=ApplicationsSchema)
+async def generate_applications(request: ContentGenerationRequest) -> ApplicationsSchema:
+    return await _generate_content_json(
+        "applications",
+        request,
+        ApplicationsSchema,
+        '{"items": [{"concept": string, "real_world_use": string, "explanation": string}]}',
     )
 
 

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class GemmaArtifactGenerator:
-    """Generate existing pack artifacts from bounded sections through inference-service."""
+    """Generate notebook-style pack artifacts from bounded sections through inference-service."""
 
     def __init__(self, inference_url: str | None = None, timeout: float = 180.0) -> None:
         self.inference_url = (inference_url or os.getenv("INFERENCE_SERVICE_URL", "http://inference-service:8010")).rstrip("/")
@@ -20,75 +20,83 @@ class GemmaArtifactGenerator:
         self._cache: dict[tuple[str, str], Any] = {}
 
     def generate(self, sections: list[StructuredSection], metadata: dict[str, Any]) -> dict[str, Any]:
+        try:
+            import httpx
+        except Exception as exc:
+            raise RuntimeError(f"httpx is required for content generation: {exc}") from exc
+
+        chapter_notes: list[dict[str, Any]] = []
         summaries: list[dict[str, Any]] = []
         flashcards: list[dict[str, Any]] = []
         quizzes: list[dict[str, Any]] = []
         glossary_by_term: dict[str, dict[str, Any]] = {}
+        misconceptions: list[dict[str, Any]] = []
+        applications: list[dict[str, Any]] = []
         objectives: list[dict[str, Any]] = []
-
-        try:
-            import httpx
-        except Exception as exc:
-            logger.warning("Gemma artifact generation disabled because httpx is unavailable: %s", exc)
-            return self._fallback_all(sections)
 
         with httpx.Client(timeout=self.timeout) as client:
             for section in sections:
                 concepts = self._concept_candidates(section)
-                summaries.append(self._request_or_fallback(client, "summary", section, metadata, concepts))
-                flashcards.extend(self._request_or_fallback(client, "flashcards", section, metadata, concepts))
-                quizzes.extend(self._request_or_fallback(client, "quiz", section, metadata, concepts))
-                for item in self._request_or_fallback(client, "glossary", section, metadata, concepts):
+                notes = self._normalize_notes(
+                    section,
+                    self._request_or_raise(client, "chapter-notes", section, metadata, concepts),
+                )
+                chapter_notes.append(notes)
+
+                summary = self._normalize_summary(
+                    section,
+                    self._request_or_raise(client, "summary", section, metadata, concepts),
+                )
+                summaries.append(summary)
+
+                flashcards.extend(self._normalize_flashcards(self._request_or_raise(client, "flashcards", section, metadata, concepts)))
+                quizzes.extend(self._normalize_quizzes(self._request_or_raise(client, "quiz", section, metadata, concepts)))
+                for item in self._normalize_glossary(self._request_or_raise(client, "glossary", section, metadata, concepts)):
                     term = str(item.get("term") or "").strip().lower()
                     if term and term not in glossary_by_term:
                         glossary_by_term[term] = item
-                objectives.extend(self._request_or_fallback(client, "learning-objectives", section, metadata, concepts))
+                misconceptions.extend(self._normalize_misconceptions(self._request_or_raise(client, "misconceptions", section, metadata, concepts)))
+                applications.extend(self._normalize_applications(self._request_or_raise(client, "applications", section, metadata, concepts)))
+                objectives.extend(self._normalize_learning_objectives(self._request_or_raise(client, "learning-objectives", section, metadata, concepts)))
+
+        key_points = [
+            {
+                "chapter_title": str(item.get("title") or item.get("chapter_title") or "Section"),
+                "key_points": [str(value) for value in item.get("keyPoints", [])[:5]],
+            }
+            for item in summaries
+            if isinstance(item, dict)
+        ]
 
         return {
+            "chapter_notes": chapter_notes[:80],
+            "key_points": key_points[:80],
             "summaries": self._to_existing_summaries(summaries),
             "flashcards": self._to_existing_flashcards(flashcards),
             "quizzes": self._to_existing_quizzes(quizzes),
             "glossary": list(glossary_by_term.values())[:80],
+            "misconceptions": misconceptions[:80],
+            "applications": applications[:80],
             "learning_objectives": objectives[:80],
             "reports": {
                 "gemma_generation": {
                     "section_count": len(sections),
+                    "chapter_notes_count": len(chapter_notes),
                     "summary_count": len(summaries),
                     "flashcard_count": len(flashcards),
                     "quiz_count": len(quizzes),
                     "glossary_count": len(glossary_by_term),
+                    "misconception_count": len(misconceptions),
+                    "application_count": len(applications),
                     "learning_objective_count": len(objectives),
                     "inference_url": self.inference_url,
                 }
             },
         }
 
-    def _fallback_all(self, sections: list[StructuredSection]) -> dict[str, Any]:
-        summaries = []
-        flashcards = []
-        quizzes = []
-        glossary_by_term = {}
-        objectives = []
-        for section in sections:
-            concepts = self._concept_candidates(section)
-            summaries.append(self._fallback("summary", section, concepts))
-            flashcards.extend(self._fallback("flashcards", section, concepts))
-            quizzes.extend(self._fallback("quiz", section, concepts))
-            for item in self._fallback("glossary", section, concepts):
-                glossary_by_term.setdefault(str(item.get("term") or "").lower(), item)
-            objectives.extend(self._fallback("learning-objectives", section, concepts))
-        return {
-            "summaries": self._to_existing_summaries(summaries),
-            "flashcards": self._to_existing_flashcards(flashcards),
-            "quizzes": self._to_existing_quizzes(quizzes),
-            "glossary": list(glossary_by_term.values())[:80],
-            "learning_objectives": objectives[:80],
-            "reports": {"gemma_generation": {"section_count": len(sections), "fallback": True, "reason": "httpx_unavailable"}},
-        }
-
-    def _request_or_fallback(
+    def _request_or_raise(
         self,
-        client: httpx.Client,
+        client: Any,
         artifact: str,
         section: StructuredSection,
         metadata: dict[str, Any],
@@ -109,42 +117,161 @@ class GemmaArtifactGenerator:
             "language": metadata.get("language"),
         }
         endpoint = f"{self.inference_url}/ai/content/{artifact}"
-        try:
-            response = client.post(endpoint, json=payload)
-            response.raise_for_status()
-            data = response.json()
-            result = data.get("items") if isinstance(data, dict) and "items" in data else data
-        except Exception as exc:
-            logger.warning("Gemma artifact generation fallback artifact=%s section=%s error=%s", artifact, section.section_id, exc)
-            result = self._fallback(artifact, section, concepts)
+        response = client.post(endpoint, json=payload)
+        response.raise_for_status()
+        data = response.json()
+        result = data.get("items") if isinstance(data, dict) and "items" in data else data
         self._cache[cache_key] = result
         return result
 
-    def _fallback(self, artifact: str, section: StructuredSection, concepts: list[str]) -> Any:
-        sentences = self._sentences(section.content)
-        if artifact == "summary":
-            return {
-                "title": section.title,
-                "summary": " ".join(sentences[:4])[:1200],
-                "keyPoints": sentences[:5],
-                "importantFacts": sentences[5:10] or sentences[:3],
-            }
-        if artifact == "flashcards":
-            return [{"question": f"What is {term}?", "answer": self._sentence_with(section.content, term), "difficulty": "medium"} for term in concepts[:10]]
-        if artifact == "quiz":
-            return [
-                {
-                    "question": f"Which statement best explains {term}?",
-                    "options": [self._sentence_with(section.content, term), "A related but incorrect statement", "A page heading", "An unrelated term"],
-                    "answer": self._sentence_with(section.content, term),
-                    "explanation": f"The source section states: {self._sentence_with(section.content, term)}",
-                }
-                for term in concepts[:5]
-            ]
-        if artifact == "glossary":
-            return [{"term": term.title(), "definition": self._sentence_with(section.content, term)} for term in concepts[:12]]
-        if artifact == "learning-objectives":
-            return [{"objective": f"Explain {term}."} for term in concepts[:5]]
+    @staticmethod
+    def _normalize_notes(section: StructuredSection, data: Any) -> dict[str, Any]:
+        if not isinstance(data, dict):
+            raise ValueError("chapter-notes endpoint must return an object")
+        chapter_title = str(data.get("chapter_title") or section.title or "Section")
+        return {
+            "chapter_title": chapter_title,
+            "one_sentence_summary": str(data.get("one_sentence_summary") or ""),
+            "core_points": [str(value) for value in data.get("core_points", []) if str(value).strip()],
+            "important_formulas": [str(value) for value in data.get("important_formulas", []) if str(value).strip()],
+            "experiments": [str(value) for value in data.get("experiments", []) if str(value).strip()],
+            "key_terms": [str(value) for value in data.get("key_terms", []) if str(value).strip()],
+            "misconceptions": [str(value) for value in data.get("misconceptions", []) if str(value).strip()],
+            "real_world_applications": [str(value) for value in data.get("real_world_applications", []) if str(value).strip()],
+            "quiz_focus": [str(value) for value in data.get("quiz_focus", []) if str(value).strip()],
+        }
+
+    @staticmethod
+    def _normalize_summary(section: StructuredSection, data: Any) -> dict[str, Any]:
+        if not isinstance(data, dict):
+            raise ValueError("summary endpoint must return an object")
+        title = str(data.get("title") or section.title or "Section Summary")
+        summary = str(data.get("summary") or "").strip()
+        if not summary:
+            raise ValueError("summary content is empty")
+        return {
+            "title": title,
+            "summary": summary,
+            "keyPoints": [str(value) for value in data.get("keyPoints", []) if str(value).strip()],
+            "importantFacts": [str(value) for value in data.get("importantFacts", []) if str(value).strip()],
+        }
+
+    @staticmethod
+    def _normalize_flashcards(data: Any) -> list[dict[str, Any]]:
+        items = GemmaArtifactGenerator._items_from_response(data)
+        flashcards: list[dict[str, Any]] = []
+        seen: set[str] = set()
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            question = str(item.get("question") or "").strip()
+            answer = str(item.get("answer") or "").strip()
+            if not question or not answer:
+                continue
+            key = question.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            flashcards.append({"question": question, "answer": answer, "difficulty": str(item.get("difficulty") or "medium")})
+        return flashcards
+
+    @staticmethod
+    def _normalize_quizzes(data: Any) -> list[dict[str, Any]]:
+        items = GemmaArtifactGenerator._items_from_response(data)
+        quizzes: list[dict[str, Any]] = []
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            options = [str(value) for value in item.get("options", []) if str(value).strip()]
+            answer = str(item.get("answer") or "").strip()
+            question = str(item.get("question") or "").strip()
+            explanation = str(item.get("explanation") or "").strip()
+            if question and answer and len(options) >= 4:
+                quizzes.append(
+                    {
+                        "question": question,
+                        "options": options[:4],
+                        "answer": answer,
+                        "explanation": explanation,
+                        "difficulty": str(item.get("difficulty") or "medium"),
+                    }
+                )
+        return quizzes
+
+    @staticmethod
+    def _normalize_glossary(data: Any) -> list[dict[str, Any]]:
+        items = GemmaArtifactGenerator._items_from_response(data)
+        glossary: list[dict[str, Any]] = []
+        seen: set[str] = set()
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            term = str(item.get("term") or "").strip()
+            definition = str(item.get("definition") or "").strip()
+            if not term or not definition:
+                continue
+            key = term.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            glossary.append({"term": term, "definition": definition})
+        return glossary
+
+    @staticmethod
+    def _normalize_misconceptions(data: Any) -> list[dict[str, Any]]:
+        items = GemmaArtifactGenerator._items_from_response(data)
+        result: list[dict[str, Any]] = []
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            misconception = str(item.get("misconception") or "").strip()
+            correction = str(item.get("correction") or "").strip()
+            why = str(item.get("why_students_confuse_it") or "").strip()
+            if misconception and correction and why:
+                result.append(
+                    {
+                        "misconception": misconception,
+                        "correction": correction,
+                        "why_students_confuse_it": why,
+                    }
+                )
+        return result
+
+    @staticmethod
+    def _normalize_applications(data: Any) -> list[dict[str, Any]]:
+        items = GemmaArtifactGenerator._items_from_response(data)
+        result: list[dict[str, Any]] = []
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            concept = str(item.get("concept") or "").strip()
+            real_world_use = str(item.get("real_world_use") or "").strip()
+            explanation = str(item.get("explanation") or "").strip()
+            if concept and real_world_use and explanation:
+                result.append({"concept": concept, "real_world_use": real_world_use, "explanation": explanation})
+        return result
+
+    @staticmethod
+    def _normalize_learning_objectives(data: Any) -> list[dict[str, Any]]:
+        items = GemmaArtifactGenerator._items_from_response(data)
+        result: list[dict[str, Any]] = []
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            objective = str(item.get("objective") or "").strip()
+            if objective:
+                result.append({"objective": objective})
+        return result
+
+    @staticmethod
+    def _items_from_response(data: Any) -> list[dict[str, Any]]:
+        if isinstance(data, list):
+            return [item for item in data if isinstance(item, dict)]
+        if isinstance(data, dict):
+            items = data.get("items")
+            if isinstance(items, list):
+                return [item for item in items if isinstance(item, dict)]
+            return [data]
         return []
 
     @staticmethod
@@ -203,19 +330,6 @@ class GemmaArtifactGenerator:
             if len(candidates) >= 20:
                 break
         return candidates
-
-    @staticmethod
-    def _sentences(text: str) -> list[str]:
-        import re
-
-        return [part.strip() for part in re.split(r"(?<=[.!?])\s+", str(text or "")) if len(part.strip()) > 20]
-
-    def _sentence_with(self, text: str, term: str) -> str:
-        for sentence in self._sentences(text):
-            if term.lower() in sentence.lower():
-                return sentence[:360]
-        sentences = self._sentences(text)
-        return sentences[0][:360] if sentences else term
 
 
 def re_find_terms(text: str) -> list[str]:

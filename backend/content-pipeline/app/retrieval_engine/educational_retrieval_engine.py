@@ -9,12 +9,22 @@ from shared.text_normalization import normalize_curriculum_name
 class EducationalRetrievalEngine:
     """Hybrid semantic + lexical + curriculum-aware reranking for educational retrieval."""
 
+    @staticmethod
+    def _hit_field(hit: Any, name: str, default: Any = None) -> Any:
+        if isinstance(hit, dict):
+            return hit.get(name, default)
+        return getattr(hit, name, default)
+
     def _tokenize(self, text: str) -> set[str]:
         return {
             token
             for token in re.findall(r"[\w\u0900-\u097F\u0C80-\u0CFF']+", text.lower())
             if token
         }
+
+    @staticmethod
+    def _word_count(text: str) -> int:
+        return len(re.findall(r"[A-Za-z0-9\u0900-\u097F\u0C80-\u0CFF]+", text))
 
     def _semantic_score(self, raw_score: float | None) -> float:
         if raw_score is None:
@@ -41,7 +51,11 @@ class EducationalRetrievalEngine:
     def _chunk_type_score(self, query: str, payload: dict[str, Any]) -> float:
         chunk_type = str(payload.get("chunk_type", "")).lower()
         query_l = query.lower()
+        text = str(payload.get("text", ""))
         if not chunk_type:
+            return 0.0
+
+        if chunk_type in {"metadata", "table_of_contents", "header_footer", "ocr_noise"}:
             return 0.0
 
         if any(k in query_l for k in ["define", "what is", "meaning"]) and chunk_type == "definition":
@@ -52,6 +66,10 @@ class EducationalRetrievalEngine:
             return 0.9
         if any(k in query_l for k in ["experiment", "activity", "procedure"]) and chunk_type == "experiment":
             return 0.9
+        if chunk_type == "formula":
+            if self._word_count(text) >= 50 and len(text) >= 220:
+                return 0.55
+            return 0.15
         if chunk_type in {"definition", "explanation", "qa"}:
             return 0.6
         return 0.3
@@ -91,11 +109,19 @@ class EducationalRetrievalEngine:
 
         target_subject = normalize_curriculum_name(str(routed_filters.get("subject") or inferred_subject or ""))
         target_chapter = normalize_curriculum_name(str(routed_filters.get("chapter") or ""))
+        seen_signatures: set[str] = set()
 
         for hit in hits:
-            payload = hit.payload or {}
+            payload = self._hit_field(hit, "payload", {}) or {}
+            raw_score = self._hit_field(hit, "score", None)
+            text = str(payload.get("text", ""))
+            signature = normalize_curriculum_name(text[:500])
+            if signature and signature in seen_signatures:
+                continue
+            if signature:
+                seen_signatures.add(signature)
 
-            semantic = self._semantic_score(float(hit.score) if hit.score is not None else None)
+            semantic = self._semantic_score(float(raw_score) if raw_score is not None else None)
             lexical = self._lexical_score(query, payload)
             chunk_type_score = self._chunk_type_score(query, payload)
             topic_score, topic_band = self._topic_scores(
@@ -104,6 +130,12 @@ class EducationalRetrievalEngine:
                 prerequisites=prerequisite_topics,
                 related=related_topics,
             )
+
+            if str(payload.get("retrieval_source", "")).lower() == "local_hybrid":
+                semantic = min(1.0, semantic + 0.08)
+
+            if str(payload.get("chunk_type", "")).lower() in {"metadata", "table_of_contents", "header_footer", "ocr_noise"}:
+                semantic = max(0.0, semantic - 0.18)
 
             subject_match = 1.0 if target_subject and normalize_curriculum_name(str(payload.get("subject", ""))) == target_subject else 0.0
             chapter_match = 0.0
@@ -120,14 +152,14 @@ class EducationalRetrievalEngine:
                 + 0.25 * chunk_type_score
             )
 
-            final_score = 0.45 * semantic + 0.25 * lexical + 0.30 * educational
+            final_score = 0.35 * semantic + 0.35 * lexical + 0.30 * educational
 
             ranked.append(
                 {
-                    "id": str(hit.id),
+                    "id": str(self._hit_field(hit, "id", "")),
                     "score": final_score,
-                    "vector_score": float(hit.score) if hit.score is not None else None,
-                    "text": str(payload.get("text", "")),
+                    "vector_score": float(raw_score) if raw_score is not None else None,
+                    "text": text,
                     "metadata": {k: v for k, v in payload.items() if k != "text"},
                     "ranking_debug": {
                         "semantic": semantic,

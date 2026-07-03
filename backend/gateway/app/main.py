@@ -1052,6 +1052,23 @@ async def upload_content(
     return response.json()
 
 
+@app.post("/ingest/pdf", response_model=IngestResponse)
+async def ingest_pdf(
+    file: UploadFile = File(...),
+    metadata: str = Form(default="{}"),
+    source: str | None = Form(default=None),
+) -> dict[str, Any]:
+    content = await file.read()
+    response = await app.state.http.post(
+        f"{settings.content_pipeline_url}/ingest/pdf",
+        data={"metadata": metadata, "source": source},
+        files={"file": (file.filename or "upload.pdf", content, file.content_type or "application/pdf")},
+    )
+    if response.is_error:
+        raise HTTPException(status_code=response.status_code, detail=response.text)
+    return response.json()
+
+
 @app.post("/ingest/textbook", response_model=IngestResponse)
 async def ingest_textbook(
     file: UploadFile = File(...),
@@ -1069,9 +1086,24 @@ async def ingest_textbook(
     return response.json()
 
 
+@app.post("/ingest/generated-pack")
+async def ingest_generated_pack(payload: dict[str, Any]) -> dict[str, Any]:
+    return await _proxy_json("/ingest/generated-pack", payload)
+
+
+@app.post("/admin/reset-rag")
+async def reset_rag() -> dict[str, Any]:
+    return await _proxy_json("/admin/reset-rag", {})
+
+
 @app.post("/rag/search", response_model=SearchResponse)
 async def rag_search(request: SearchRequest) -> dict[str, Any]:
     return await _proxy_json("/rag/search", request.model_dump())
+
+
+@app.post("/rag/curriculum_search")
+async def rag_curriculum_search(request: SearchRequest) -> dict[str, Any]:
+    return await _proxy_json("/rag/curriculum_search", request.model_dump())
 
 
 @app.get("/rag/chapter", response_model=SearchResponse)
@@ -2061,6 +2093,14 @@ async def debug_curriculum() -> dict[str, Any]:
     return response.json()
 
 
+@app.get("/debug/curriculum-relations")
+async def debug_curriculum_relations() -> dict[str, Any]:
+    response = await app.state.http.get(f"{settings.content_pipeline_url}/debug/curriculum-relations")
+    if response.is_error:
+        raise HTTPException(status_code=response.status_code, detail=response.text)
+    return response.json()
+
+
 @app.get("/debug/metadata")
 async def debug_metadata(path: str) -> dict[str, Any]:
     return await _proxy_get("/debug/metadata", {"path": path})
@@ -2084,3 +2124,8 @@ async def debug_similarity(left: str, right: str) -> dict[str, Any]:
 @app.get("/debug/pack-preview")
 async def debug_pack_preview(path: str, pack_name: str = "curriculum_pack") -> dict[str, Any]:
     return await _proxy_get("/debug/pack-preview", {"path": path, "pack_name": pack_name})
+
+
+@app.get("/debug/learning-pack-preview")
+async def debug_learning_pack_preview(path: str, pack_name: str = "curriculum_pack") -> dict[str, Any]:
+    return await _proxy_get("/debug/learning-pack-preview", {"path": path, "pack_name": pack_name})

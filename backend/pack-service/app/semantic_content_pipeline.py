@@ -473,8 +473,10 @@ class SemanticContentPipeline:
         activities = [self._artifact(row) for row in rows if row["metadata"].get("content_type") == "activity"]
         questions = [self._artifact(row) for row in rows if row["metadata"].get("content_type") in {"exercise", "assessment"}]
         generated_artifacts = self._generate_section_artifacts(rows, metadata)
-        glossary = generated_artifacts.get("glossary") or self._generate_glossary(rows, metadata, educational_concepts)
-        summaries = generated_artifacts.get("summaries") or self._generate_summaries(rows, metadata, pack_id, educational_concepts)
+        glossary = generated_artifacts.get("glossary", [])
+        summaries = generated_artifacts.get("summaries", [])
+        quizzes = generated_artifacts.get("quizzes", [])
+        flashcards = generated_artifacts.get("flashcards", [])
         concept_context = self._concept_context_chunks(educational_concepts, metadata)
         textbook, textbook_report = TextbookBuilder().build(rows, pack_id, metadata, educational_concepts)
 
@@ -511,6 +513,8 @@ class SemanticContentPipeline:
         return {
             "textbook": textbook,
             "content": rag_content,
+            "chapter_notes": generated_artifacts.get("chapter_notes", []),
+            "key_points": generated_artifacts.get("key_points", []),
             "concepts": concepts,
             "examples": examples,
             "worked_examples": worked,
@@ -519,8 +523,10 @@ class SemanticContentPipeline:
             "activities": activities,
             "questions": questions,
             "glossary": glossary,
-            "quizzes": generated_artifacts.get("quizzes") or self._generate_quizzes(questions, rag_content, metadata, educational_concepts),
-            "flashcards": generated_artifacts.get("flashcards") or self._generate_flashcards(rag_content, glossary, metadata),
+            "misconceptions": generated_artifacts.get("misconceptions", []),
+            "applications": generated_artifacts.get("applications", []),
+            "quizzes": quizzes,
+            "flashcards": flashcards,
             "summaries": summaries,
             "enrichment": {
                 "related_topics": sorted({term for item in rag_content for term in item.get("metadata", {}).get("related_concepts", [])})[:60],
