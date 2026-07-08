@@ -3,6 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Query, Request
 
 from .coverage_analyzer import PackCoverageAnalyzer
+from shared.text_normalization import normalize_language_code
 
 
 router = APIRouter(tags=["Pack Analytics"])
@@ -29,6 +30,7 @@ async def multilingual_pack_plan(
     grade: int | None = Query(default=None),
     subject: str | None = Query(default=None),
 ) -> dict:
+    target_language = normalize_language_code(target_language) or target_language
     packs = request.app.state.pack_repository.list_packs()
     planned = []
     for pack in packs:

@@ -8,7 +8,7 @@ import httpx
 from qdrant_client import QdrantClient
 from qdrant_client.http import models as qmodels
 
-from shared.text_normalization import normalize_curriculum_name
+from shared.text_normalization import language_filter_values, normalize_curriculum_name, normalize_language_code
 
 
 @dataclass(slots=True)
@@ -68,19 +68,23 @@ def upsert_chunks(
 ) -> list[str]:
     point_ids = [str(uuid.uuid4()) for _ in embeddings]
     points = [
-        qmodels.PointStruct(
-            id=point_id,
-            vector=vector,
-            payload={
-                "text": text,
-                **{
-                    key: normalize_curriculum_name(value)
-                    if key in {"subject", "chapter", "language", "topic", "section", "textbook_name"} and isinstance(value, str)
-                    else value
-                    for key, value in metadata.items()
+            qmodels.PointStruct(
+                id=point_id,
+                vector=vector,
+                payload={
+                    "text": text,
+                    **{
+                        key: (
+                            normalize_language_code(value)
+                            if key == "language" and isinstance(value, str)
+                            else normalize_curriculum_name(value)
+                            if key in {"subject", "chapter", "topic", "section", "textbook_name"} and isinstance(value, str)
+                            else value
+                        )
+                        for key, value in metadata.items()
+                    },
                 },
-            },
-        )
+            )
         for point_id, vector, text, metadata in zip(point_ids, embeddings, texts, metadatas, strict=True)
     ]
     client.upsert(collection_name=collection_name, points=points)
@@ -96,7 +100,14 @@ def build_filter(metadata: dict[str, Any] | None = None) -> qmodels.Filter | Non
         if value is None:
             continue
         if isinstance(value, str):
-            value = normalize_curriculum_name(value)
+            if key == "language":
+                values = language_filter_values(value)
+                if len(values) > 1:
+                    conditions.append(qmodels.FieldCondition(key=key, match=qmodels.MatchAny(any=values)))
+                    continue
+                value = normalize_language_code(value)
+            else:
+                value = normalize_curriculum_name(value)
         conditions.append(qmodels.FieldCondition(key=key, match=qmodels.MatchValue(value=value)))
 
     if not conditions:

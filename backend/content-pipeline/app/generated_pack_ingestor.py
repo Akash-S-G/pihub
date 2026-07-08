@@ -4,6 +4,9 @@ import re
 from pathlib import Path
 from typing import Any
 
+from app.educational_intelligence.artifact_cleaning import clean_text, is_meaningful_term, is_noisy_text, pick_anchor_sentence
+from shared.text_normalization import normalize_language_code
+
 logger = logging.getLogger(__name__)
 
 
@@ -102,11 +105,19 @@ class GeneratedPackIngestor:
 
     def _base_meta(self, item: dict) -> dict:
         """Extract normalized grade/subject/chapter from a top-level artifact item."""
+        language = normalize_language_code(
+            str(
+                item.get("language")
+                or item.get("payload", {}).get("language")
+                or ""
+            )
+        )
         return {
             "grade": _parse_grade(item.get("grade", 0)),
             "subject": _normalize_subject(str(item.get("subject", "mixed"))),
-            "chapter": item.get("chapter_title", "Unknown Chapter"),
+            "chapter": clean_text(str(item.get("chapter_title", "Unknown Chapter"))) or "Unknown Chapter",
             "source": "generated_pack",
+            **({"language": language} if language else {}),
         }
 
     def _ingest_concepts(self, pack_dir: Path, chunks: list) -> None:
@@ -118,9 +129,9 @@ class GeneratedPackIngestor:
             for item in data:
                 meta = self._base_meta(item)
                 for concept in item.get("payload", {}).get("concepts", []):
-                    name = concept.get("name", "")
-                    definition = concept.get("definition", "")
-                    if not name or not definition:
+                    name = clean_text(str(concept.get("name", "")))
+                    definition = clean_text(str(concept.get("definition", "")))
+                    if not name or not definition or not is_meaningful_term(name) or is_noisy_text(definition):
                         continue
                     text = f"Concept: {name}\nDefinition: {definition}"
                     if concept.get("importance"):
@@ -146,10 +157,10 @@ class GeneratedPackIngestor:
             data = json.loads(f.read_text(encoding="utf-8"))
             for item in data:
                 meta = self._base_meta(item)
-                explanation = item.get("payload", {}).get("explanation", "")
+                explanation = clean_text(str(item.get("payload", {}).get("explanation", "")))
                 if explanation:
                     chunks.append({
-                        "text": explanation,
+                        "text": pick_anchor_sentence(explanation),
                         "metadata": {
                             **meta,
                             "section": "Detailed Explanation",
@@ -169,15 +180,15 @@ class GeneratedPackIngestor:
             for item in data:
                 meta = self._base_meta(item)
                 # Kaggle output has summary_detailed and summary_short
-                summary = item.get("payload", {}).get("summary_detailed", "")
+                summary = clean_text(str(item.get("payload", {}).get("summary_detailed", "")))
                 if not summary:
-                    summary = item.get("payload", {}).get("summary_short", "")
+                    summary = clean_text(str(item.get("payload", {}).get("summary_short", "")))
                 if not summary:
-                    summary = item.get("payload", {}).get("summary", "")
+                    summary = clean_text(str(item.get("payload", {}).get("summary", "")))
                 
-                if summary:
+                if summary and not is_noisy_text(summary):
                     chunks.append({
-                        "text": f"Summary: {summary}",
+                        "text": f"Summary: {pick_anchor_sentence(summary)}",
                         "metadata": {
                             **meta,
                             "section": "Summary",
@@ -199,17 +210,17 @@ class GeneratedPackIngestor:
                 payload = item.get("payload", {})
                 
                 # Kaggle output format: payload contains term and definition directly
-                term = payload.get("term", "")
-                definition = payload.get("definition", "")
+                term = clean_text(str(payload.get("term", "")))
+                definition = clean_text(str(payload.get("definition", "")))
                 
-                if not term or not definition:
+                if not term or not definition or not is_meaningful_term(term) or is_noisy_text(definition):
                     # Fallback to the old list format if it exists
                     for entry in payload.get("glossary", []):
-                        t = entry.get("term", "")
-                        d = entry.get("definition", "")
-                        if t and d:
+                        t = clean_text(str(entry.get("term", "")))
+                        d = clean_text(str(entry.get("definition", "")))
+                        if t and d and is_meaningful_term(t) and not is_noisy_text(d):
                             chunks.append({
-                                "text": f"Term: {t}\nDefinition: {d}",
+                                "text": f"Term: {t}\nDefinition: {pick_anchor_sentence(d, t)}",
                                 "metadata": {
                                     **meta,
                                     "section": "Glossary",
@@ -219,9 +230,10 @@ class GeneratedPackIngestor:
                                 },
                             })
                     continue
-                
+                    continue
+
                 chunks.append({
-                    "text": f"Term: {term}\nDefinition: {definition}",
+                    "text": f"Term: {term}\nDefinition: {pick_anchor_sentence(definition, term)}",
                     "metadata": {
                         **meta,
                         "section": "Glossary",
@@ -244,15 +256,15 @@ class GeneratedPackIngestor:
                 payload = item.get("payload", {})
                 
                 # Kaggle output format: payload contains front and back directly
-                question = payload.get("front", "")
-                answer = payload.get("back", "")
+                question = clean_text(str(payload.get("front", "")))
+                answer = clean_text(str(payload.get("back", "")))
                 
-                if not question or not answer:
+                if not question or not answer or is_noisy_text(question) or is_noisy_text(answer):
                     # Fallback to the old list format if it exists
                     for card in payload.get("flashcards", []):
-                        q = card.get("question", "")
-                        a = card.get("answer", "")
-                        if q and a:
+                        q = clean_text(str(card.get("question", "")))
+                        a = clean_text(str(card.get("answer", "")))
+                        if q and a and not is_noisy_text(q) and not is_noisy_text(a):
                             chunks.append({
                                 "text": f"Q: {q}\nA: {a}",
                                 "metadata": {
@@ -263,7 +275,8 @@ class GeneratedPackIngestor:
                                 },
                             })
                     continue
-                
+                    continue
+
                 chunks.append({
                     "text": f"Q: {question}\nA: {answer}",
                     "metadata": {

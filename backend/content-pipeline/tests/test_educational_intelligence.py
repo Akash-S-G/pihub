@@ -38,6 +38,29 @@ class EducationalIntelligenceTests(unittest.TestCase):
             },
         ]
 
+        self.noisy_chunks = [
+            {
+                "text": "Both Assertion And Reason. /square6 The following question is based on Assertion/Reason.",
+                "metadata": {
+                    "chapter": "Light Mirrors and Lenses",
+                    "subject": "science",
+                    "grade": 10,
+                    "topics": ["Both Assertion And Reason", "Mirror", "Convex"],
+                    "chunk_type": "definition",
+                },
+            },
+            {
+                "text": "The laws of reflection are valid for all kinds of mirrors.",
+                "metadata": {
+                    "chapter": "Light Mirrors and Lenses",
+                    "subject": "science",
+                    "grade": 10,
+                    "topics": ["Laws of reflection", "Mirror"],
+                    "chunk_type": "definition",
+                },
+            },
+        ]
+
     def test_summary_generation(self) -> None:
         summary = SummaryGenerator().generate(self.chunks, chapter="Nutrition in Plants")
         self.assertEqual(summary["chapter"], "Nutrition in Plants")
@@ -48,11 +71,22 @@ class EducationalIntelligenceTests(unittest.TestCase):
         cards = FlashcardGenerator().generate(self.chunks)
         self.assertGreaterEqual(len(glossary), 1)
         self.assertGreaterEqual(len(cards), 1)
+        self.assertTrue(all("What does the chapter say about" in card["front"] for card in cards))
 
     def test_quiz_generation(self) -> None:
         quizzes = QuizGenerator().generate(self.chunks, limit=4)
         self.assertGreaterEqual(len(quizzes), 3)
         self.assertTrue(all("question" in quiz for quiz in quizzes))
+        mcqs = [quiz for quiz in quizzes if quiz.get("question_type") == "mcq"]
+        self.assertTrue(mcqs)
+        self.assertTrue(all(quiz["answer"] in [option for option in quiz["options"]] for quiz in mcqs))
+
+    def test_noise_is_filtered_from_glossary(self) -> None:
+        glossary = GlossaryExtractor().extract(self.noisy_chunks)
+        terms = {entry["term"].lower() for entry in glossary}
+        self.assertNotIn("both assertion and reason", terms)
+        self.assertIn("laws of reflection", terms)
+        self.assertTrue(all("/square6" not in entry["definition"].lower() for entry in glossary))
 
     def test_pack_compilation_and_evaluation(self) -> None:
         summary = SummaryGenerator().generate(self.chunks, chapter="Nutrition in Plants")

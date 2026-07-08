@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from shared.text_normalization import normalize_curriculum_name
+from shared.text_normalization import normalize_curriculum_name, normalize_language_code
 
 
 class EducationalRetrievalEngine:
@@ -94,6 +94,10 @@ class EducationalRetrievalEngine:
             return 0.6, "related"
         return 0.0, "none"
 
+    @staticmethod
+    def _contains_kannada(text: str) -> bool:
+        return bool(re.search(r"[\u0C80-\u0CFF]", text or ""))
+
     def rank(
         self,
         query: str,
@@ -109,7 +113,9 @@ class EducationalRetrievalEngine:
 
         target_subject = normalize_curriculum_name(str(routed_filters.get("subject") or inferred_subject or ""))
         target_chapter = normalize_curriculum_name(str(routed_filters.get("chapter") or ""))
+        target_language = normalize_language_code(str(routed_filters.get("language") or ""))
         seen_signatures: set[str] = set()
+        query_has_kannada = self._contains_kannada(query)
 
         for hit in hits:
             payload = self._hit_field(hit, "payload", {}) or {}
@@ -136,6 +142,14 @@ class EducationalRetrievalEngine:
 
             if str(payload.get("chunk_type", "")).lower() in {"metadata", "table_of_contents", "header_footer", "ocr_noise"}:
                 semantic = max(0.0, semantic - 0.18)
+
+            payload_language = normalize_language_code(str(payload.get("language") or ""))
+            if target_language and payload_language == target_language:
+                semantic = min(1.0, semantic + 0.12)
+            elif query_has_kannada and payload_language == "kn":
+                semantic = min(1.0, semantic + 0.10)
+            elif query_has_kannada and self._contains_kannada(text):
+                semantic = min(1.0, semantic + 0.05)
 
             subject_match = 1.0 if target_subject and normalize_curriculum_name(str(payload.get("subject", ""))) == target_subject else 0.0
             chapter_match = 0.0

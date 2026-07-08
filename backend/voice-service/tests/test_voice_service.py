@@ -5,7 +5,8 @@ from collections.abc import AsyncIterator
 from pathlib import Path
 from typing import Any
 
-from fastapi.testclient import TestClient
+import httpx
+import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -36,7 +37,7 @@ class FakeTutor:
         yield "makes food."
 
 
-def client() -> TestClient:
+def app():
     app = create_app()
     app.state.tts_engine = FakeTTS()
     app.state.stt_engine = FakeSTT()
@@ -45,49 +46,59 @@ def client() -> TestClient:
     app.state.voice_gateway.tutor = app.state.tutor_engine
     app.state.voice_streamer.tts = app.state.tts_engine
     app.state.voice_streamer.tutor = app.state.tutor_engine
-    return TestClient(app)
+    return app
 
 
-def test_tts_cache_miss_then_hit() -> None:
-    c = client()
-    payload = {"text": "Hello", "language": "en", "cache": True}
-    first = c.post("/voice/tts", json=payload)
-    second = c.post("/voice/tts", json=payload)
-    assert first.status_code == 200
-    assert second.status_code == 200
-    assert first.json()["cache_status"] == "miss"
-    assert second.json()["cache_status"] == "hit"
+@pytest.mark.anyio
+async def test_tts_cache_miss_then_hit() -> None:
+    transport = httpx.ASGITransport(app=app())
+    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
+        payload = {"text": "Hello", "language": "en", "cache": True}
+        first = await client.post("/voice/tts", json=payload)
+        second = await client.post("/voice/tts", json=payload)
+        assert first.status_code == 200
+        assert second.status_code == 200
+        assert first.json()["cache_status"] == "miss"
+        assert second.json()["cache_status"] == "hit"
 
 
-def test_audio_retrieval_and_range_request() -> None:
-    c = client()
-    created = c.post("/voice/tts", json={"text": "Range me"}).json()
-    full = c.get(created["audio_url"])
-    partial = c.get(created["audio_url"], headers={"Range": "bytes=0-4"})
-    assert full.status_code == 200
-    assert full.headers["accept-ranges"] == "bytes"
-    assert partial.status_code == 206
-    assert partial.content == full.content[:5]
+@pytest.mark.anyio
+async def test_audio_retrieval_and_range_request() -> None:
+    transport = httpx.ASGITransport(app=app())
+    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
+        created = (await client.post("/voice/tts", json={"text": "Range me"})).json()
+        full = await client.get(created["audio_url"])
+        partial = await client.get(created["audio_url"], headers={"Range": "bytes=0-4"})
+        assert full.status_code == 200
+        assert full.headers["accept-ranges"] == "bytes"
+        assert partial.status_code == 206
+        assert partial.content == full.content[:5]
 
 
-def test_voice_query_cache_miss() -> None:
-    c = client()
-    response = c.post("/voice/query", json={"question": "What is photosynthesis?", "chapter_id": "plants"})
-    assert response.status_code == 200
-    body = response.json()
-    assert body["response_source"] == "rag_tutor"
-    assert body["audio_url"].startswith("/voice/audio/")
+@pytest.mark.anyio
+async def test_voice_query_cache_miss() -> None:
+    transport = httpx.ASGITransport(app=app())
+    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
+        response = await client.post("/voice/query", json={"question": "What is photosynthesis?", "chapter_id": "plants"})
+        assert response.status_code == 200
+        body = response.json()
+        assert body["response_source"] == "rag_tutor"
+        assert body["audio_url"].startswith("/voice/audio/")
 
 
-def test_stt_request() -> None:
-    c = client()
-    response = c.post("/voice/stt?language=en&enable_partial_transcripts=true", files={"file": ("q.wav", b"fake", "audio/wav")})
-    assert response.status_code == 200
-    assert response.json()["transcript"] == "what is photosynthesis"
+@pytest.mark.anyio
+async def test_stt_request() -> None:
+    transport = httpx.ASGITransport(app=app())
+    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
+        response = await client.post("/voice/stt?language=en&enable_partial_transcripts=true", files={"file": ("q.wav", b"fake", "audio/wav")})
+        assert response.status_code == 200
+        assert response.json()["transcript"] == "what is photosynthesis"
 
 
-def test_streaming_tts() -> None:
-    c = client()
-    response = c.post("/voice/tts", json={"text": "stream", "stream": True})
-    assert response.status_code == 200
-    assert b"AUDIO_CHUNK" in response.content
+@pytest.mark.anyio
+async def test_streaming_tts() -> None:
+    transport = httpx.ASGITransport(app=app())
+    async with httpx.AsyncClient(transport=transport, base_url="http://testserver") as client:
+        response = await client.post("/voice/tts", json={"text": "stream", "stream": True})
+        assert response.status_code == 200
+        assert b"AUDIO_CHUNK" in response.content

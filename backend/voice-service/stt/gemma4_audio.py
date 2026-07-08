@@ -13,7 +13,11 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
-import soundfile as sf
+
+try:
+    import soundfile as sf
+except ModuleNotFoundError:  # pragma: no cover - optional runtime dependency
+    sf = None
 
 from .base import Transcript, TranscriptEvent, VoiceBackend
 
@@ -120,13 +124,16 @@ class Gemma4AudioBackend(VoiceBackend):
             except Exception as exc:
                 self.last_error = str(exc)
                 self.loaded = False
-                logger.exception("Gemma 4 audio backend failed to load")
-                raise
+                logger.warning("Gemma 4 audio backend unavailable: %s", exc)
 
     def _load_runtime(self) -> None:
         try:
             import torch
-            from transformers import AutoModelForMultimodalLM, AutoProcessor
+            from transformers import AutoProcessor
+            try:
+                from transformers import AutoModelForImageTextToText as GemmaModelClass
+            except Exception:  # pragma: no cover - older transformers builds
+                from transformers import AutoModelForMultimodalLM as GemmaModelClass
         except Exception as exc:  # pragma: no cover - dependency failure path
             raise RuntimeError(f"Gemma runtime dependencies unavailable: {exc}") from exc
 
@@ -140,8 +147,6 @@ class Gemma4AudioBackend(VoiceBackend):
             if torch_dtype is None:
                 raise RuntimeError(f"Unsupported GEMMA_DTYPE={self.dtype}")
             load_kwargs["torch_dtype"] = torch_dtype
-        else:
-            load_kwargs["dtype"] = "auto"
 
         if self.device == "auto":
             load_kwargs["device_map"] = "auto"
@@ -149,7 +154,7 @@ class Gemma4AudioBackend(VoiceBackend):
             load_kwargs["device_map"] = None
 
         self._processor = AutoProcessor.from_pretrained(self.model_id, cache_dir=str(self.cache_dir), trust_remote_code=True)
-        self._model = AutoModelForMultimodalLM.from_pretrained(self.model_id, **load_kwargs)
+        self._model = GemmaModelClass.from_pretrained(self.model_id, **load_kwargs)
 
         if self.device != "auto":
             self._model = self._model.to(self.device)
@@ -164,6 +169,9 @@ class Gemma4AudioBackend(VoiceBackend):
         )
 
     def _read_audio(self, audio: bytes) -> tuple[list[float], int]:
+        if sf is None:
+            pcm = np.frombuffer(audio, dtype=np.int16).astype(np.float32) / 32768.0
+            return pcm.tolist(), self.input_sample_rate
         try:
             with io.BytesIO(audio) as buffer:
                 data, sample_rate = sf.read(buffer, dtype="float32", always_2d=False)
@@ -179,6 +187,9 @@ class Gemma4AudioBackend(VoiceBackend):
             return pcm.tolist(), self.input_sample_rate
 
     def _wave_to_bytes(self, waveform: list[float], sample_rate: int) -> bytes:
+        if sf is None:
+            pcm = (np.asarray(waveform, dtype=np.float32) * 32767.0).clip(-32768, 32767).astype(np.int16)
+            return pcm.tobytes()
         with io.BytesIO() as buffer:
             sf.write(buffer, waveform, sample_rate, format="WAV")
             return buffer.getvalue()

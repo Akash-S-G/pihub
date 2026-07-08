@@ -31,8 +31,19 @@ class VoiceBackendManager(VoiceBackend):
         self.last_switch_at = 0.0
 
     async def initialize(self) -> None:
-        await self.primary.initialize()
+        primary_error: str | None = None
+        try:
+            await self.primary.initialize()
+        except Exception as exc:
+            primary_error = str(exc)
+        primary_loaded = bool(getattr(self.primary, "loaded", True))
+        primary_last_error = getattr(self.primary, "last_error", None)
         await self.fallback.initialize()
+        if primary_error is None and primary_loaded and not primary_last_error:
+            self._activate_primary()
+        else:
+            reason = primary_error or primary_last_error or "primary backend unavailable"
+            self._activate_fallback(reason)
 
     def _should_try_primary(self) -> bool:
         if not self.fallback_active:

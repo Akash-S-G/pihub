@@ -21,7 +21,7 @@ from app.sync.delta_builder import DeltaBuilder
 from app.sync.sync_manifest_generator import SyncManifestGenerator
 from app.validation.pack_validator import PackValidator
 from app.generated_pack_importer import GeneratedPackImporter
-from shared.text_normalization import normalize_curriculum_name
+from shared.text_normalization import normalize_curriculum_name, normalize_language_code
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
@@ -104,7 +104,7 @@ def _expected_pack_id(request: PackGenerationRequest) -> str | None:
     generator = app.state.pack_generator
     normalized_subject = normalize_curriculum_name(request.subject) if request.subject else None
     normalized_chapter = normalize_curriculum_name(request.chapter) if request.chapter else None
-    normalized_language = normalize_curriculum_name(request.language) if request.language else None
+    normalized_language = normalize_language_code(request.language) if request.language else None
     if request.pack_type == "class" and request.grade is not None and normalized_subject:
         language = normalized_language or "english"
         return f"class{request.grade}_{generator._pack_id_part(normalized_subject)}_{generator._pack_id_part(language)}"
@@ -135,7 +135,7 @@ async def generate_pack(request: PackGenerationRequest) -> PackGenerationRespons
         generator = app.state.pack_generator
         normalized_subject = normalize_curriculum_name(request.subject) if request.subject else None
         normalized_chapter = normalize_curriculum_name(request.chapter) if request.chapter else None
-        normalized_language = normalize_curriculum_name(request.language) if request.language else None
+        normalized_language = normalize_language_code(request.language) if request.language else None
 
         if request.pack_type == "class":
             if request.grade is None or not request.subject:

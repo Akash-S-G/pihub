@@ -8,6 +8,7 @@ import os
 import re
 import subprocess
 import time
+import unicodedata
 from collections import OrderedDict, deque
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -26,6 +27,7 @@ from app.language import LanguageAdapter
 from app.orchestration import TutorOrchestrator
 from app.sessions import SessionManager
 from shared.config import get_settings as get_shared_settings
+from shared.text_normalization import language_display_name, normalize_language_code
 from shared.topic_normalization import normalize_subject, normalize_topic
 
 
@@ -142,6 +144,11 @@ class ChatRequest(BaseModel):
             raise ValueError("question is required")
         return value.strip()
 
+    @field_validator("language")
+    @classmethod
+    def normalize_language(cls, value: str | None) -> str | None:
+        return normalize_language_code(value) or None
+
 
 class TutorRequest(ChatRequest):
     hint_style: str = Field(default="guided")
@@ -186,6 +193,11 @@ class ContentGenerationRequest(BaseModel):
         if not value:
             raise ValueError("content is required")
         return value
+
+    @field_validator("language")
+    @classmethod
+    def normalize_language(cls, value: str | None) -> str | None:
+        return normalize_language_code(value) or None
 
 
 class SummarySchema(BaseModel):
@@ -455,19 +467,58 @@ def _grade_instructions(grade: int | None) -> str:
     return "Provide structured but concise explanations with key concepts and reasoning."
 
 
+def _language_label(language: str | None) -> str:
+    code = normalize_language_code(language)
+    if not code:
+        return "English"
+    return language_display_name(code)
+
+
+def _language_instruction(language: str | None) -> str:
+    code = normalize_language_code(language)
+    if code == "kn":
+        return "Use natural Kannada in Kannada script. Preserve code-switched English technical terms when they are commonly used in class."
+    if code == "hi":
+        return "Use natural Hindi in Devanagari script. Preserve English technical terms when useful."
+    return "Use clear natural English."
+
+
+def _sanitize_prompt_text(value: Any) -> str:
+    text = "" if value is None else str(value)
+    if not text:
+        return ""
+
+    normalized = unicodedata.normalize("NFKC", text)
+    cleaned: list[str] = []
+    for char in normalized:
+        category = unicodedata.category(char)
+        if char in {"\n", "\r", "\t"}:
+            cleaned.append("\n" if char != "\t" else " ")
+            continue
+        if category.startswith("C"):
+            continue
+        cleaned.append(char)
+
+    sanitized = "".join(cleaned)
+    sanitized_lines = [re.sub(r"[ \t]+", " ", line).strip() for line in sanitized.splitlines()]
+    return "\n".join(sanitized_lines).strip()
+
+
 def _build_system_prompt(request: ChatRequest, style: str) -> str:
+    language = normalize_language_code(request.language)
     parts = [
-        "You are an expert educational tutoring assistant for distributed classroom platform.",
-        "Provide clear, accurate educational explanations aligned with curriculum standards.",
-        "Prioritize learning value and relevance over verbosity.",
+        _sanitize_prompt_text("You are an expert educational tutoring assistant for distributed classroom platform."),
+        _sanitize_prompt_text("Provide clear, accurate educational explanations aligned with curriculum standards."),
+        _sanitize_prompt_text("Prioritize learning value and relevance over verbosity."),
         _grade_instructions(request.grade),
-        f"Subject: {request.subject or 'General Studies'}",
-        f"Chapter: {request.chapter or 'General Topics'}",
-        f"Topic: {request.topic or 'General'}",
-        f"Language: {request.language or 'English'}",
-        f"Teaching style: {style}",
-        "IMPORTANT: Use provided context only if it is relevant and accurate.",
-        "If context is not helpful, answer directly based on educational knowledge.",
+        _sanitize_prompt_text(f"Subject: {request.subject or 'General Studies'}"),
+        _sanitize_prompt_text(f"Chapter: {request.chapter or 'General Topics'}"),
+        _sanitize_prompt_text(f"Topic: {request.topic or 'General'}"),
+        _sanitize_prompt_text(f"Language: {_language_label(language or request.language)} ({language or 'en'})"),
+        _sanitize_prompt_text(f"Teaching style: {style}"),
+        _sanitize_prompt_text(_language_instruction(language)),
+        _sanitize_prompt_text("IMPORTANT: Use provided context only if it is relevant and accurate."),
+        _sanitize_prompt_text("If context is not helpful, answer directly based on educational knowledge."),
     ]
     return "\n".join(parts)
 
@@ -492,10 +543,7 @@ async def _retrieve_context_with_observability(request: ChatRequest) -> tuple[li
     if normalized_topic and normalized_topic not in request.question.lower():
         query = f"{request.question} {normalized_topic}"
 
-    language_map = {"en": "english", "hi": "hindi", "kn": "kannada"}
-    normalized_lang = request.language
-    if normalized_lang:
-        normalized_lang = language_map.get(normalized_lang.lower(), normalized_lang)
+    normalized_lang = normalize_language_code(request.language) or None
 
     metadata = {key: value for key, value in {
         "grade": request.grade,
@@ -551,22 +599,22 @@ def _build_user_prompt(request: ChatRequest, context: list[ContextResult]) -> st
     # Build context block with better formatting
     context_lines: list[str] = []
     if request.asset_context:
-        context_lines.append("CURATED EDUCATIONAL ASSETS:")
+        context_lines.append(_sanitize_prompt_text("CURATED EDUCATIONAL ASSETS:"))
         context_lines.append("-" * 40)
         for index, item in enumerate(request.asset_context[:8], start=1):
-            source_type = item.get("source_type") or "asset"
-            title = str(item.get("title") or "").strip()
-            text = str(item.get("text") or "").strip().replace("\n", " ")[:250]
-            context_lines.append(f"[Asset {index}: {source_type}] {title}\n{text}".strip())
+            source_type = _sanitize_prompt_text(item.get("source_type") or "asset")
+            title = _sanitize_prompt_text(item.get("title") or "")
+            text = _sanitize_prompt_text(item.get("text") or "")[:250]
+            context_lines.append(_sanitize_prompt_text(f"[Asset {index}: {source_type}] {title}\n{text}"))
         context_lines.append("-" * 40)
 
     if context:
-        context_lines.append("EDUCATIONAL CONTEXT:")
+        context_lines.append(_sanitize_prompt_text("EDUCATIONAL CONTEXT:"))
         context_lines.append("-" * 40)
         for index, item in enumerate(context, start=1):
-            snippet = item.text.strip().replace("\n", " ")[:350]
+            snippet = _sanitize_prompt_text(item.text)[:350]
             score_info = f"(relevance: {item.score:.2f})" if item.score is not None else "(relevance: unknown)"
-            context_lines.append(f"[Source {index}] {score_info}\n{snippet}")
+            context_lines.append(_sanitize_prompt_text(f"[Source {index}] {score_info}\n{snippet}"))
         context_lines.append("-" * 40)
 
     context_block = "\n".join(context_lines)
@@ -578,10 +626,10 @@ def _build_user_prompt(request: ChatRequest, context: list[ContextResult]) -> st
     if context_block:
         prompt_parts.append(context_block)
     
-    prompt_parts.append(f"\nQUESTION: {request.question}")
-    prompt_parts.append("\nANSWER (clear and educational):")
+    prompt_parts.append(_sanitize_prompt_text(f"QUESTION: {request.question}"))
+    prompt_parts.append(_sanitize_prompt_text("ANSWER (clear and educational):"))
     
-    return "\n".join(prompt_parts)
+    return _sanitize_prompt_text("\n".join(prompt_parts))
 
 
 def _prompt_cache_key(system_prompt: str, user_prompt: str, model: str, params: dict[str, Any]) -> str:
@@ -609,6 +657,49 @@ def _clean_model_output(answer: str) -> str:
     return answer
 
 
+def _strip_stream_labels(answer: str) -> str:
+    text = str(answer or "").strip()
+    if not text:
+        return text
+    text = re.sub(r"^\s*\[Answer:\]\s*", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"^\s*\[Source\s+\d+\][^\n]*\n?", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"^\s*\(relevance:\s*[^)]*\)\s*", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"\s*\[Source\s+\d+\][^\n]*", "", text, flags=re.IGNORECASE)
+    return text.strip()
+
+
+def _looks_like_prompt_echo(answer: str) -> bool:
+    text = str(answer or "").lower()
+    markers = (
+        "educational context:",
+        "curated educational assets:",
+        "question:",
+        "answer (clear and educational):",
+        "[source ",
+        "[answer:",
+        "final answer language:",
+        "teaching style:",
+    )
+    return any(marker in text for marker in markers)
+
+
+def _chapter_intro_fallback(request: ChatRequest) -> str:
+    chapter = _sanitize_prompt_text(getattr(request, "chapter", None) or getattr(request, "topic", None) or "this chapter")
+    code = normalize_language_code(getattr(request, "language", None))
+    if code == "kn":
+        return f"ಈ ಅಧ್ಯಾಯವು {chapter} ಬಗ್ಗೆ ಇದೆ. ನಾನು ಅದನ್ನು ಹಂತ ಹಂತವಾಗಿ ವಿವರಿಸಬಹುದು."
+    if code == "hi":
+        return f"यह अध्याय {chapter} के बारे में है। मैं इसे चरण-दर-चरण समझा सकता हूँ।"
+    return f"This chapter is about {chapter}. I can explain it step by step if you want."
+
+
+def _finalize_tutor_answer(answer: str, request: ChatRequest) -> str:
+    cleaned = _strip_stream_labels(_clean_model_output(answer))
+    if not cleaned or _looks_like_prompt_echo(cleaned):
+        return _chapter_intro_fallback(request)
+    return cleaned
+
+
 def _extract_json_object(text: str) -> Any:
     value = str(text or "").strip()
     if value.startswith("```"):
@@ -627,6 +718,100 @@ def _extract_json_object(text: str) -> Any:
         return json.loads(value[start : end + 1])
 
 
+def _split_source_sentences(text: str) -> list[str]:
+    parts = re.split(r"(?<=[.!?।\n])\s+", " ".join(str(text or "").split()))
+    return [part.strip() for part in parts if part.strip()]
+
+
+def _fallback_content_artifact(request: ContentGenerationRequest, artifact: str) -> dict[str, Any]:
+    sentences = _split_source_sentences(request.content)
+    first_sentence = sentences[0] if sentences else request.content.strip()
+    key_sentences = sentences[:4] or ([request.content.strip()] if request.content.strip() else [])
+    concepts = [str(concept).strip() for concept in request.concepts if str(concept).strip()]
+    chapter_title = request.title.strip() or (request.chapter or artifact.replace("-", " ").title())
+
+    if artifact == "summary":
+        return {
+            "title": chapter_title,
+            "summary": first_sentence[:400],
+            "keyPoints": key_sentences[:4],
+            "importantFacts": concepts[:4] or key_sentences[:2],
+        }
+    if artifact == "chapter-notes":
+        return {
+            "chapter_title": chapter_title,
+            "one_sentence_summary": first_sentence[:300],
+            "core_points": key_sentences[:5],
+            "important_formulas": [item for item in concepts if any(ch.isdigit() or ch in "=/××*" for ch in item)][:5],
+            "experiments": [item for item in key_sentences if any(word in item.lower() for word in ("experiment", "practical", "activity", "lab"))][:3],
+            "key_terms": concepts[:8],
+            "misconceptions": [first_sentence[:200]] if first_sentence else [],
+            "real_world_applications": key_sentences[1:4],
+            "quiz_focus": key_sentences[:4],
+        }
+    if artifact == "flashcards":
+        items = []
+        source_items = concepts or key_sentences[:4]
+        for idx, item in enumerate(source_items[:6], start=1):
+            items.append({
+                "question": f"What is {item}?" if request.language != "kn" else f"{item} ಎಂದರೇನು?",
+                "answer": key_sentences[min(idx - 1, max(0, len(key_sentences) - 1))] if key_sentences else first_sentence[:240],
+                "difficulty": "medium",
+            })
+        return {"items": items}
+    if artifact == "quiz":
+        source_term = concepts[0] if concepts else (key_sentences[0] if key_sentences else chapter_title)
+        return {
+            "items": [
+                {
+                    "question": f"What best describes {source_term}?" if request.language != "kn" else f"{source_term} ಅನ್ನು ಉತ್ತಮವಾಗಿ ವಿವರಿಸುವುದು ಯಾವುದು?",
+                    "options": [
+                        source_term,
+                        key_sentences[0] if key_sentences else "Option A",
+                        key_sentences[1] if len(key_sentences) > 1 else "Option B",
+                        key_sentences[2] if len(key_sentences) > 2 else "Option C",
+                    ],
+                    "answer": source_term,
+                    "explanation": first_sentence[:240] or source_term,
+                }
+            ]
+        }
+    if artifact == "glossary":
+        items = [{"term": term, "definition": first_sentence[:240] or term} for term in concepts[:8]]
+        if not items and key_sentences:
+            items = [{"term": chapter_title, "definition": first_sentence[:240]}]
+        return {"items": items}
+    if artifact == "learning-objectives":
+        items = [{"objective": sentence[:240]} for sentence in key_sentences[:4]]
+        if not items:
+            items = [{"objective": f"Understand {chapter_title}"}]
+        return {"items": items}
+    if artifact == "misconceptions":
+        items = [{
+            "misconception": first_sentence[:220] or chapter_title,
+            "correction": key_sentences[1][:220] if len(key_sentences) > 1 else first_sentence[:220],
+            "why_students_confuse_it": key_sentences[2][:220] if len(key_sentences) > 2 else "It sounds similar to the main idea.",
+        }]
+        return {"items": items}
+    if artifact == "applications":
+        items = []
+        for idx, sentence in enumerate(key_sentences[:3], start=1):
+            items.append({
+                "concept": concepts[idx - 1] if idx - 1 < len(concepts) else f"Application {idx}",
+                "real_world_use": sentence[:220],
+                "explanation": sentence[:220],
+            })
+        if not items:
+            items = [{
+                "concept": chapter_title,
+                "real_world_use": first_sentence[:220] or chapter_title,
+                "explanation": first_sentence[:220] or chapter_title,
+            }]
+        return {"items": items}
+
+    return {}
+
+
 def _content_section_hash(request: ContentGenerationRequest, artifact: str) -> str:
     payload = {
         "artifact": artifact,
@@ -641,25 +826,31 @@ def _content_section_hash(request: ContentGenerationRequest, artifact: str) -> s
     return hashlib.sha256(json.dumps(payload, ensure_ascii=False, sort_keys=True).encode("utf-8")).hexdigest()
 
 
-def _content_system_prompt(schema_hint: str) -> str:
+def _content_system_prompt(schema_hint: str, language: str | None = None) -> str:
+    language_code = normalize_language_code(language)
+    language_label = _language_label(language_code)
     return (
-        "You generate school textbook learning artifacts from one bounded source section. "
-        "Use only facts present in the source. Do not invent concepts, dates, formulas, or names. "
-        "Return valid JSON only. No markdown. "
-        f"Required schema: {schema_hint}"
+        _sanitize_prompt_text("You generate school textbook learning artifacts from one bounded source section. ")
+        + _sanitize_prompt_text("Use only facts present in the source. Do not invent concepts, dates, formulas, or names. ")
+        + _sanitize_prompt_text("Return valid JSON only. No markdown. ")
+        + _sanitize_prompt_text(f"Write the artifact in {language_label} ({language_code or 'en'}) when the request language is set. ")
+        + _sanitize_prompt_text(f"{_language_instruction(language_code)} ")
+        + _sanitize_prompt_text(f"Required schema: {schema_hint}")
     )
 
 
 def _content_user_prompt(request: ContentGenerationRequest, artifact: str) -> str:
+    language_code = normalize_language_code(request.language)
     concepts = ", ".join(request.concepts[:20])
     metadata = (
         f"Grade: {request.grade or ''}\n"
         f"Subject: {request.subject or ''}\n"
         f"Chapter: {request.chapter or ''}\n"
         f"Section: {request.title}\n"
+        f"Language: {_language_label(language_code)} ({language_code or 'en'})\n"
         f"Known concepts: {concepts}\n"
     )
-    return f"{metadata}\nGenerate {artifact} from this source section only:\n\n{request.content[:12000]}"
+    return _sanitize_prompt_text(f"{metadata}\nGenerate {artifact} from this source section only:\n\n{request.content[:12000]}")
 
 
 async def _ollama_generate(prompt: str, system_prompt: str) -> str:
@@ -692,7 +883,13 @@ async def _content_completion(system_prompt: str, user_prompt: str) -> str:
         top_p=settings.content_generation_top_p,
         max_tokens=1200,
     )
-    return await _chat_completion(system_prompt, user_prompt, request, stream=False)
+    return await _chat_completion(
+        system_prompt,
+        user_prompt,
+        request,
+        stream=False,
+        response_format={"type": "json_object"},
+    )
 
 
 async def _generate_content_json(
@@ -706,7 +903,14 @@ async def _generate_content_json(
     if cached is not None:
         return schema_model.model_validate_json(cached)
 
-    system_prompt = _content_system_prompt(schema_hint)
+    if settings.content_generation_allow_fallback and settings.content_generation_backend.lower() == "llama":
+        logger.warning("[CONTENT_GENERATION_FALLBACK] artifact=%s reason=llama_backend_disabled_for_artifacts", artifact)
+        fallback = _fallback_content_artifact(request, artifact)
+        model = schema_model.model_validate(fallback)
+        manager.prompt_cache.set(cache_key, model.model_dump_json())
+        return model
+
+    system_prompt = _content_system_prompt(schema_hint, request.language)
     user_prompt = _content_user_prompt(request, artifact)
     last_error = ""
     for attempt in range(max(1, settings.content_generation_retries)):
@@ -722,10 +926,20 @@ async def _generate_content_json(
         except Exception as exc:
             last_error = str(exc)
             logger.warning("[CONTENT_GENERATION] invalid_json artifact=%s attempt=%s error=%s", artifact, attempt + 1, last_error[:300])
-    raise HTTPException(status_code=502, detail=f"Invalid {artifact} JSON from content model: {last_error}")
+    logger.warning("[CONTENT_GENERATION_FALLBACK] artifact=%s reason=%s", artifact, last_error[:300])
+    fallback = _fallback_content_artifact(request, artifact)
+    model = schema_model.model_validate(fallback)
+    manager.prompt_cache.set(cache_key, model.model_dump_json())
+    return model
 
 
-async def _chat_completion(system_prompt: str, user_prompt: str, request: ChatRequest, stream: bool = False) -> Any:
+async def _chat_completion(
+    system_prompt: str,
+    user_prompt: str,
+    request: ChatRequest,
+    stream: bool = False,
+    response_format: dict[str, Any] | None = None,
+) -> Any:
     if not manager.model_path.exists():
         raise HTTPException(status_code=503, detail="No GGUF model mounted at LLAMA_MODEL_PATH")
 
@@ -734,14 +948,16 @@ async def _chat_completion(system_prompt: str, user_prompt: str, request: ChatRe
     payload = {
         "model": manager.active_model,
         "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
+            {"role": "system", "content": _sanitize_prompt_text(system_prompt)},
+            {"role": "user", "content": _sanitize_prompt_text(user_prompt)},
         ],
         "temperature": request.temperature if request.temperature is not None else settings.llama_temperature,
         "top_p": request.top_p if request.top_p is not None else settings.llama_top_p,
         "max_tokens": request.max_tokens if request.max_tokens is not None else settings.llama_max_tokens,
         "stream": stream,
     }
+    if response_format:
+        payload["response_format"] = response_format
 
     cache_key = _prompt_cache_key(system_prompt, user_prompt, manager.active_model, payload)
     if not stream:
@@ -755,43 +971,78 @@ async def _chat_completion(system_prompt: str, user_prompt: str, request: ChatRe
             raise HTTPException(status_code=response.status_code, detail=response.text)
         body = response.json()
         content = body["choices"][0]["message"]["content"]
-        # Clean special tokens from output
-        content = _clean_model_output(content)
+        content = _finalize_tutor_answer(content, request)
         manager.prompt_cache.set(cache_key, content)
         return content
 
     async def event_stream() -> AsyncIterator[str]:
         buffer = ""
-        async with manager.http.stream("POST", f"{base_url}/v1/chat/completions", json=payload, timeout=180.0) as streamed:
-            async for line in streamed.aiter_lines():
+        queue: asyncio.Queue[str | None] = asyncio.Queue()
+        stream_closed = asyncio.Event()
+
+        async def read_upstream() -> None:
+            try:
+                async with manager.http.stream("POST", f"{base_url}/v1/chat/completions", json=payload, timeout=180.0) as streamed:
+                    async for line in streamed.aiter_lines():
+                        await queue.put(line)
+            finally:
+                stream_closed.set()
+                await queue.put(None)
+
+        reader_task = asyncio.create_task(read_upstream())
+        last_emit = time.monotonic()
+
+        try:
+            yield f"data: {json.dumps({'chunk': '', 'done': False, 'started': True})}\n\n"
+            while True:
+                try:
+                    line = await asyncio.wait_for(queue.get(), timeout=1.0)
+                except asyncio.TimeoutError:
+                    if stream_closed.is_set():
+                        break
+                    if time.monotonic() - last_emit >= 3.0:
+                        yield f"data: {json.dumps({'chunk': '', 'done': False, 'heartbeat': True})}\n\n"
+                        last_emit = time.monotonic()
+                    continue
+
+                if line is None:
+                    break
                 if not line:
                     continue
-                if line.startswith("data: "):
-                    data = line.removeprefix("data: ").strip()
-                    if data == "[DONE]":
-                        if buffer:
-                            # Clean buffer before sending
-                            buffer = _clean_model_output(buffer)
-                            yield f"data: {json.dumps({'chunk': buffer, 'done': True})}\n\n"
-                        yield "data: [DONE]\n\n"
-                        return
-                    try:
-                        payload_data = json.loads(data)
-                    except json.JSONDecodeError:
-                        continue
-                    delta = payload_data.get("choices", [{}])[0].get("delta", {})
-                    chunk = delta.get("content") or ""
-                    if chunk:
-                        buffer += chunk
-                        if len(buffer) >= settings.stream_batch_chars:
-                            # Clean before sending
-                            cleaned = _clean_model_output(buffer)
-                            yield f"data: {json.dumps({'chunk': cleaned, 'done': False})}\n\n"
-                            buffer = ""
-        if buffer:
-            buffer = _clean_model_output(buffer)
-            yield f"data: {json.dumps({'chunk': buffer, 'done': True})}\n\n"
-        yield "data: [DONE]\n\n"
+                if not line.startswith("data: "):
+                    continue
+
+                data = line.removeprefix("data: ").strip()
+                if data == "[DONE]":
+                    if buffer:
+                        cleaned = _finalize_tutor_answer(buffer, request)
+                        yield f"data: {json.dumps({'chunk': cleaned, 'done': True})}\n\n"
+                    yield "data: [DONE]\n\n"
+                    return
+
+                try:
+                    payload_data = json.loads(data)
+                except json.JSONDecodeError:
+                    continue
+
+                delta = payload_data.get("choices", [{}])[0].get("delta", {})
+                chunk = delta.get("content") or ""
+                if chunk:
+                    buffer += chunk
+                    if len(buffer) >= settings.stream_batch_chars:
+                        cleaned = _finalize_tutor_answer(buffer, request)
+                        yield f"data: {json.dumps({'chunk': cleaned, 'done': False})}\n\n"
+                        buffer = ""
+                        last_emit = time.monotonic()
+
+            if buffer:
+                cleaned = _finalize_tutor_answer(buffer, request)
+                yield f"data: {json.dumps({'chunk': cleaned, 'done': True})}\n\n"
+            yield "data: [DONE]\n\n"
+        finally:
+            reader_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await reader_task
 
     return event_stream()
 

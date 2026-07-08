@@ -30,7 +30,7 @@ from qdrant_client.models import PointStruct
 
 from app.pack_storage.pack_repository import PackRepository
 from app.semantic_content_pipeline import SemanticContentPipeline
-from shared.text_normalization import normalize_curriculum_name
+from shared.text_normalization import language_filter_values, normalize_curriculum_name, normalize_language_code
 
 logger = logging.getLogger(__name__)
 
@@ -102,7 +102,7 @@ class PackGenerator:
             Pack ID
         """
         normalized_subject = normalize_curriculum_name(subject)
-        normalized_language = normalize_curriculum_name(language)
+        normalized_language = normalize_language_code(language) or normalize_curriculum_name(language)
         pack_id = f"class{grade}_{self._pack_id_part(normalized_subject)}_{self._pack_id_part(normalized_language)}"
         logger.info(f"Starting class pack generation: {pack_id}")
         
@@ -143,7 +143,7 @@ class PackGenerator:
         """Generate a pack for a specific chapter"""
         normalized_subject = normalize_curriculum_name(subject)
         normalized_chapter = normalize_curriculum_name(chapter)
-        normalized_language = normalize_curriculum_name(language)
+        normalized_language = normalize_language_code(language) or normalize_curriculum_name(language)
         pack_id = f"chapter_{grade}_{self._pack_id_part(normalized_subject)}_{self._pack_id_part(normalized_chapter)}_{self._pack_id_part(normalized_language)}"
         logger.info(f"Starting chapter pack generation: {pack_id}")
         
@@ -182,7 +182,7 @@ class PackGenerator:
         quantize_embeddings: bool = False
     ) -> str:
         """Generate a language-specific pack"""
-        normalized_language = normalize_curriculum_name(language)
+        normalized_language = normalize_language_code(language) or normalize_curriculum_name(language)
         normalized_subject = normalize_curriculum_name(subject) if subject else None
         subject_str = f"_{self._pack_id_part(normalized_subject)}" if normalized_subject else ""
         grade_str = f"_{grade}" if grade else ""
@@ -312,6 +312,9 @@ class PackGenerator:
         if value is None:
             return None
         if isinstance(value, str):
+            language_code = normalize_language_code(value)
+            if language_code in {"en", "hi", "kn"}:
+                return language_code
             return normalize_curriculum_name(value)
         return value
 
@@ -417,6 +420,16 @@ class PackGenerator:
         ):
             if value is None:
                 continue
+            if key == "language" and isinstance(value, str):
+                language_values = language_filter_values(value)
+                if len(language_values) > 1:
+                    conditions.append({"key": key, "match": {"any": language_values}})
+                    must_conditions.append(models.FieldCondition(key=key, match=models.MatchAny(any=language_values)))
+                    continue
+                value = normalize_language_code(value)
+            else:
+                if isinstance(value, str):
+                    value = normalize_curriculum_name(value)
             conditions.append({"key": key, "match": {"value": value}})
             must_conditions.append(models.FieldCondition(key=key, match=models.MatchValue(value=value)))
 
@@ -537,10 +550,10 @@ class PackGenerator:
             from qdrant_client import models
             print("\n--- RUNNING DEBUG PACK QUERY ---")
             
-            language = "english"
+            language = "en"
             normalized_subject = normalize_curriculum_name(subject)
             normalized_chapter = normalize_curriculum_name(chapter)
-            normalized_language = normalize_curriculum_name(language)
+            normalized_language = normalize_language_code(language) or normalize_curriculum_name(language)
             
             # Filter A: All fields
             must_conditions_A = [

@@ -20,10 +20,25 @@ class FasterWhisperBackend(VoiceBackend):
         self.device = os.getenv("WHISPER_DEVICE", "cpu")
         self.compute_type = os.getenv("WHISPER_COMPUTE_TYPE", "int8")
         self.last_error: str | None = None
-        self._load_model()
+        self.loaded = False
+        self.load_time_ms: float | None = None
+
+    async def initialize(self) -> None:
+        if self.model is not None:
+            self.loaded = True
+            return
+        started = time.perf_counter()
+        try:
+            await asyncio.to_thread(self._load_model)
+            self.load_time_ms = (time.perf_counter() - started) * 1000
+            self.loaded = self.model is not None
+        except Exception:
+            self.loaded = False
+            raise
 
     def _load_model(self) -> None:
         if FasterWhisperBackend._model_instance is not None:
+            self.loaded = True
             return
         try:
             from faster_whisper import WhisperModel
@@ -41,6 +56,7 @@ class FasterWhisperBackend(VoiceBackend):
                 download_root="/models",
             )
             logger.info("Faster Whisper model loaded successfully")
+            self.loaded = True
         except Exception as exc:
             self.last_error = str(exc)
             logger.error("Failed to load Faster Whisper model: %s", exc)
@@ -51,6 +67,10 @@ class FasterWhisperBackend(VoiceBackend):
         return FasterWhisperBackend._model_instance
 
     async def transcribe(self, audio: bytes, language: str | None = None) -> Transcript:
+        if self.model is None:
+            await self.initialize()
+        if self.model is None:
+            raise RuntimeError(self.last_error or "Faster Whisper model is not loaded")
         started = time.perf_counter()
 
         def run_transcribe() -> tuple[str, object, list[str], list[dict[str, object]]]:
@@ -115,6 +135,7 @@ class FasterWhisperBackend(VoiceBackend):
             "device": self.device,
             "compute_type": self.compute_type,
             "last_error": self.last_error,
+            "load_time_ms": self.load_time_ms,
         }
 
     async def metrics(self) -> dict[str, object]:
@@ -125,6 +146,7 @@ class FasterWhisperBackend(VoiceBackend):
             "fallback_active": False,
             "model_name": self.model_size,
             "last_error": self.last_error,
+            "backend_latency": self.load_time_ms,
         }
 
 

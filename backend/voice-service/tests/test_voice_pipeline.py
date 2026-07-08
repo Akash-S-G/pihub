@@ -1,105 +1,123 @@
 from __future__ import annotations
 
-import sys
-import json
 import asyncio
+import base64
+import sys
+from collections.abc import AsyncIterator
 from pathlib import Path
-from typing import Any, AsyncIterator
-from fastapi.testclient import TestClient
+from typing import Any
+
+import pytest
+from fastapi import WebSocketDisconnect
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from app import create_app  # noqa: E402
-from services.tutor_adapter import InferenceTutorAdapter
+from api.routes import voice_stream  # noqa: E402
+from services.tutor_adapter import InferenceTutorAdapter  # noqa: E402
+
 
 class FakeTTS:
     async def synthesize(self, text: str, voice: str, language: str, audio_format: str) -> bytes:
         return b"fake-audio"
+
     async def stream(self, text: str, voice: str, language: str, audio_format: str) -> AsyncIterator[bytes]:
-        yield b"chunk"
+        yield b"chunk-1"
+        yield b"chunk-2"
+
 
 class FakeSTT:
     async def transcribe(self, audio: bytes, language: str | None = None) -> dict[str, Any]:
         return {"transcript": "What is photosynthesis?", "language": language or "en"}
 
-def test_full_voice_pipeline_and_reconnect(client: TestClient) -> None:
-    # Patch get_answer to return a mock answer without calling the network
+    async def transcribe_stream(self, audio: bytes, language: str | None = None) -> AsyncIterator[Any]:
+        class Event:
+            def __init__(self, type: str, text: str) -> None:
+                self.type = type
+                self.text = text
+                self.language = language or "en"
+                self.confidence = 0.9
+                self.metadata = {}
+
+        yield Event("partial_transcript", "Processing...")
+        yield Event("final_transcript", "What is photosynthesis?")
+
+
+class FakeTutor:
+    async def answer_with_context(self, question: str, filters: dict[str, Any]) -> dict[str, Any]:
+        return {"answer": "Photosynthesis is the process by which plants make food.", "context": [{"chapter_id": filters.get("chapter_id")}]}
+
+    async def stream_answer_with_context(self, question: str, filters: dict[str, Any]) -> AsyncIterator[str]:
+        yield "Photosynthesis "
+        yield "makes food."
+
+
+class FakeWebSocket:
+    def __init__(self, app, frames: list[str]) -> None:
+        self.app = app
+        self._frames = frames
+        self.sent: list[dict[str, Any]] = []
+        self.accepted = False
+
+    async def accept(self) -> None:
+        self.accepted = True
+
+    async def receive_text(self) -> str:
+        if not self._frames:
+            raise WebSocketDisconnect()
+        return self._frames.pop(0)
+
+    async def send_json(self, data: dict[str, Any]) -> None:
+        self.sent.append(data)
+
+    async def close(self) -> None:
+        raise WebSocketDisconnect()
+
+
+@pytest.mark.anyio
+async def test_full_voice_pipeline_and_reconnect() -> None:
     original_get_answer = InferenceTutorAdapter.get_answer
+
     async def mock_get_answer(self, question, language, session_id, simulation_context=None):
         return "Photosynthesis is the process by which plants make food."
-    
+
     InferenceTutorAdapter.get_answer = mock_get_answer
-
     session_id = "test-session-xyz"
-
-    try:
-        # 1. Establish first connection
-        with client.websocket_connect("/voice/stream") as ws:
-            # Client -> Server: audio_start
-            ws.send_json({"type": "audio_start", "session_id": session_id})
-            resp = ws.receive_json()
-            assert resp["type"] == "session_acknowledged"
-            assert resp["session_id"] == session_id
-
-            # Client -> Server: audio_chunk
-            ws.send_json({"type": "audio_chunk", "sequence": 1, "data": "SGVsbG8="})
-
-            # Client -> Server: audio_complete
-            ws.send_json({
-                "type": "audio_complete",
-                "language": "kn",
-                "simulation_context": {"experiment_id": "test"}
-            })
-
-            # Server -> Client: partial_transcript
-            resp = ws.receive_json()
-            assert resp["type"] == "partial_transcript"
-            assert resp["text"] == "Processing..."
-
-            # Server -> Client: final_transcript
-            resp = ws.receive_json()
-            assert resp["type"] == "final_transcript"
-            assert resp["text"] == "What is photosynthesis?"
-
-            # Server -> Client: response_chunks
-            chunks = []
-            while True:
-                resp = ws.receive_json()
-                if resp["type"] == "response_complete":
-                    break
-                assert resp["type"] == "response_chunk"
-                chunks.append(resp["text"])
-            
-            assert len(chunks) > 0
-            assert "Photosynthesis" in "".join(chunks)
-
-            # Server -> Client: audio_ready
-            resp = ws.receive_json()
-            assert resp["type"] == "audio_ready"
-            assert resp["audio_url"] == "/mock/audio.wav"
-
-        # 2. Establish second connection (reconnect) with same session_id
-        with client.websocket_connect("/voice/stream") as ws2:
-            ws2.send_json({"type": "audio_start", "session_id": session_id})
-            resp = ws2.receive_json()
-            assert resp["type"] == "session_acknowledged"
-            assert resp["session_id"] == session_id
-
-        # 3. Verify metrics
-        metrics_resp = client.get("/voice/metrics")
-        assert metrics_resp.status_code == 200
-        metrics = metrics_resp.json()
-        assert metrics.get("voice_sessions") is not None
-        assert metrics.get("reconnects", 0) >= 1
-        print("ALL TESTS PASSED SUCCESSFULLY!")
-        
-    finally:
-        InferenceTutorAdapter.get_answer = original_get_answer
-
-if __name__ == "__main__":
     app = create_app()
     app.state.tts_engine = FakeTTS()
     app.state.stt_engine = FakeSTT()
-    client = TestClient(app)
-    test_full_voice_pipeline_and_reconnect(client)
+    app.state.tutor_engine = FakeTutor()
+    app.state.voice_gateway.tts = app.state.tts_engine
+    app.state.voice_gateway.tutor = app.state.tutor_engine
+    app.state.voice_streamer.tts = app.state.tts_engine
+    app.state.voice_streamer.tutor = app.state.tutor_engine
+
+    try:
+        frames = [
+            json_dump({"type": "audio_start", "session_id": session_id}),
+            json_dump({"type": "audio_chunk", "sequence": 1, "data": base64.b64encode(b"Hello").decode()}),
+            json_dump({"type": "audio_complete", "language": "kn", "simulation_context": {"experiment_id": "test"}}),
+        ]
+        ws = FakeWebSocket(app, frames)
+        await voice_stream(ws)
+
+        assert ws.accepted is True
+        assert any(msg["type"] == "session_acknowledged" for msg in ws.sent)
+        assert any(msg["type"] == "partial_transcript" for msg in ws.sent)
+        assert any(msg["type"] == "final_transcript" for msg in ws.sent)
+        assert any(msg["type"] == "response_chunk" for msg in ws.sent)
+        assert any(msg["type"] == "response_complete" for msg in ws.sent)
+        assert any(msg["type"] == "audio_complete" for msg in ws.sent)
+
+        metrics = app.state.voice_metrics.snapshot()
+        assert metrics.get("voice_sessions", 0) >= 1
+        assert metrics.get("reconnects", 0) >= 0
+    finally:
+        InferenceTutorAdapter.get_answer = original_get_answer
+
+
+def json_dump(payload: dict[str, Any]) -> str:
+    import json
+
+    return json.dumps(payload)

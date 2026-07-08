@@ -25,9 +25,10 @@ from app.educational import (
     TutorContextBuilder,
     WorkedExampleBuilder,
 )
+from shared.text_normalization import normalize_language_code
 
 
-WORD_RE = re.compile(r"[A-Za-z0-9]+")
+WORD_RE = re.compile(r"[\w\u0900-\u097F\u0C80-\u0CFF]+")
 SENTENCE_END_RE = re.compile(r"[.!?]\s*$")
 CONTROL_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f]")
 
@@ -88,6 +89,22 @@ def token_set(text: str) -> set[str]:
         "law",
     }
     return {token.lower() for token in WORD_RE.findall(text or "") if len(token) > 2 and token.lower() not in stop}
+
+
+def contains_kannada(text: Any) -> bool:
+    return bool(re.search(r"[\u0C80-\u0CFF]", str(text or "")))
+
+
+def localized_text(text_en: str, text_kn: str, language: str | None) -> str:
+    return text_kn if normalize_language_code(language) == "kn" else text_en
+
+
+def localized_question(language: str | None, concept: str) -> str:
+    if normalize_language_code(language) == "kn":
+        return f"{concept} ಎಂದರೇನು, ಮತ್ತು ಅದು ಏಕೆ ಮುಖ್ಯ?"
+    if normalize_language_code(language) == "hi":
+        return f"{concept} क्या है, और यह क्यों महत्वपूर्ण है?"
+    return f"What is {concept}, and why is it important?"
 
 
 def is_toc_or_index(text: str) -> bool:
@@ -792,8 +809,8 @@ class SemanticContentPipeline:
             "subject": metadata.get("subject", pack_metadata.get("subject")),
             "chapter": metadata.get("chapter", pack_metadata.get("chapter")),
             "key_terms": key_terms,
-            "prerequisites": metadata.get("prerequisites") or infer_prerequisites(key_terms, pack_metadata),
-            "common_misconceptions": metadata.get("common_misconceptions") or infer_misconceptions(key_terms),
+            "prerequisites": metadata.get("prerequisites") or infer_prerequisites(key_terms, pack_metadata, metadata),
+            "common_misconceptions": metadata.get("common_misconceptions") or infer_misconceptions(key_terms, pack_metadata, metadata),
             "related_concepts": metadata.get("related_concepts") or key_terms[:8],
             "rag_eligible": True,
         }
@@ -871,15 +888,26 @@ class SemanticContentPipeline:
 
     def _generate_glossary(self, rows: list[dict[str, Any]], pack_metadata: dict[str, Any], concepts: list[EducationalConcept]) -> list[dict[str, Any]]:
         terms: dict[str, str] = {}
+        language = normalize_language_code(pack_metadata.get("language"))
         for concept in concepts:
             if is_good_flashcard_term(concept.name) and concept.name.lower() not in terms:
-                terms[concept.name.lower()] = concept.definition or f"Important concept in {pack_metadata.get('chapter') or 'this lesson'}."
+                fallback = localized_text(
+                    f"Important concept in {pack_metadata.get('chapter') or 'this lesson'}.",
+                    f"{pack_metadata.get('chapter') or 'ಈ ಪಾಠ'} ಯಲ್ಲಿನ ಪ್ರಮುಖ ಪರಿಕಲ್ಪನೆ.",
+                    language,
+                )
+                terms[concept.name.lower()] = concept.definition or fallback
         for row in rows:
             text = str(row.get("text") or "")
             for term in [value for value in extract_key_terms(text) if is_good_flashcard_term(value)][:6]:
                 if term.lower() not in terms:
-                    terms[term.lower()] = first_sentence_containing(text, term)[:280] or f"Important term in {pack_metadata.get('chapter') or 'this lesson'}."
-        return [{"term": key.title(), "definition": value} for key, value in list(terms.items())[:30]]
+                    fallback = localized_text(
+                        f"Important term in {pack_metadata.get('chapter') or 'this lesson'}.",
+                        f"{pack_metadata.get('chapter') or 'ಈ ಪಾಠ'} ಯಲ್ಲಿನ ಪ್ರಮುಖ ಪದ.",
+                        language,
+                    )
+                    terms[term.lower()] = first_sentence_containing(text, term)[:280] or fallback
+        return [{"term": key, "definition": value, "language": language} for key, value in list(terms.items())[:30]]
 
     def _generate_summaries(
         self,
@@ -888,6 +916,7 @@ class SemanticContentPipeline:
         pack_id: str,
         concepts: list[EducationalConcept],
     ) -> list[dict[str, Any]]:
+        language = normalize_language_code(pack_metadata.get("language"))
         built_worked_examples = [
             str(row.get("text") or "")
             for row in rows
@@ -896,13 +925,29 @@ class SemanticContentPipeline:
         if concepts:
             key_concepts = concepts[:30]
             sections = [
-                "Key Concepts: "
+                localized_text(
+                    "Key Concepts: ",
+                    "ಪ್ರಮುಖ ಪರಿಕಲ್ಪನೆಗಳು: ",
+                    language,
+                )
                 + "; ".join(f"{concept.name}: {concept.definition}" for concept in key_concepts if concept.definition),
-                "Definitions: " + "; ".join(f"{concept.name} means {concept.definition}" for concept in key_concepts if concept.definition),
-                "Worked Examples: " + "; ".join([*(example for concept in key_concepts for example in concept.worked_examples[:1]), *built_worked_examples])[:900],
-                "Formulae: " + "; ".join(formula for concept in key_concepts for formula in concept.formulas[:3]),
-                "Common Mistakes: " + "; ".join(misconception for concept in key_concepts for misconception in concept.common_misconceptions[:1])[:1200],
-                "Key Takeaways: "
+                localized_text(
+                    "Definitions: ",
+                    "ವ್ಯಾಖ್ಯಾನಗಳು: ",
+                    language,
+                )
+                + "; ".join(f"{concept.name} means {concept.definition}" for concept in key_concepts if concept.definition),
+                localized_text(
+                    "Worked Examples: ",
+                    "ಪರಿಹರಿಸಿದ ಉದಾಹರಣೆಗಳು: ",
+                    language,
+                )
+                + "; ".join([*(example for concept in key_concepts for example in concept.worked_examples[:1]), *built_worked_examples])[:900],
+                localized_text("Formulae: ", "ಸೂತ್ರಗಳು: ", language)
+                + "; ".join(formula for concept in key_concepts for formula in concept.formulas[:3]),
+                localized_text("Common Mistakes: ", "ಸಾಮಾನ್ಯ ತಪ್ಪುಗಳು: ", language)
+                + "; ".join(misconception for concept in key_concepts for misconception in concept.common_misconceptions[:1])[:1200],
+                localized_text("Key Takeaways: ", "ಮುಖ್ಯ ಅಂಶಗಳು: ", language)
                 + "; ".join(objective for concept in key_concepts for objective in concept.learning_objectives[:1])[:1600],
             ]
             text = "\n".join(section for section in sections if len(section.split(": ", 1)[-1].strip()) > 0)
@@ -939,6 +984,7 @@ class SemanticContentPipeline:
                 "title": pack_metadata.get("chapter") or pack_metadata.get("subject") or pack_id,
                 "text": " ".join(selected)[:1800],
                 "key_terms": key_terms[:12],
+                "language": language,
             }
         ]
 
@@ -950,15 +996,16 @@ class SemanticContentPipeline:
         concepts: list[EducationalConcept],
     ) -> list[dict[str, Any]]:
         quizzes: list[dict[str, Any]] = []
+        language = normalize_language_code(pack_metadata.get("language"))
         distractor_pool = extract_key_terms(
             " ".join(str(item.get("text") or "") for item in rag_content),
             limit=40,
         )
         for concept in concepts[:10]:
             objective = concept.learning_objectives[0] if concept.learning_objectives else f"Understand {concept.name}."
-            question = self._question_from_objective(objective, concept.name)
+            question = self._question_from_objective(objective, concept.name, language)
             answer = concept.definition or first_sentence(concept.examples[0] if concept.examples else concept.worked_examples[0] if concept.worked_examples else objective)
-            quizzes.append(self._quiz_item(question, answer, [*concept.related_concepts, *distractor_pool], source="learning_objective"))
+            quizzes.append(self._quiz_item(question, answer, [*concept.related_concepts, *distractor_pool], source="learning_objective", language=language))
             if len(quizzes) >= 10:
                 return quizzes
         for question in questions[:10]:
@@ -966,40 +1013,61 @@ class SemanticContentPipeline:
             if "?" in text:
                 prompt = text.split("?")[0][:180] + "?"
             else:
-                prompt = f"Explain one key idea from {pack_metadata.get('chapter') or 'this lesson'}."
-            answer = first_sentence(text) or "Use the lesson explanation."
-            quizzes.append(self._quiz_item(prompt, answer, distractor_pool, source="questions"))
+                prompt = localized_text(
+                    f"Explain one key idea from {pack_metadata.get('chapter') or 'this lesson'}.",
+                    f"{pack_metadata.get('chapter') or 'ಈ ಪಾಠ'} ಯಿಂದ ಒಂದು ಪ್ರಮುಖ ಕಲ್ಪನೆಯನ್ನು ವಿವರಿಸಿ.",
+                    language,
+                )
+            answer = first_sentence(text) or localized_text("Use the lesson explanation.", "ಪಾಠದ ವಿವರಣೆಯನ್ನು ಬಳಸಿ.", language)
+            quizzes.append(self._quiz_item(prompt, answer, distractor_pool, source="questions", language=language))
         for item in rag_content[: max(0, 10 - len(quizzes))]:
             terms = item.get("metadata", {}).get("key_terms", [])
-            term = terms[0] if terms else pack_metadata.get("chapter") or "the concept"
+            term = terms[0] if terms else pack_metadata.get("chapter") or localized_text("the concept", "ಆ ಪರಿಕಲ್ಪನೆ", language)
             answer = first_sentence(str(item.get("text") or ""))[:360]
-            quizzes.append(self._quiz_item(f"What is {term}?", answer, distractor_pool, source="concept"))
+            quizzes.append(self._quiz_item(localized_question(language, term), answer, distractor_pool, source="concept", language=language))
         return quizzes
 
     @staticmethod
-    def _question_from_objective(objective: str, concept_name: str) -> str:
+    def _question_from_objective(objective: str, concept_name: str, language: str | None) -> str:
         lowered = objective.lower()
         if "calculate" in lowered:
-            return f"How do you calculate or use {concept_name}?"
+            return localized_text(
+                f"How do you calculate or use {concept_name}?",
+                f"{concept_name} ಅನ್ನು ಹೇಗೆ ಲೆಕ್ಕ ಹಾಕುವುದು ಅಥವಾ ಬಳಸುವುದು?",
+                language,
+            )
         if "compare" in lowered:
-            return f"How would you compare {concept_name} with a related concept?"
+            return localized_text(
+                f"How would you compare {concept_name} with a related concept?",
+                f"{concept_name} ಅನ್ನು ಸಂಬಂಧಿತ ಪರಿಕಲ್ಪನೆಯೊಂದಿಗೆ ಹೇಗೆ ಹೋಲಿಸುತ್ತೀರಿ?",
+                language,
+            )
         if "identify" in lowered:
-            return f"How can you identify {concept_name} in a lesson or example?"
-        return f"What is {concept_name}, and why is it important?"
+            return localized_text(
+                f"How can you identify {concept_name} in a lesson or example?",
+                f"ಪಾಠ ಅಥವಾ ಉದಾಹರಣೆಯಲ್ಲಿ {concept_name} ಅನ್ನು ಹೇಗೆ ಗುರುತಿಸುತ್ತೀರಿ?",
+                language,
+            )
+        return localized_question(language, concept_name)
 
     @staticmethod
-    def _quiz_item(question: str, answer: str, distractor_pool: list[str], source: str) -> dict[str, Any]:
-        answer = answer or "Review the lesson explanation."
+    def _quiz_item(question: str, answer: str, distractor_pool: list[str], source: str, language: str | None = None) -> dict[str, Any]:
+        language = normalize_language_code(language) or ("kn" if contains_kannada(question) or contains_kannada(answer) else "en")
+        answer = answer or localized_text("Review the lesson explanation.", "ಪಾಠದ ವಿವರಣೆಯನ್ನು ಪರಿಶೀಲಿಸಿ.", language)
         answer_label = "A"
         distractors = [term.title() for term in distractor_pool if term.lower() not in answer.lower() and term.lower() not in question.lower()]
-        option_texts = [answer, *[f"Only related to {term}" for term in distractors[:3]]]
+        option_texts = [answer, *[localized_text(f"Only related to {term}", f"{term} ಗೆ ಮಾತ್ರ ಸಂಬಂಧಿತ", language) for term in distractors[:3]]]
         while len(option_texts) < 4:
-            option_texts.append("A related but incomplete idea from the chapter")
+            option_texts.append(localized_text("A related but incomplete idea from the chapter", "ಅಧ್ಯಾಯಕ್ಕೆ ಸಂಬಂಧಿಸಿದ ಆದರೆ ಅಪೂರ್ಣ ಕಲ್ಪನೆ", language))
         return {
             "question": question,
             "options": [{"label": chr(ord("A") + idx), "text": text[:220]} for idx, text in enumerate(option_texts[:4])],
             "correct_answer": answer,
-            "explanation": f"The correct answer is supported by the chapter text: {answer[:240]}",
+            "explanation": localized_text(
+                f"The correct answer is supported by the chapter text: {answer[:240]}",
+                f"ಸರಿಯಾದ ಉತ್ತರವನ್ನು ಅಧ್ಯಾಯದ ಪಠ್ಯ ಬೆಂಬಲಿಸುತ್ತದೆ: {answer[:240]}",
+                language,
+            ),
             "difficulty": "medium",
             "source": source,
             "answer_label": answer_label,
@@ -1012,16 +1080,25 @@ class SemanticContentPipeline:
         pack_metadata: dict[str, Any],
     ) -> list[dict[str, Any]]:
         cards = [{"front": item["term"], "back": item["definition"]} for item in glossary[:20]]
+        language = normalize_language_code(pack_metadata.get("language"))
         seen = {normalize_text(card["front"]) for card in cards}
         for item in rag_content:
             worked_example = item.get("metadata", {}).get("worked_example")
             if worked_example:
                 concepts = item.get("metadata", {}).get("concepts_used", [])
-                front = f"How do you solve a {item.get('metadata', {}).get('problem_type', 'worked example')} problem?"
+                front = localized_text(
+                    f"How do you solve a {item.get('metadata', {}).get('problem_type', 'worked example')} problem?",
+                    f"{item.get('metadata', {}).get('problem_type', 'worked example')} ಸಮಸ್ಯೆಯನ್ನು ಹೇಗೆ ಪರಿಹರಿಸುತ್ತೀರಿ?",
+                    language,
+                )
                 if concepts:
-                    front = f"How do you use {str(concepts[0]).title()} in a worked example?"
+                    front = localized_text(
+                        f"How do you use {str(concepts[0]).title()} in a worked example?",
+                        f"ಕಾರ್ಯಗತ ಉದಾಹರಣೆಯಲ್ಲಿ {str(concepts[0]).title()} ಅನ್ನು ಹೇಗೆ ಬಳಸುತ್ತೀರಿ?",
+                        language,
+                    )
                 if normalize_text(front) not in seen:
-                    cards.append({"front": front, "back": first_sentence(str(item.get("text") or ""))[:320]})
+                    cards.append({"front": front, "back": first_sentence(str(item.get("text") or ""))[:320], "language": language})
                     seen.add(normalize_text(front))
                     if len(cards) >= 30:
                         break
@@ -1032,7 +1109,7 @@ class SemanticContentPipeline:
             if normalize_text(front) in seen:
                 continue
             back = first_sentence_containing(str(item.get("text") or ""), terms[0]) or first_sentence(str(item.get("text") or ""))
-            cards.append({"front": front, "back": back[:320]})
+            cards.append({"front": front, "back": back[:320], "language": language})
             seen.add(normalize_text(front))
             if len(cards) >= 30:
                 break
@@ -1148,13 +1225,17 @@ def extract_key_terms(text: str, limit: int = 16) -> list[str]:
         "class",
         "part",
     }
-    counts = Counter(token.lower() for token in WORD_RE.findall(text or "") if len(token) >= 4 and token.lower() not in stop and not token.isdigit())
+    counts = Counter(token.lower() for token in WORD_RE.findall(text or "") if len(token) >= 2 and token.lower() not in stop and not token.isdigit())
     return [term for term, _ in counts.most_common(limit)]
 
 
 def is_good_flashcard_term(term: str) -> bool:
     normalized = normalize_text(term)
-    if not normalized or len(normalized) < 4:
+    if not normalized:
+        return False
+    if contains_kannada(normalized) and len(normalized) < 2:
+        return False
+    if not contains_kannada(normalized) and len(normalized) < 4:
         return False
     bad = {
         "image",
@@ -1176,7 +1257,7 @@ def is_good_flashcard_term(term: str) -> bool:
 
 
 def split_sentences(text: str) -> list[str]:
-    return [item.strip() for item in re.split(r"(?<=[.!?])\s+", text or "") if item.strip()]
+    return [item.strip() for item in re.split(r"(?<=[.!?।॥])\s+", text or "") if item.strip()]
 
 
 def first_sentence(text: str) -> str:
@@ -1206,34 +1287,54 @@ def infer_difficulty(metadata: dict[str, Any]) -> str:
 def learning_objective(metadata: dict[str, Any], pack_metadata: dict[str, Any], text: str) -> str:
     topic = metadata.get("topic") or metadata.get("section") or pack_metadata.get("chapter") or pack_metadata.get("subject") or "the concept"
     content_type = metadata.get("content_type", "concept")
+    language = normalize_language_code(metadata.get("language") or pack_metadata.get("language"))
     if content_type == "worked_example":
-        return f"Solve and explain worked examples related to {topic}."
+        return localized_text(
+            f"Solve and explain worked examples related to {topic}.",
+            f"{topic} ಗೆ ಸಂಬಂಧಿಸಿದ ಕಾರ್ಯಗತ ಉದಾಹರಣೆಗಳನ್ನು ಪರಿಹರಿಸಿ ಮತ್ತು ವಿವರಿಸಿ.",
+            language,
+        )
     if content_type == "example":
-        return f"Connect examples to the core idea of {topic}."
-    return f"Understand and explain {topic}."
+        return localized_text(
+            f"Connect examples to the core idea of {topic}.",
+            f"ಉದಾಹರಣೆಗಳನ್ನು {topic} ನ ಪ್ರಮುಖ ಕಲ್ಪನೆಯೊಂದಿಗೆ ಸಂಪರ್ಕಿಸಿ.",
+            language,
+        )
+    return localized_text(
+        f"Understand and explain {topic}.",
+        f"{topic} ಅನ್ನು ಅರ್ಥಮಾಡಿಕೊಂಡು ವಿವರಿಸಿ.",
+        language,
+    )
 
 
-def infer_prerequisites(key_terms: list[str], metadata: dict[str, Any]) -> list[str]:
+def infer_prerequisites(key_terms: list[str], metadata: dict[str, Any], row_metadata: dict[str, Any] | None = None) -> list[str]:
     subject = normalize_text(metadata.get("subject"))
+    language = normalize_language_code((row_metadata or {}).get("language") or metadata.get("language"))
     prerequisites: list[str] = []
     if subject in {"math", "maths", "mathematics"}:
-        prerequisites.extend(["number sense", "basic operations"])
+        prerequisites.extend(
+            [
+                localized_text("number sense", "ಸಂಖ್ಯಾ ಅರಿವು", language),
+                localized_text("basic operations", "ಮೂಲ ಗಣಿತ ಕ್ರಿಯೆಗಳು", language),
+            ]
+        )
     if "photosynthesis" in key_terms:
-        prerequisites.append("parts of a plant")
+        prerequisites.append(localized_text("parts of a plant", "ಸಸ್ಯದ ಭಾಗಗಳು", language))
     if "democracy" in key_terms:
-        prerequisites.append("government")
+        prerequisites.append(localized_text("government", "ಸರ್ಕಾರ", language))
     return prerequisites[:6]
 
 
-def infer_misconceptions(key_terms: list[str]) -> list[str]:
+def infer_misconceptions(key_terms: list[str], metadata: dict[str, Any] | None = None, row_metadata: dict[str, Any] | None = None) -> list[str]:
     misconceptions: list[str] = []
     terms = {term.lower() for term in key_terms}
+    language = normalize_language_code((row_metadata or {}).get("language") or (metadata or {}).get("language"))
     if "photosynthesis" in terms:
-        misconceptions.append("Plants get all their food directly from soil.")
+        misconceptions.append(localized_text("Plants get all their food directly from soil.", "ಸಸ್ಯಗಳು ತಮ್ಮ ಆಹಾರವನ್ನು ನೇರವಾಗಿ ಮಣ್ಣಿನಿಂದ ಪಡೆಯುತ್ತವೆ.", language))
     if "force" in terms:
-        misconceptions.append("Motion always requires a continuous force.")
+        misconceptions.append(localized_text("Motion always requires a continuous force.", "ಚಲನೆಗೆ ಯಾವಾಗಲೂ ನಿರಂತರ ಬಲ ಬೇಕು.", language))
     if "fraction" in terms or "fractions" in terms:
-        misconceptions.append("A larger denominator always means a larger fraction.")
+        misconceptions.append(localized_text("A larger denominator always means a larger fraction.", "ಹೆಚ್ಚಿನ ಹರವು ಯಾವಾಗಲೂ ದೊಡ್ಡ ಭಿನ್ನರಾಶಿಯನ್ನು ಸೂಚಿಸುತ್ತದೆ.", language))
     return misconceptions[:5]
 
 

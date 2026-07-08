@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     experiment_service_required: bool = Field(default=False, alias="EXPERIMENT_SERVICE_REQUIRED")
     voice_service_url: str = Field(default="http://voice-service:8050", alias="VOICE_SERVICE_URL")
     voice_service_required: bool = Field(default=False, alias="VOICE_SERVICE_REQUIRED")
+    gateway_http_timeout_seconds: float = Field(default=900.0, alias="GATEWAY_HTTP_TIMEOUT_SECONDS")
     qdrant_url: str = Field(default="http://qdrant:6333", alias="QDRANT_URL")
     qdrant_collection: str = Field(default="educational_chunks_bge_m3", alias="QDRANT_COLLECTION")
 

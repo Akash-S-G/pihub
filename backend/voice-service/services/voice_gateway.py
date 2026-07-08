@@ -51,7 +51,7 @@ class VoiceGateway:
         cached = await self.cache.get(key)
         if cached:
             self.metrics.increment("audio_cache_hits")
-            return VoiceQueryResponse.model_validate(cached)
+            return _model_validate(VoiceQueryResponse, cached)
         self.metrics.increment("audio_cache_misses")
 
         filters = {
@@ -78,7 +78,7 @@ class VoiceGateway:
             context_used=context,
             metrics=self._duration(started),
         )
-        await self.cache.set(key, response.model_dump(), ttl_seconds=3600)
+        await self.cache.set(key, _model_dump(response), ttl_seconds=3600)
         return response
 
     async def tts_only(self, request: TTSRequest) -> TTSResponse:
@@ -88,7 +88,7 @@ class VoiceGateway:
             cached = await self.cache.get(key)
             if cached:
                 self.metrics.increment("audio_cache_hits")
-                return TTSResponse.model_validate(cached).model_copy(update={"cache_status": CacheStatus.hit})
+                return _model_copy(_model_validate(TTSResponse, cached), update={"cache_status": CacheStatus.hit})
         self.metrics.increment("audio_cache_misses")
         audio_result = await self._synthesize_audio(request.text, request.voice, request.language, request.format)
         audio = audio_result["content"]
@@ -102,7 +102,7 @@ class VoiceGateway:
             duration_ms=audio_result.get("duration_ms"),
         )
         if request.cache:
-            await self.cache.set(key, response.model_dump(), ttl_seconds=3600)
+            await self.cache.set(key, _model_dump(response), ttl_seconds=3600)
         return response
 
     async def _synthesize_audio(self, text: str, voice: str, language: str, audio_format: str) -> dict[str, Any]:
@@ -123,9 +123,33 @@ class VoiceGateway:
 
     @staticmethod
     def _query_key(request: VoiceQueryRequest) -> str:
-        payload = request.model_dump_json(exclude_none=True)
+        payload = _model_dump_json(request, exclude_none=True)
         return "voice_query:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
     @staticmethod
     def _duration(started: float) -> dict[str, Any]:
         return {"voice_response_time_ms": round((time.perf_counter() - started) * 1000, 2)}
+
+
+def _model_dump(model: Any) -> dict[str, Any]:
+    if hasattr(model, "model_dump"):
+        return model.model_dump()
+    return model.dict()
+
+
+def _model_dump_json(model: Any, **kwargs: Any) -> str:
+    if hasattr(model, "model_dump_json"):
+        return model.model_dump_json(**kwargs)
+    return model.json(**kwargs)
+
+
+def _model_validate(model_cls: Any, data: Any) -> Any:
+    if hasattr(model_cls, "model_validate"):
+        return model_cls.model_validate(data)
+    return model_cls.parse_obj(data)
+
+
+def _model_copy(model: Any, *, update: dict[str, Any]) -> Any:
+    if hasattr(model, "model_copy"):
+        return model.model_copy(update=update)
+    return model.copy(update=update)

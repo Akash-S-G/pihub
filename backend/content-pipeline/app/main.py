@@ -28,7 +28,7 @@ from shared.schemas import (
     SearchRequest,
     SearchResponse,
 )
-from shared.text_normalization import normalize_curriculum_name
+from shared.text_normalization import normalize_curriculum_name, normalize_language_code
 from shared.vector_store import build_filter, ensure_collection, make_qdrant_client, upsert_chunks
 
 logger = logging.getLogger(__name__)
@@ -450,7 +450,7 @@ class Pipeline:
         if merged.get("subject"):
             merged["subject"] = normalize_curriculum_name(str(merged["subject"]))
         if merged.get("language"):
-            merged["language"] = normalize_curriculum_name(str(merged["language"]))
+            merged["language"] = normalize_language_code(str(merged["language"])) or normalize_curriculum_name(str(merged["language"]))
         if source:
             merged["source"] = source
         return merged
@@ -513,7 +513,7 @@ class Pipeline:
         for chunk in chunks:
             metadata = {**base_metadata, **chunk.get("metadata", {})}
             metadata.setdefault("source", base_metadata.get("source", "upload"))
-            metadata.setdefault("language", base_metadata.get("language", "english"))
+            metadata.setdefault("language", base_metadata.get("language", "en"))
             inferred_subject = metadata.get("subject") or self.curriculum_graph.infer_subject_for_query(chunk.get("text", ""))
             if inferred_subject:
                 metadata["subject"] = normalize_curriculum_name(str(inferred_subject))
@@ -529,7 +529,7 @@ class Pipeline:
             if metadata.get("section"):
                 metadata["section"] = normalize_curriculum_name(str(metadata["section"]))
             if metadata.get("language"):
-                metadata["language"] = normalize_curriculum_name(str(metadata["language"]))
+                metadata["language"] = normalize_language_code(str(metadata["language"])) or normalize_curriculum_name(str(metadata["language"]))
             enriched.append({"text": chunk["text"], "metadata": metadata})
         return enriched
 
@@ -1085,7 +1085,7 @@ class Pipeline:
             grade=first.get("grade"),
             subject=normalize_curriculum_name(str(first.get("subject"))) if first.get("subject") is not None else None,
             chapter=normalize_curriculum_name(str(first.get("chapter"))) if first.get("chapter") is not None else None,
-            language=normalize_curriculum_name(str(first.get("language"))) if first.get("language") is not None else None,
+            language=normalize_language_code(str(first.get("language"))) if first.get("language") is not None else None,
             file_count=1,
             chunk_count=len(chunks),
         )
@@ -1093,7 +1093,7 @@ class Pipeline:
             grade=first.get("grade"),
             subject=normalize_curriculum_name(str(first.get("subject"))) if first.get("subject") is not None else None,
             chapter=normalize_curriculum_name(str(first.get("chapter"))) if first.get("chapter") is not None else None,
-            language=normalize_curriculum_name(str(first.get("language"))) if first.get("language") is not None else None,
+            language=normalize_language_code(str(first.get("language"))) if first.get("language") is not None else None,
             source=first.get("source"),
             curriculum_topics=topics,
             resource_types=resource_types,

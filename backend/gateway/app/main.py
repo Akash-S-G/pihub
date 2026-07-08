@@ -60,7 +60,7 @@ DEMO_TOPICS: list[dict[str, Any]] = [
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.http = httpx.AsyncClient(timeout=300.0)
+    app.state.http = httpx.AsyncClient(timeout=settings.gateway_http_timeout_seconds)
     app.state.experiment_client = ExperimentServiceClient(
         app.state.http,
         settings.experiment_service_url,

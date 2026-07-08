@@ -28,7 +28,7 @@ from pathlib import Path
 from typing import Any
 
 from shared.config import get_settings
-from shared.text_normalization import normalize_curriculum_name
+from shared.text_normalization import normalize_curriculum_name, normalize_language_code
 
 import logging
 
@@ -51,13 +51,13 @@ class TextbookMetadataExtractor:
     def detect_language_from_text(cls, text: str) -> str:
         lower_text = text.lower()
         if any("\u0c80" <= char <= "\u0cff" for char in text):
-            return "kannada"
+            return "kn"
         if any("\u0900" <= char <= "\u097f" for char in text):
-            return "hindi"
+            return "hi"
         for language in cls.LANGUAGES:
             if language in lower_text:
-                return language
-        return "english"
+                return normalize_language_code(language) or language
+        return "en"
     
     @classmethod
     def extract_from_path(cls, file_path: Path) -> dict[str, Any]:
@@ -81,9 +81,9 @@ class TextbookMetadataExtractor:
         filename_tokens = set(re.findall(r"[a-z0-9]+", filename.lower()))
 
         language_aliases = {
-            "english": {"english", "eng"},
-            "kannada": {"kannada", "kan", "kannada_medium"},
-            "hindi": {"hindi", "hin"},
+            "en": {"english", "eng", "en"},
+            "kn": {"kannada", "kan", "kannada_medium", "kn"},
+            "hi": {"hindi", "hin", "hi"},
             "marathi": {"marathi", "mar"},
             "tamil": {"tamil", "tam"},
             "telugu": {"telugu", "tel"},
@@ -153,12 +153,12 @@ class TextbookMetadataExtractor:
         # Extract language if specified in path
         for lang in cls.LANGUAGES:
             if lang in str(file_path).lower():
-                metadata["language"] = lang
+                metadata["language"] = normalize_language_code(lang) or lang
                 break
-        
+
         # Default to English if not specified
         if "language" not in metadata:
-            metadata["language"] = "english"
+            metadata["language"] = "en"
         
         # Extract textbook name / chapter from filename and sanitize
         # cleanup trailing dashes, separators, and trailing numbers
@@ -170,7 +170,7 @@ class TextbookMetadataExtractor:
 
         for language, aliases in language_aliases.items():
             if any(alias in str(file_path).lower() for alias in aliases):
-                metadata["language"] = language
+                metadata["language"] = normalize_language_code(language) or language
                 break
         
         return metadata
@@ -179,7 +179,7 @@ class TextbookMetadataExtractor:
     def merge_text_metadata(cls, metadata: dict[str, Any], text: str) -> dict[str, Any]:
         merged = dict(metadata)
         language = merged.get("language")
-        if not language or language == "english":
+        if not language or normalize_language_code(language) == "en":
             merged["language"] = cls.detect_language_from_text(text)
         # Clean chapter trailing characters
         if merged.get("chapter"):
@@ -187,7 +187,7 @@ class TextbookMetadataExtractor:
         if merged.get("subject"):
             merged["subject"] = normalize_curriculum_name(str(merged.get("subject")))
         if merged.get("language"):
-            merged["language"] = normalize_curriculum_name(str(merged.get("language")))
+            merged["language"] = normalize_language_code(str(merged.get("language"))) or normalize_curriculum_name(str(merged.get("language")))
         if merged.get("textbook_name"):
             merged["textbook_name"] = normalize_curriculum_name(str(merged.get("textbook_name")))
         return merged
