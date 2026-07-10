@@ -1,0 +1,149 @@
+Missing: grade=grade_3 subject=mathematics slug=time_goes_on pdf=TEXTBOOKS/mathematics/class 3/time_goes_on.pdf
+Missing: grade=grade_3 subject=mathematics slug=what_s_in_a_name pdf=TEXTBOOKS/mathematics/class 3/what_s_in_a_name.pdf
+Missing: grade=grade_3 subject=mathematics slug=house_of_hundreds_ii pdf=TEXTBOOKS/mathematics/class 3/house_of_hundreds_ii.pdf
+Missing: grade=grade_3 subject=mathematics slug=the_surajkund_fair pdf=TEXTBOOKS/mathematics/class 3/the_surajkund_fair.pdf
+Missing: grade=grade_3 subject=mathematics slug=house_of_hundreds_i pdf=TEXTBOOKS/mathematics/class 3/house_of_hundreds_i.pdf
+Missing: grade=grade_3 subject=mathematics slug=filling_and_lifting pdf=TEXTBOOKS/mathematics/class 3/filling_and_lifting.pdf
+Missing: grade=grade_3 subject=mathematics slug=give_and_take pdf=TEXTBOOKS/mathematics/class 3/give_and_take.pdf
+Missing: grade=grade_3 subject=mathematics slug=toy_joy pdf=TEXTBOOKS/mathematics/class 3/toy_joy.pdf
+Missing: grade=grade_3 subject=mathematics slug=fun_with_shapes pdf=TEXTBOOKS/mathematics/class 3/fun_with_shapes.pdf
+Missing: grade=grade_3 subject=mathematics slug=raksha_bandhan pdf=TEXTBOOKS/mathematics/class 3/raksha_bandhan.pdf
+Missing: grade=grade_3 subject=mathematics slug=fair_share pdf=TEXTBOOKS/mathematics/class 3/fair_share.pdf
+Missing: grade=grade_3 subject=mathematics slug=vacation_with_my_nani_maa pdf=TEXTBOOKS/mathematics/class 3/vacation_with_my_nani_maa.pdf
+Missing: grade=grade_3 subject=mathematics slug=introduction pdf=TEXTBOOKS/mathematics/class 3/introduction.pdf
+Missing: grade=grade_3 subject=mathematics slug=fun_at_class_party pdf=TEXTBOOKS/mathematics/class 3/fun_at_class_party.pdf
+Missing: grade=grade_3 subject=mathematics slug=double_century pdf=TEXTBOOKS/mathematics/class 3/double_century.pdf
+Missing: grade=grade_5 subject=mathematics slug=fractions pdf=TEXTBOOKS/mathematics/class 5/fractions.pdf
+Missing: grade=grade_5 subject=mathematics slug=angles_as_turns pdf=TEXTBOOKS/mathematics/class 5/angles_as_turns.pdf
+Missing: grade=grade_5 subject=mathematics slug=grandmother_s_quilt pdf=TEXTBOOKS/mathematics/class 5/grandmother_s_quilt.pdf
+Missing: grade=grade_5 subject=mathematics slug=weight_and_capacity pdf=TEXTBOOKS/mathematics/class 5/weight_and_capacity.pdf
+Missing: grade=grade_5 subject=mathematics slug=data_through_pictures pdf=TEXTBOOKS/mathematics/class 5/data_through_pictures.pdf
+Missing: grade=grade_5 subject=mathematics slug=we_the_travellers_i pdf=TEXTBOOKS/mathematics/class 5/we_the_travellers_i.pdf
+Missing: grade=grade_5 subject=mathematics slug=racing_seconds pdf=TEXTBOOKS/mathematics/class 5/racing_seconds.pdf
+Missing: grade=grade_5 subject=mathematics slug=animal_jumps pdf=TEXTBOOKS/mathematics/class 5/animal_jumps.pdf
+Missing: grade=grade_5 subject=mathematics slug=the_dairy_farm pdf=TEXTBOOKS/mathematics/class 5/the_dairy_farm.pdf
+Missing: grade=grade_5 subject=mathematics slug=introduction pdf=TEXTBOOKS/mathematics/class 5/introduction.pdf
+Missing: grade=grade_5 subject=mathematics slug=maps_and_locations pdf=TEXTBOOKS/mathematics/class 5/maps_and_locations.pdf
+Missing: grade=grade_5 subject=mathematics slug=far_and_near pdf=TEXTBOOKS/mathematics/class 5/far_and_near.pdf
+Missing: grade=grade_5 subject=mathematics slug=we_the_travellers_ii pdf=TEXTBOOKS/mathematics/class 5/we_the_travellers_ii.pdf
+Missing: grade=grade_5 subject=mathematics slug=shapes_and_patterns pdf=TEXTBOOKS/mathematics/class 5/shapes_and_patterns.pdf
+Missing: grade=grade_5 subject=mathematics slug=coconut_farm pdf=TEXTBOOKS/mathematics/class 5/coconut_farm.pdf
+Missing: grade=grade_5 subject=mathematics slug=symmetrical_designs pdf=TEXTBOOKS/mathematics/class 5/symmetrical_designs.pdf
+Missing: grade=grade_1 subject=mathematics slug=so_many_toys_data_handling pdf=TEXTBOOKS/mathematics/class 1/so_many_toys_data_handling.pdf
+Missing: grade=grade_1 subject=mathematics slug=mango_treat_numbers_1_to_9 pdf=TEXTBOOKS/mathematics/class 1/mango_treat_numbers_1_to_9.pdf
+Missing: grade=grade_1 subject=mathematics slug=finding_the_furry_cat_pre_number_concepts pdf=TEXTBOOKS/mathematics/class 1/finding_the_furry_cat_pre_number_concepts.pdf
+Missing: grade=grade_1 subject=mathematics slug=vegetable_farm_addition_and_subtraction_up_to_20 pdf=TEXTBOOKS/mathematics/class 1/vegetable_farm_addition_and_subtraction_up_to_20.pdf
+Missing: grade=grade_1 subject=mathematics slug=what_is_long_what_is_round_shapes pdf=TEXTBOOKS/mathematics/class 1/what_is_long_what_is_round_shapes.pdf
+Missing: grade=grade_1 subject=mathematics slug=utsav_patterns pdf=TEXTBOOKS/mathematics/class 1/utsav_patterns.pdf
+Missing: grade=grade_1 subject=mathematics slug=how_much_can_we_spend_money pdf=TEXTBOOKS/mathematics/class 1/how_much_can_we_spend_money.pdf
+Missing: grade=grade_1 subject=mathematics slug=how_many_times_multiplication pdf=TEXTBOOKS/mathematics/class 1/how_many_times_multiplication.pdf
+Missing: grade=grade_1 subject=mathematics slug=lina_s_family_measurement pdf=TEXTBOOKS/mathematics/class 1/lina_s_family_measurement.pdf
+Missing: grade=grade_1 subject=mathematics slug=fun_with_numbers_numbers_21_to_99 pdf=TEXTBOOKS/mathematics/class 1/fun_with_numbers_numbers_21_to_99.pdf
+Missing: grade=grade_1 subject=mathematics slug=making_10_numbers_10_to_20 pdf=TEXTBOOKS/mathematics/class 1/making_10_numbers_10_to_20.pdf
+Missing: grade=grade_1 subject=mathematics slug=how_many_addition_and_subtraction_of_single_digit_numbers pdf=TEXTBOOKS/mathematics/class 1/how_many_addition_and_subtraction_of_single_digit_numbers.pdf
+Missing: grade=grade_1 subject=mathematics slug=introduction pdf=TEXTBOOKS/mathematics/class 1/introduction.pdf
+Missing: grade=grade_1 subject=mathematics slug=how_do_i_spend_my_day_time pdf=TEXTBOOKS/mathematics/class 1/how_do_i_spend_my_day_time.pdf
+Missing: grade=grade_2 subject=mathematics slug=which_season_is_it_measurement_of_time pdf=TEXTBOOKS/mathematics/class 2/which_season_is_it_measurement_of_time.pdf
+Missing: grade=grade_2 subject=mathematics slug=shadow_story_togalu_2d_shapes pdf=TEXTBOOKS/mathematics/class 2/shadow_story_togalu_2d_shapes.pdf
+Missing: grade=grade_2 subject=mathematics slug=grouping_and_sharing_multiplication_and_division pdf=TEXTBOOKS/mathematics/class 2/grouping_and_sharing_multiplication_and_division.pdf
+Missing: grade=grade_2 subject=mathematics slug=fun_with_numbers_numbers_1_to_100 pdf=TEXTBOOKS/mathematics/class 2/fun_with_numbers_numbers_1_to_100.pdf
+Missing: grade=grade_2 subject=mathematics slug=playing_with_lines_orientations_of_a_line pdf=TEXTBOOKS/mathematics/class 2/playing_with_lines_orientations_of_a_line.pdf
+Missing: grade=grade_2 subject=mathematics slug=shapes_around_us_3d_shapes pdf=TEXTBOOKS/mathematics/class 2/shapes_around_us_3d_shapes.pdf
+Missing: grade=grade_2 subject=mathematics slug=introduction pdf=TEXTBOOKS/mathematics/class 2/introduction.pdf
+Missing: grade=grade_2 subject=mathematics slug=decoration_for_festival_addition_and_subtraction pdf=TEXTBOOKS/mathematics/class 2/decoration_for_festival_addition_and_subtraction.pdf
+Missing: grade=grade_2 subject=mathematics slug=fun_at_the_fair_money pdf=TEXTBOOKS/mathematics/class 2/fun_at_the_fair_money.pdf
+Missing: grade=grade_2 subject=mathematics slug=data_handling pdf=TEXTBOOKS/mathematics/class 2/data_handling.pdf
+Missing: grade=grade_2 subject=mathematics slug=a_day_at_the_beach_counting_in_groups pdf=TEXTBOOKS/mathematics/class 2/a_day_at_the_beach_counting_in_groups.pdf
+Missing: grade=grade_2 subject=mathematics slug=rani_s_gift_measurement pdf=TEXTBOOKS/mathematics/class 2/rani_s_gift_measurement.pdf
+Missing: grade=grade_4 subject=mathematics slug=equal_groups pdf=TEXTBOOKS/mathematics/class 4/equal_groups.pdf
+Missing: grade=grade_4 subject=mathematics slug=elephants_tigers_and_leopards pdf=TEXTBOOKS/mathematics/class 4/elephants_tigers_and_leopards.pdf
+Missing: grade=grade_4 subject=mathematics slug=the_transport_museum pdf=TEXTBOOKS/mathematics/class 4/the_transport_museum.pdf
+Missing: grade=grade_4 subject=mathematics slug=sharing_and_measuring pdf=TEXTBOOKS/mathematics/class 4/sharing_and_measuring.pdf
+Missing: grade=grade_4 subject=mathematics slug=measuring_length pdf=TEXTBOOKS/mathematics/class 4/measuring_length.pdf
+Missing: grade=grade_4 subject=mathematics slug=hide_and_seek pdf=TEXTBOOKS/mathematics/class 4/hide_and_seek.pdf
+Missing: grade=grade_4 subject=mathematics slug=shapes_around_us pdf=TEXTBOOKS/mathematics/class 4/shapes_around_us.pdf
+Missing: grade=grade_4 subject=mathematics slug=the_cleanest_village pdf=TEXTBOOKS/mathematics/class 4/the_cleanest_village.pdf
+Missing: grade=grade_4 subject=mathematics slug=introduction pdf=TEXTBOOKS/mathematics/class 4/introduction.pdf
+Missing: grade=grade_4 subject=mathematics slug=thousands_around_us pdf=TEXTBOOKS/mathematics/class 4/thousands_around_us.pdf
+Missing: grade=grade_4 subject=mathematics slug=ticking_clocks_and_turning_calendar pdf=TEXTBOOKS/mathematics/class 4/ticking_clocks_and_turning_calendar.pdf
+Missing: grade=grade_4 subject=mathematics slug=pattern_around_us pdf=TEXTBOOKS/mathematics/class 4/pattern_around_us.pdf
+Missing: grade=grade_4 subject=mathematics slug=data_handling pdf=TEXTBOOKS/mathematics/class 4/data_handling.pdf
+Missing: grade=grade_4 subject=mathematics slug=weigh_it_pour_it pdf=TEXTBOOKS/mathematics/class 4/weigh_it_pour_it.pdf
+Missing: grade=grade_4 subject=mathematics slug=fun_with_symmetry pdf=TEXTBOOKS/mathematics/class 4/fun_with_symmetry.pdf
+Missing: grade=grade_5 subject=science slug=rhythms_of_nature pdf=TEXTBOOKS/science/class 5/rhythms_of_nature.pdf
+Missing: grade=grade_5 subject=science slug=earth_our_shared_home pdf=TEXTBOOKS/science/class 5/earth_our_shared_home.pdf
+Missing: grade=grade_5 subject=science slug=some_unique_places pdf=TEXTBOOKS/science/class 5/some_unique_places.pdf
+Missing: grade=grade_5 subject=science slug=class_5_environmental_studies_evs pdf=TEXTBOOKS/science/class 5/class_5_environmental_studies_evs.pdf
+Missing: grade=grade_5 subject=science slug=water_the_essence_of_life pdf=TEXTBOOKS/science/class 5/water_the_essence_of_life.pdf
+Missing: grade=grade_5 subject=science slug=energy_how_things_work pdf=TEXTBOOKS/science/class 5/energy_how_things_work.pdf
+Missing: grade=grade_5 subject=science slug=our_vibrant_country pdf=TEXTBOOKS/science/class 5/our_vibrant_country.pdf
+Missing: grade=grade_5 subject=science slug=our_school_a_happy_place pdf=TEXTBOOKS/science/class 5/our_school_a_happy_place.pdf
+Missing: grade=grade_5 subject=science slug=journey_of_a_river pdf=TEXTBOOKS/science/class 5/journey_of_a_river.pdf
+Missing: grade=grade_5 subject=science slug=clothes_how_things_are_made pdf=TEXTBOOKS/science/class 5/clothes_how_things_are_made.pdf
+Missing: grade=grade_5 subject=science slug=the_mystery_of_food pdf=TEXTBOOKS/science/class 5/the_mystery_of_food.pdf
+Missing: grade=grade_9 subject=social slug=the_story_of_village_palampur pdf=TEXTBOOKS/social/class 9th social science part 3/the_story_of_village_palampur.pdf
+Missing: grade=grade_9 subject=social slug=people_as_resource pdf=TEXTBOOKS/social/class 9th social science part 3/people_as_resource.pdf
+Missing: grade=grade_9 subject=social slug=poverty_as_a_challenge pdf=TEXTBOOKS/social/class 9th social science part 3/poverty_as_a_challenge.pdf
+Missing: grade=grade_9 subject=social slug=economics pdf=TEXTBOOKS/social/class 9th social science part 3/economics.pdf
+Missing: grade=grade_9 subject=social slug=food_security_in_india pdf=TEXTBOOKS/social/class 9th social science part 3/food_security_in_india.pdf
+Missing: grade=grade_7 subject=social slug=new_beginnings_cities_and_states pdf=TEXTBOOKS/social/class 7th social science part 1/new_beginnings_cities_and_states.pdf
+Missing: grade=grade_7 subject=social slug=the_age_of_reorganisation pdf=TEXTBOOKS/social/class 7th social science part 1/the_age_of_reorganisation.pdf
+Missing: grade=grade_7 subject=social slug=the_constitution_of_india_an_introduction pdf=TEXTBOOKS/social/class 7th social science part 1/the_constitution_of_india_an_introduction.pdf
+Missing: grade=grade_7 subject=social slug=understanding_the_weather pdf=TEXTBOOKS/social/class 7th social science part 1/understanding_the_weather.pdf
+Missing: grade=grade_7 subject=social slug=how_the_land_becomes_sacred pdf=TEXTBOOKS/social/class 7th social science part 1/how_the_land_becomes_sacred.pdf
+Missing: grade=grade_7 subject=social slug=geographical_diversity_of_india pdf=TEXTBOOKS/social/class 7th social science part 1/geographical_diversity_of_india.pdf
+Missing: grade=grade_7 subject=social slug=the_rise_of_empires pdf=TEXTBOOKS/social/class 7th social science part 1/the_rise_of_empires.pdf
+Missing: grade=grade_7 subject=social slug=social_science_textbook_for_class_7_part_1 pdf=TEXTBOOKS/social/class 7th social science part 1/social_science_textbook_for_class_7_part_1.pdf
+Missing: grade=grade_7 subject=social slug=the_gupta_era_an_age_of_tireless_creativity pdf=TEXTBOOKS/social/class 7th social science part 1/the_gupta_era_an_age_of_tireless_creativity.pdf
+Missing: grade=grade_7 subject=social slug=from_barter_to_money pdf=TEXTBOOKS/social/class 7th social science part 1/from_barter_to_money.pdf
+Missing: grade=grade_7 subject=social slug=climates_of_india pdf=TEXTBOOKS/social/class 7th social science part 1/climates_of_india.pdf
+Missing: grade=grade_7 subject=social slug=understanding_markets pdf=TEXTBOOKS/social/class 7th social science part 1/understanding_markets.pdf
+Missing: grade=grade_7 subject=social slug=from_the_rulers_to_the_ruled_types_of_governments pdf=TEXTBOOKS/social/class 7th social science part 1/from_the_rulers_to_the_ruled_types_of_governments.pdf
+Missing: grade=grade_7 subject=social slug=india_and_her_neighbours pdf=TEXTBOOKS/social/class 7th social science part 2/india_and_her_neighbours.pdf
+Missing: grade=grade_7 subject=social slug=social_science_textbook_for_class_7_part_2 pdf=TEXTBOOKS/social/class 7th social science part 2/social_science_textbook_for_class_7_part_2.pdf
+Missing: grade=grade_7 subject=social slug=turning_tides_11th_and_12th_centuries pdf=TEXTBOOKS/social/class 7th social science part 2/turning_tides_11th_and_12th_centuries.pdf
+Missing: grade=grade_7 subject=social slug=banks_and_the_magic_of_finance pdf=TEXTBOOKS/social/class 7th social science part 2/banks_and_the_magic_of_finance.pdf
+Missing: grade=grade_7 subject=social slug=the_state_the_government_and_you pdf=TEXTBOOKS/social/class 7th social science part 2/the_state_the_government_and_you.pdf
+Missing: grade=grade_7 subject=social slug=empires_and_kingdoms_6th_to_10th_centuries pdf=TEXTBOOKS/social/class 7th social science part 2/empires_and_kingdoms_6th_to_10th_centuries.pdf
+Missing: grade=grade_7 subject=social slug=india_a_home_to_many pdf=TEXTBOOKS/social/class 7th social science part 2/india_a_home_to_many.pdf
+Missing: grade=grade_7 subject=social slug=infrastructure_engine_of_indias_development pdf=TEXTBOOKS/social/class 7th social science part 2/infrastructure_engine_of_indias_development.pdf
+Missing: grade=grade_7 subject=social slug=glossary pdf=TEXTBOOKS/social/class 7th social science part 2/glossary.pdf
+Missing: grade=grade_7 subject=social slug=the_story_of_indian_farming pdf=TEXTBOOKS/social/class 7th social science part 2/the_story_of_indian_farming.pdf
+Missing: grade=grade_9 subject=social slug=physical_features_of_india pdf=TEXTBOOKS/social/class 9th social science part 2/physical_features_of_india.pdf
+Missing: grade=grade_9 subject=social slug=contemporary_india_i pdf=TEXTBOOKS/social/class 9th social science part 2/contemporary_india_i.pdf
+Missing: grade=grade_9 subject=social slug=india_size_and_location pdf=TEXTBOOKS/social/class 9th social science part 2/india_size_and_location.pdf
+Missing: grade=grade_9 subject=social slug=climate pdf=TEXTBOOKS/social/class 9th social science part 2/climate.pdf
+Missing: grade=grade_9 subject=social slug=population pdf=TEXTBOOKS/social/class 9th social science part 2/population.pdf
+Missing: grade=grade_9 subject=social slug=drainage pdf=TEXTBOOKS/social/class 9th social science part 2/drainage.pdf
+Missing: grade=grade_9 subject=social slug=natural_vegetation_and_wildlife pdf=TEXTBOOKS/social/class 9th social science part 2/natural_vegetation_and_wildlife.pdf
+Missing: grade=grade_9 subject=social slug=constitutional_design pdf=TEXTBOOKS/social/class 9th social science part 1/constitutional_design.pdf
+Missing: grade=grade_9 subject=social slug=what_is_democracy_why_democracy pdf=TEXTBOOKS/social/class 9th social science part 1/what_is_democracy_why_democracy.pdf
+Missing: grade=grade_9 subject=social slug=democratic_rights pdf=TEXTBOOKS/social/class 9th social science part 1/democratic_rights.pdf
+Missing: grade=grade_9 subject=social slug=democratic_politics_class_9 pdf=TEXTBOOKS/social/class 9th social science part 1/democratic_politics_class_9.pdf
+Missing: grade=grade_9 subject=social slug=electoral_politics pdf=TEXTBOOKS/social/class 9th social science part 1/electoral_politics.pdf
+Missing: grade=grade_9 subject=social slug=working_of_institutions pdf=TEXTBOOKS/social/class 9th social science part 1/working_of_institutions.pdf
+Missing: grade=grade_8 subject=social slug=natural_resources_and_their_use pdf=TEXTBOOKS/social/class 8th social science/natural_resources_and_their_use.pdf
+Missing: grade=grade_8 subject=social slug=the_colonial_era_in_india pdf=TEXTBOOKS/social/class 8th social science/the_colonial_era_in_india.pdf
+Missing: grade=grade_8 subject=social slug=social_science_textbook_for_class_8 pdf=TEXTBOOKS/social/class 8th social science/social_science_textbook_for_class_8.pdf
+Missing: grade=grade_8 subject=social slug=the_rise_of_the_marathas pdf=TEXTBOOKS/social/class 8th social science/the_rise_of_the_marathas.pdf
+Missing: grade=grade_8 subject=social slug=universal_franchise_and_indias_electoral_system pdf=TEXTBOOKS/social/class 8th social science/universal_franchise_and_indias_electoral_system.pdf
+Missing: grade=grade_8 subject=social slug=reshaping_indias_political_map pdf=TEXTBOOKS/social/class 8th social science/reshaping_indias_political_map.pdf
+Missing: grade=grade_8 subject=social slug=factors_of_production pdf=TEXTBOOKS/social/class 8th social science/factors_of_production.pdf
+Missing: grade=grade_8 subject=social slug=glossary pdf=TEXTBOOKS/social/class 8th social science/glossary.pdf
+Missing: grade=grade_8 subject=social slug=the_parliamentary_system_legislature_and_executive pdf=TEXTBOOKS/social/class 8th social science/the_parliamentary_system_legislature_and_executive.pdf
+Missing: grade=grade_6 subject=social slug=oceans_and_continents pdf=TEXTBOOKS/social/class 6th social science/oceans_and_continents.pdf
+Missing: grade=grade_6 subject=social slug=the_value_of_work pdf=TEXTBOOKS/social/class 6th social science/the_value_of_work.pdf
+Missing: grade=grade_6 subject=social slug=indias_cultural_roots pdf=TEXTBOOKS/social/class 6th social science/indias_cultural_roots.pdf
+Missing: grade=grade_6 subject=social slug=contents pdf=TEXTBOOKS/social/class 6th social science/contents.pdf
+Missing: grade=grade_6 subject=social slug=unity_in_diversity_or_many_in_the_one pdf=TEXTBOOKS/social/class 6th social science/unity_in_diversity_or_many_in_the_one.pdf
+Missing: grade=grade_6 subject=social slug=grassroots_democracy_part_2_local_government_in_rural_areas pdf=TEXTBOOKS/social/class 6th social science/grassroots_democracy_part_2_local_government_in_rural_areas.pdf
+Missing: grade=grade_6 subject=social slug=timeline_and_sources_of_history pdf=TEXTBOOKS/social/class 6th social science/timeline_and_sources_of_history.pdf
+Missing: grade=grade_6 subject=social slug=india_that_is_bharat pdf=TEXTBOOKS/social/class 6th social science/india_that_is_bharat.pdf
+Missing: grade=grade_6 subject=social slug=landforms_and_life pdf=TEXTBOOKS/social/class 6th social science/landforms_and_life.pdf
+Missing: grade=grade_6 subject=social slug=family_and_community pdf=TEXTBOOKS/social/class 6th social science/family_and_community.pdf
+Missing: grade=grade_6 subject=social slug=grassroots_democracy_part_3_local_government_in_urban_areas pdf=TEXTBOOKS/social/class 6th social science/grassroots_democracy_part_3_local_government_in_urban_areas.pdf
+Missing: grade=grade_6 subject=social slug=economic_activities_around_us pdf=TEXTBOOKS/social/class 6th social science/economic_activities_around_us.pdf
+Missing: grade=grade_6 subject=social slug=locating_places_on_the_earth pdf=TEXTBOOKS/social/class 6th social science/locating_places_on_the_earth.pdf
+Missing: grade=grade_6 subject=social slug=grassroots_democracy_part_1_governance pdf=TEXTBOOKS/social/class 6th social science/grassroots_democracy_part_1_governance.pdf
+Missing: grade=grade_6 subject=social slug=glossary pdf=TEXTBOOKS/social/class 6th social science/glossary.pdf
+Missing: grade=grade_6 subject=social slug=the_beginnings_of_indian_civilisation pdf=TEXTBOOKS/social/class 6th social science/the_beginnings_of_indian_civilisation.pdf

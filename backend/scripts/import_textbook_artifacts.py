@@ -61,6 +61,8 @@ STOPWORDS = {
     "we", "you", "your", "they", "them", "these", "those", "there", "here", "into", "than", "then", "than",
 }
 
+EXCLUDED_RUNTIME_CHAPTERS = {"introduction", "answers"}
+
 
 def is_noise(text: str) -> bool:
     value = clean_text(text).lower()
@@ -116,6 +118,97 @@ def dedupe_by_key(items: list[dict[str, Any]], key: str) -> list[dict[str, Any]]
         seen.add(value)
         result.append(item)
     return result
+
+
+def is_runtime_excluded_chapter(chapter: str | None) -> bool:
+    return slugify(chapter or "") in EXCLUDED_RUNTIME_CHAPTERS
+
+
+def clean_summary_text(text: str) -> str:
+    value = normalize_space(text)
+    value = re.sub(r"^(?:[A-Z0-9]{2,}\s+)+", "", value)
+    value = re.sub(r"^(?:\d+\s+)+", "", value)
+    value = re.sub(r"^(?:[A-Z]{2,}\s+\d+\s+)+", "", value)
+    value = re.sub(r"^(?:CH\d+\s+)+", "", value, flags=re.I)
+    value = re.sub(r"^(?:REPRINT\s+\d{4}-\d{2}\s+)+", "", value, flags=re.I)
+    value = re.sub(r"^(?:MATHEMATICS|SCIENCE|SOCIAL SCIENCE)\s+\d+\s+", "", value, flags=re.I)
+    return normalize_space(value)
+
+
+def sentence_split(text: str) -> list[str]:
+    parts = re.split(r"(?<=[.!?])\s+", normalize_space(text))
+    return [part.strip() for part in parts if part and part.strip()]
+
+
+def source_section_texts(source: dict[str, Any]) -> list[str]:
+    texts: list[str] = []
+    for section in source.get("sections") or []:
+        if not isinstance(section, dict):
+            continue
+        title = clean_text(str(section.get("title") or ""))
+        body = clean_text(str(section.get("text") or section.get("content") or ""))
+        if title.lower() in {"start", "untitled section"} or re.fullmatch(r"section\s*\d+", title.lower() or ""):
+            combined = clean_summary_text(body)
+        else:
+            combined = clean_summary_text(" ".join(part for part in (title, body) if part))
+        if not combined or is_noise(combined):
+            continue
+        texts.append(combined)
+    return texts
+
+
+def summarize_source_text(source: dict[str, Any], chapter_title: str) -> dict[str, Any]:
+    source_text = clean_summary_text(str(source.get("source_text") or ""))
+    section_texts = source_section_texts(source)
+    candidate_texts = [text for text in section_texts if text]
+    if not candidate_texts and source_text:
+        candidate_texts = sentence_split(source_text)
+
+    overview_parts: list[str] = []
+    for text in candidate_texts[:4]:
+        if len(text) < 20 or is_noise(text):
+            continue
+        overview_parts.append(clean_summary_text(text))
+        if len(" ".join(overview_parts)) >= 1000:
+            break
+    overview = normalize_space(" ".join(overview_parts)) if overview_parts else sentence_case(source_text[:420] or chapter_title)
+    if len(overview) > 1100:
+        cutoff = overview.rfind(". ", 0, 1050)
+        overview = overview[: cutoff + 1] if cutoff > 0 else overview[:1050].rstrip()
+
+    key_points: list[str] = []
+    for text in candidate_texts:
+        if len(key_points) >= 5:
+            break
+        if is_noise(text):
+            continue
+        sentences = sentence_split(text)
+        snippet = sentences[0] if sentences else text
+        snippet = normalize_space(snippet)
+        if snippet and snippet not in key_points:
+            key_points.append(snippet[:220])
+
+    if len(key_points) < 5 and source_text:
+        for sentence in sentence_split(source_text):
+            if len(key_points) >= 5:
+                break
+            sentence = normalize_space(sentence)
+            if not sentence or is_noise(sentence):
+                continue
+            if sentence not in key_points:
+                key_points.append(sentence[:220])
+
+    formulas = [clean_text(str(item)) for item in source.get("formulas") or [] if clean_text(str(item)) and not is_noise(str(item))]
+    experiments = [clean_text(str(item)) for item in source.get("experiments") or [] if clean_text(str(item)) and not is_noise(str(item))]
+
+    return {
+        "chapter_title": chapter_title,
+        "overview": sentence_case(overview),
+        "summary": sentence_case(overview),
+        "key_points": key_points[:5],
+        "important_formulas": formulas[:10],
+        "experiments": experiments[:10],
+    }
 
 
 def fact_bank_from_source(
@@ -458,26 +551,13 @@ def build_kaggle_artifacts(chapter_root: Path) -> tuple[dict[str, Any], dict[str
         raise ValueError(f"missing source chapter json for {chapter_root}")
 
     chapter_title = str(source.get("chapter_title") or chapter_root.name)
-    summary = load_json_optional(chapter_root / "artifacts" / "summary.json")
-    key_points = load_json_optional(chapter_root / "artifacts" / "key_points.json")
-    chapter_notes = load_json_optional(chapter_root / "artifacts" / "chapter_notes.json")
+    summary = summarize_source_text(source, chapter_title)
+    key_points = {
+        "chapter_title": chapter_title,
+        "key_points": list(summary.get("key_points") or []),
+    }
 
-    if not isinstance(summary, dict):
-        summary = {
-            "chapter_title": chapter_title,
-            "overview": sentence_case(str(source.get("source_text") or "")[:420]),
-            "key_points": [],
-            "important_formulas": [clean_text(str(item)) for item in source.get("formulas") or [] if clean_text(str(item))],
-            "experiments": [clean_text(str(item)) for item in source.get("experiments") or [] if clean_text(str(item))],
-        }
-
-    if not isinstance(key_points, dict):
-        key_points = {
-            "chapter_title": chapter_title,
-            "key_points": list(summary.get("key_points") or []),
-        }
-
-    notes_payload = chapter_notes if isinstance(chapter_notes, dict) else build_chapter_notes(summary, [], chapter_title, source)
+    notes_payload = build_chapter_notes(summary, [], chapter_title, source)
     notes = notes_payload.get("chapter_notes") if isinstance(notes_payload, dict) else {}
     facts = fact_bank_from_source(source, summary, chapter_title, notes if isinstance(notes, dict) else None)
     if len(facts) < 5:
@@ -486,31 +566,14 @@ def build_kaggle_artifacts(chapter_root: Path) -> tuple[dict[str, Any], dict[str
             facts.append({"term": derive_term_from_fact(item, chapter_title), "fact": sentence_case(item), "source": "fallback_key_point"})
         facts = dedupe_by_key(facts, "term")
 
-    concepts = load_json_optional(chapter_root / "artifacts" / "concepts.json")
-    if not isinstance(concepts, list):
-        concepts = make_concepts_from_facts(facts, limit=10)
+    concepts = make_concepts_from_facts(facts, limit=10)
+    glossary = make_glossary_from_facts(facts, chapter_title, limit=12)
+    misconceptions = make_misconceptions_from_facts(facts, chapter_title, limit=8)
+    applications = make_applications_from_facts(facts, chapter_title, limit=8)
+    flashcards = make_flashcards_from_facts(facts, limit=15)
+    quizzes = make_quizzes_from_facts(facts, chapter_title, count=20)
 
-    glossary = load_json_optional(chapter_root / "artifacts" / "glossary.json")
-    if not isinstance(glossary, list):
-        glossary = make_glossary_from_facts(facts, chapter_title, limit=12)
-
-    misconceptions = load_json_optional(chapter_root / "artifacts" / "misconceptions.json")
-    if not isinstance(misconceptions, list):
-        misconceptions = make_misconceptions_from_facts(facts, chapter_title, limit=8)
-
-    applications = load_json_optional(chapter_root / "artifacts" / "applications.json")
-    if not isinstance(applications, list):
-        applications = make_applications_from_facts(facts, chapter_title, limit=8)
-
-    flashcards = load_json_optional(chapter_root / "artifacts" / "flashcards.json")
-    if not isinstance(flashcards, list):
-        flashcards = make_flashcards_from_facts(facts, limit=15)
-
-    quizzes = load_json_optional(chapter_root / "artifacts" / "quizzes.json")
-    if not isinstance(quizzes, list):
-        quizzes = make_quizzes_from_facts(facts, chapter_title, count=20)
-
-    chapter_notes = notes_payload if isinstance(notes_payload, dict) else build_chapter_notes(summary, facts, chapter_title, source)
+    chapter_notes = build_chapter_notes(summary, facts, chapter_title, source)
 
     artifacts = {
         "summary.json": summary,
@@ -593,7 +656,7 @@ def build_pack_artifacts(chapter_root: Path) -> tuple[dict[str, Any], dict[str, 
         "textbook": textbook_payload,
         "content": content,
         "chapter_notes": chapter_notes,
-        "key_points": key_points.get("key_points", []) if isinstance(key_points, dict) else (summary_items[0].get("key_points", []) if summary_items else []),
+        "key_points": summary_items[0].get("key_points", []) if summary_items else [],
         "chapter_knowledge": {
             "summary": summary_items,
             "concepts": concept_items,
@@ -647,15 +710,13 @@ def build_pack_artifacts(chapter_root: Path) -> tuple[dict[str, Any], dict[str, 
     return artifacts, manifest_out
 
 
-def write_missing_kaggle_artifacts(chapter_root: Path, artifacts: dict[str, Any], dry_run: bool) -> list[str]:
+def write_kaggle_artifacts(chapter_root: Path, artifacts: dict[str, Any], dry_run: bool) -> list[str]:
     written: list[str] = []
     artifacts_root = chapter_root / "artifacts"
     for filename in EXPECTED_KAGGLE_ARTIFACTS:
-        target = artifacts_root / filename
-        if target.exists():
-            continue
+        payload = artifacts.get(filename)
         if not dry_run:
-            write_json_preserve(target, artifacts[filename])
+            write_json_preserve(artifacts_root / filename, payload)
         written.append(filename)
     return written
 
@@ -702,14 +763,15 @@ def import_chapters(
 
     for chapter_root in chapters:
         kaggle_artifacts, derived = build_kaggle_artifacts(chapter_root)
-        written_files = write_missing_kaggle_artifacts(chapter_root, kaggle_artifacts, dry_run=dry_run)
+        written_files = write_kaggle_artifacts(chapter_root, kaggle_artifacts, dry_run=dry_run)
         artifacts, manifest = build_pack_artifacts(chapter_root)
         pack_id = str(manifest["pack_id"])
         grade = manifest.get("grade")
         subject = manifest.get("subject")
         chapter = manifest.get("chapter")
+        excluded_runtime = is_runtime_excluded_chapter(str(chapter))
 
-        if repository is not None:
+        if repository is not None and not excluded_runtime:
             if replace_existing and not dry_run:
                 repository.remove_pack(pack_id)
 
@@ -749,6 +811,7 @@ def import_chapters(
                 "generic_flashcard_count": manifest["quality"]["generic_flashcard_count"],
                 "noise_flags": manifest["quality"]["noise_flags"],
                 "written_files": written_files,
+                "excluded_runtime": excluded_runtime,
                 "dry_run": dry_run,
             }
         )
@@ -765,6 +828,7 @@ def import_chapters(
         "sync_packs": sync_packs,
         "storage_root": str(storage_root),
         "source_root": str(root),
+        "excluded_runtime_chapters": sum(1 for row in report_rows if row.get("excluded_runtime")),
     }
     return {"summary": summary, "chapters": report_rows}
 

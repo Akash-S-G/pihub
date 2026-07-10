@@ -1,0 +1,149 @@
+services:
+  pihub:
+    build:
+      context: .
+      dockerfile: pihub/Dockerfile
+      network: host
+    container_name: pihub-node
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      PIHUB_DB_PATH: ${PIHUB_DB_PATH:-/storage/pihub.sqlite3}
+      PIHUB_ADMIN_TOKEN: ${PIHUB_ADMIN_TOKEN:-change-me}
+      PIHUB_DEVICE_TOKEN_SECRET: ${PIHUB_DEVICE_TOKEN_SECRET:-change-me-too}
+      PIHUB_CLASSROOM_NAME: ${PIHUB_CLASSROOM_NAME:-Classroom A}
+    volumes:
+      - ./pihub/packs:/packs
+      - ./pihub/storage:/storage
+      - ./pihub/cache:/cache
+      - ./pihub/logs:/logs
+    expose:
+      - "8020"
+    ports:
+      - "8020:8020"
+
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+      network: host
+    container_name: pihub-gateway
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      CONTENT_PIPELINE_URL: ${CONTENT_PIPELINE_URL:-http://akash-ubuntu.local:8001}
+      INFERENCE_SERVICE_URL: ${INFERENCE_SERVICE_URL:-http://akash-ubuntu.local:8010}
+      PIHUB_URL: ${PIHUB_URL:-http://pihub:8020}
+      QDRANT_URL: ${QDRANT_URL:-http://akash-ubuntu.local:6333}
+      PACK_SERVICE_URL: ${PACK_SERVICE_URL:-http://pack-service:8030}
+      EXPERIMENT_SERVICE_URL: ${EXPERIMENT_SERVICE_URL:-http://experiment-service:8040}
+      VOICE_SERVICE_URL: ${VOICE_SERVICE_URL:-http://akash-ubuntu.local:8050}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    depends_on:
+      - pihub
+      - pack-service
+      - experiment-service
+    volumes:
+      - shared_storage:/shared
+      - backend_logs:/logs
+    expose:
+      - "8000"
+    ports:
+      - "8000:8000"
+
+  pack-service:
+    build:
+      context: .
+      dockerfile: pack-service/Dockerfile
+      network: host
+    container_name: pihub-pack-service
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      QDRANT_URL: ${QDRANT_URL:-http://akash-ubuntu.local:6333}
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-educational_chunks}
+      PACK_STORAGE_PATH: ${PACK_STORAGE_PATH:-/shared/packs}
+      CURRICULUM_GRAPH_PATH: ${CURRICULUM_GRAPH_PATH:-/shared/work/curriculum_graph.json}
+      PDF_LIBRARY_PATH: ${PDF_LIBRARY_PATH:-/shared/textbooks}
+      PDF_MANIFEST_PATH: ${PDF_MANIFEST_PATH:-/shared/packs/pdf_manifests/pdf_manifest.json}
+      INFERENCE_SERVICE_URL: ${INFERENCE_SERVICE_URL:-http://akash-ubuntu.local:8010}
+      ENABLE_GEMMA_CONTENT_GENERATION: ${ENABLE_GEMMA_CONTENT_GENERATION:-true}
+      CONTENT_GENERATION_TIMEOUT_SECONDS: ${CONTENT_GENERATION_TIMEOUT_SECONDS:-20}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      - shared_storage:/shared
+      - nfs_generated_pack:/shared/generated_pack:ro
+      - nfs_textbooks:/shared/textbooks:ro
+      - nfs_phet_downloads:/shared/phet_downloads:ro
+      - backend_logs:/logs
+    expose:
+      - "8030"
+    ports:
+      - "8030:8030"
+
+  experiment-service:
+    build:
+      context: .
+      dockerfile: experiment-service/Dockerfile
+      network: host
+    container_name: pihub-experiment-service
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      - shared_storage:/shared
+      - backend_logs:/logs
+      - nfs_phet_downloads:/shared/simulations:ro
+    expose:
+      - "8040"
+    ports:
+      - "8040:8040"
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: pihub-nginx
+    restart: unless-stopped
+    depends_on:
+      - gateway
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - backend_logs:/var/log/nginx
+    ports:
+      - "${NGINX_PORT:-80}:80"
+
+volumes:
+  backend_logs:
+  
+  # NFS volumes pointing to the server
+  shared_storage:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=akash-ubuntu.local,rw,nolock,hard,nointr,nfsvers=4
+      device: ":/home/akash/Desktop/PIHUB/backend/volumes/shared_storage"
+      
+  nfs_generated_pack:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=akash-ubuntu.local,ro,nolock,hard,nointr,nfsvers=4
+      device: ":/home/akash/Desktop/PIHUB/generated_pack"
+      
+  nfs_textbooks:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=akash-ubuntu.local,ro,nolock,hard,nointr,nfsvers=4
+      device: ":/home/akash/Desktop/PIHUB/TEXTBOOKS"
+      
+  nfs_phet_downloads:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=akash-ubuntu.local,ro,nolock,hard,nointr,nfsvers=4
+      device: ":/home/akash/Desktop/PIHUB/phet_downloads"

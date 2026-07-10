@@ -71,3 +71,6 @@ idp_curriculum_generation/
 /*.log
 venv/
 textbook_artifacts/
+.generated_pack_storage/
+.runtime_merged_pack_storage_v2/
+textbook_artifacts_chunks/

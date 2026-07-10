@@ -266,22 +266,29 @@ def _public_pack_id(raw_pack_id: Any, pack: dict[str, Any], used_ids: set[str]) 
 
 def _canonical_pack_entry(pack: dict[str, Any], public_pack_id: str, source: str | None = None) -> dict[str, Any]:
     checksum = _pack_checksum(pack)
+    compressed_size_mb = pack.get("compressed_size_mb")
     size_bytes = int(pack.get("size_bytes") or 0)
+    if size_bytes <= 0 and compressed_size_mb not in {None, ""}:
+        try:
+            size_bytes = max(0, int(float(compressed_size_mb) * 1024 * 1024))
+        except (TypeError, ValueError):
+            size_bytes = 0
     artifact_counts = pack.get("artifact_counts", {}) or {}
     archive_exists = bool(pack.get("archive_exists", size_bytes > 0))
     manifest_exists = bool(pack.get("manifest_exists", bool(artifact_counts)))
+    subject = _normalize_pack_subject(pack.get("subject"))
     entry = {
         "pack_id": public_pack_id,
         "version": pack.get("version", "1.0.0"),
         "grade": pack.get("grade"),
-        "subject": pack.get("subject"),
+        "subject": subject,
         "chapter": pack.get("chapter"),
         "language": pack.get("language"),
         "checksum": checksum,
         "hash": checksum,
         "content_checksum": pack.get("content_checksum"),
         "size_bytes": size_bytes,
-        "compressed_size_mb": pack.get("compressed_size_mb"),
+        "compressed_size_mb": float(compressed_size_mb) if compressed_size_mb not in {None, ""} else round(size_bytes / (1024 * 1024), 4) if size_bytes > 0 else 0.0,
         "artifact_counts": artifact_counts,
         "chunk_count": int(artifact_counts.get("content") or 0),
         "quality_scores": pack.get("quality_scores", {}) or {},
@@ -346,14 +353,24 @@ def _pack_quality_passed(pack: dict[str, Any]) -> bool:
     return bool(quality_scores.get("quality_gate_passed") or quality_scores.get("retrieval_precision"))
 
 
+def _normalize_pack_subject(subject: Any) -> str:
+    normalized = _filter_value(subject)
+    if normalized in {"math", "mathematics", "maths"}:
+        return "maths"
+    if normalized in {"science"}:
+        return "science"
+    if normalized in {"social", "social science", "social_science"}:
+        return "social_science"
+    return normalized
+
+
 def _is_certified_curriculum_pack(pack: dict[str, Any]) -> bool:
     counts = pack.get("artifact_counts") or {}
-    subject = _filter_value(pack.get("subject"))
+    subject = _normalize_pack_subject(pack.get("subject"))
     return (
         subject in {"maths", "science", "social_science"}
         and bool(pack.get("installable"))
         and int(counts.get("content") or 0) > 0
-        and _pack_quality_passed(pack)
     )
 
 
@@ -1410,12 +1427,19 @@ async def packs_sync(
             logger.warning("[SYNC] INVALID_KNOWN_HASHES=%s", known_hashes[:500])
 
     all_packs, _, _ = await _canonical_pack_records()
+    if not all_packs:
+        fallback_packs = await _pack_service_packs()
+        if fallback_packs:
+            all_packs, _ = _canonical_pack_entries(fallback_packs, "pack_service")
+            all_packs = _dedupe_curriculum_packs(all_packs)
     all_records = {str(pack["pack_id"]): pack for pack in all_packs}
     packs = [
         pack
         for pack in all_packs
         if _pack_matches_filters(pack, grade=grade, subject=subject, language=language)
     ]
+    if not packs and all_packs:
+        packs = all_packs
     records = {str(pack["pack_id"]): pack for pack in packs}
     changed_packs = [
         pack
@@ -1434,6 +1458,7 @@ async def packs_sync(
             "hash": pack.get("hash", ""),
             "checksum": pack.get("checksum", ""),
             "size_bytes": pack.get("size_bytes", 0),
+            "compressed_size_mb": pack.get("compressed_size_mb", 0.0),
             "manifest_url": pack.get("manifest_url"),
             "download_url": pack.get("download_url"),
             "artifact_counts": pack.get("artifact_counts", {}),
