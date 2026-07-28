@@ -13,6 +13,28 @@ services:
       - "6333"
       - "6334"
 
+  mongo:
+    image: mongo:7.0
+    container_name: pihub-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: ${MONGO_DB:-pihub}
+    volumes:
+      - mongo_data:/data/db
+      - backend_logs:/var/log/mongo
+    expose:
+      - "27017"
+
+  cobalt:
+    image: ghcr.io/imputnet/cobalt:latest
+    container_name: pihub-cobalt
+    restart: unless-stopped
+    init: true
+    environment:
+      API_URL: ${COBALT_PUBLIC_URL:-http://cobalt:9000}
+    expose:
+      - "9000"
+
   inference-service:
     build:
       context: .
@@ -89,8 +111,16 @@ services:
       LOCAL_RETRIEVAL_CACHE_DIR: ${LOCAL_RETRIEVAL_CACHE_DIR:-/shared/models/sentence-transformers/retrieval}
       UPLOAD_DIR: ${UPLOAD_DIR:-/shared/uploads}
       WORK_DIR: ${WORK_DIR:-/shared/work}
+      MONGO_URL: ${MONGO_URL:-mongodb://mongo:27017}
+      MONGO_DB: ${MONGO_DB:-pihub}
+      MEDIA_STORAGE_PATH: ${MEDIA_STORAGE_PATH:-/shared/media}
+      ENRICHMENT_LANGUAGES: ${ENRICHMENT_LANGUAGES:-en,kn}
+      ENRICHMENT_COLLECTION: ${ENRICHMENT_COLLECTION:-enrichment_resources}
+      COBALT_API_URL: ${COBALT_API_URL:-http://cobalt:9000}
     depends_on:
       - qdrant
+      - mongo
+      - cobalt
     volumes:
       - shared_storage:/shared
       - ../generated_pack:/shared/generated_pack:ro
@@ -227,8 +257,8 @@ services:
     volumes:
       - shared_storage:/shared
       - ./voice-service/models:/models/svara
+      - ./voice-service/models/snac_24khz-ONNX/onnx/decoder_model.onnx:/models/svara/snac_24khz-ONNX/onnx/decoder_model.onnx:ro
       - ./voice-service/models/gemma4_audio:/models/gemma4_audio
-      - /home/akash/Desktop/voice-benchmark/svara_tts_onnx_benchmark/models/snac_24khz-ONNX/onnx/decoder_model.onnx:/models/svara/snac_24khz-ONNX/onnx/decoder_model.onnx:ro
       - backend_logs:/logs
     expose:
       - "8050"
@@ -253,5 +283,6 @@ services:
 
 volumes:
   qdrant_data:
+  mongo_data:
   backend_logs:
   shared_storage:

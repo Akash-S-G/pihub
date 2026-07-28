@@ -10,7 +10,10 @@ from typing import Any
 
 import logging
 
+from dataclasses import dataclass
+
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.responses import HTMLResponse
 from qdrant_client import QdrantClient
 
 from shared.config import get_settings
@@ -48,12 +51,21 @@ from app.curriculum_graph.graph_builder import GraphBuilder
 from app.curriculum_graph.graph_storage import GraphStorage
 from app.curriculum_graph.concept_index import ConceptIndex
 from app.educational_intelligence import (
+    ApplicationsGenerator,
+    ArtifactAgent,
+    ChapterNotesGenerator,
     EnrichmentRouter,
+    EnrichmentStore,
+    EnrichedContentAgent,
     FlashcardGenerator,
     GlossaryExtractor,
+    InferenceClient,
+    LearningObjectivesGenerator,
+    MisconceptionsGenerator,
     PackCompiler,
     QualityEvaluator,
     QuizGenerator,
+    ReportRenderer,
     SummaryGenerator,
 )
 from app.retrieval_engine.hybrid_chunk_store import HybridChunkStore, RetrievalHit
@@ -203,10 +215,26 @@ class Pipeline:
             device=settings.local_retrieval_device,
             cache_dir=settings.local_retrieval_cache_dir,
         )
-        self.summary_generator = SummaryGenerator()
-        self.glossary_extractor = GlossaryExtractor()
-        self.quiz_generator = QuizGenerator()
-        self.flashcard_generator = FlashcardGenerator()
+        self.enable_ai_artifact_generation = settings.enable_ai_artifact_generation
+        self.inference_client = InferenceClient() if self.enable_ai_artifact_generation else None
+        self.summary_generator = SummaryGenerator(inference_client=self.inference_client)
+        self.glossary_extractor = GlossaryExtractor(inference_client=self.inference_client)
+        self.quiz_generator = QuizGenerator(inference_client=self.inference_client)
+        self.flashcard_generator = FlashcardGenerator(inference_client=self.inference_client)
+        self.chapter_notes_generator = ChapterNotesGenerator(inference_client=self.inference_client)
+        self.learning_objectives_generator = LearningObjectivesGenerator(inference_client=self.inference_client)
+        self.misconceptions_generator = MisconceptionsGenerator(inference_client=self.inference_client)
+        self.applications_generator = ApplicationsGenerator(inference_client=self.inference_client)
+        self.artifact_agent = ArtifactAgent(inference_client=self.inference_client)
+        from app.educational_intelligence.media_store import MediaStore
+        self.media_store = MediaStore()
+        self.enrichment_store = EnrichmentStore(embedding_model=self._load_model())
+        self.enriched_content_agent = EnrichedContentAgent(
+            inference_client=self.inference_client,
+            artifact_agent=self.artifact_agent,
+            media_store=self.media_store,
+            enrichment_store=self.enrichment_store,
+        )
         self.enrichment_router = EnrichmentRouter()
         self.pack_compiler = PackCompiler()
         self.quality_evaluator = QualityEvaluator()
@@ -273,11 +301,17 @@ class Pipeline:
         )
 
     def ensure_ready(self) -> None:
-        ensure_collection(self.client, self.collection_name, self._vector_size(), settings.qdrant_url)
-        if not self.hybrid_store.is_ready():
-            self.hybrid_store.load_snapshot()
-        if not self.hybrid_store.is_ready():
-            self._hydrate_hybrid_store()
+        try:
+            ensure_collection(self.client, self.collection_name, self._vector_size(), settings.qdrant_url)
+        except Exception:
+            logger.warning("Qdrant unavailable for ensure_collection — running in degraded mode")
+        try:
+            if not self.hybrid_store.is_ready():
+                self.hybrid_store.load_snapshot()
+            if not self.hybrid_store.is_ready():
+                self._hydrate_hybrid_store()
+        except Exception:
+            pass
 
     def reset_rag_state(self) -> dict[str, Any]:
         logger.info("Resetting RAG collection %s", self.collection_name)
@@ -588,8 +622,7 @@ class Pipeline:
             logger.warning("Hybrid retrieval store update failed: %s", str(exc)[:300])
         self.curriculum_graph.build_from_chunks(chunks)
         self.curriculum_graph.save(self.curriculum_graph_path)
-        glossary_entries = self.glossary_extractor.extract(chunks)
-        # Rebuild lightweight concept index for routing
+        glossary_entries = self.glossary_extractor._heuristic_extract(chunks) if hasattr(self.glossary_extractor, '_heuristic_extract') else []
         try:
             self._rebuild_concept_index(chunks=chunks, glossary_entries=glossary_entries)
         except Exception:
@@ -597,6 +630,75 @@ class Pipeline:
         if self.enable_curriculum_graph_engine:
             self.relation_graph = self.graph_builder.build(chunks, existing=self.relation_graph)
             self.graph_storage.save(self.relation_graph)
+
+    async def _generate_artifacts(self, chunks: list[dict[str, Any]]) -> dict[str, Any]:
+        """Generate all educational artifacts from chunks using AI generators.
+
+        Returns a dict with summaries, glossary, quizzes, flashcards,
+        chapter notes, learning objectives, misconceptions, and applications.
+        """
+        if not chunks:
+            return {}
+
+        if not self.enable_ai_artifact_generation:
+            return {}
+
+        metadata = chunks[0].get("metadata", {}) if chunks else {}
+        chapter = metadata.get("chapter")
+        logger.info("Generating artifacts for chapter: %s", chapter)
+
+        summary = await self.summary_generator.generate(chunks, chapter=chapter)
+        glossary = await self.glossary_extractor.extract(chunks) if hasattr(self.glossary_extractor, 'extract') and callable(getattr(self.glossary_extractor, 'extract')) else []
+        quizzes = await self.quiz_generator.generate(chunks)
+        flashcards = await self.flashcard_generator.generate(chunks)
+        chapter_notes = await self.chapter_notes_generator.generate(chunks)
+        learning_objectives = await self.learning_objectives_generator.generate(chunks)
+        misconceptions = await self.misconceptions_generator.generate(chunks)
+        applications = await self.applications_generator.generate(chunks)
+
+        enrichment = self.enrichment_router.route(
+            topic=str(metadata.get("topics", [None])[0] or chapter or ""),
+            grade=metadata.get("grade"),
+            subject=metadata.get("subject"),
+        )
+
+        artifacts = {
+            "summaries": [summary] if summary else [],
+            "glossary": glossary,
+            "quizzes": quizzes,
+            "flashcards": flashcards,
+            "chapter_notes": [chapter_notes] if chapter_notes else [],
+            "learning_objectives": learning_objectives,
+            "misconceptions": misconceptions,
+            "applications": applications,
+            "enrichment": [enrichment] if enrichment else [],
+        }
+
+        logger.info(
+            "Generated artifacts: %d summaries, %d glossary, %d quizzes, "
+            "%d flashcards, %d chapter_notes, %d objectives, %d misconceptions, %d applications",
+            len(artifacts["summaries"]),
+            len(artifacts["glossary"]),
+            len(artifacts["quizzes"]),
+            len(artifacts["flashcards"]),
+            len(artifacts["chapter_notes"]),
+            len(artifacts["learning_objectives"]),
+            len(artifacts["misconceptions"]),
+            len(artifacts["applications"]),
+        )
+
+        return artifacts
+
+    async def _ingest_and_generate_artifacts(
+        self, file_path: Path, metadata: Metadata | None = None, source: str | None = None
+    ) -> dict[str, Any]:
+        """Ingest a PDF and generate AI-powered educational artifacts."""
+        result = await asyncio.to_thread(self._ingest_textbook_path, file_path, metadata, source)
+        chunks = result.get("chunks", [])
+        if chunks:
+            artifacts = await self._generate_artifacts(chunks)
+            result["artifacts"] = artifacts
+        return result
 
     async def _auto_ingest_path(self, file_path: Path) -> None:
         await asyncio.to_thread(self._ingest_textbook_path, file_path, None, "watcher")
@@ -1168,11 +1270,15 @@ class Pipeline:
 
 
 pipeline = Pipeline()
+report_renderer = ReportRenderer()
 
 
 @app.on_event("startup")
 async def startup() -> None:
-    pipeline.ensure_ready()
+    try:
+        pipeline.ensure_ready()
+    except Exception as exc:
+        logger.warning("Qdrant unavailable during startup: %s - running in degraded mode", str(exc)[:100])
     if pipeline.auto_ingestion_service is not None:
         await pipeline.auto_ingestion_service.startup()
 
@@ -1333,3 +1439,283 @@ async def debug_learning_pack_preview(path: str, pack_name: str = "curriculum_pa
     file_path = pipeline._resolve_content_path(path)
     chunks = await asyncio.to_thread(pipeline.preview_chunks, file_path)
     return await asyncio.to_thread(pipeline.build_learning_pack_preview, chunks, pack_name)
+
+
+# ── AI-Powered Artifact Generation Endpoints ──────────────────────────────
+
+
+class GenerateArtifactsRequest(BaseModel):
+    path: str
+    chapter: str | None = None
+    subject: str | None = None
+    grade: int | None = None
+    language: str | None = None
+
+
+@app.post("/build/artifacts")
+async def build_artifacts(request: GenerateArtifactsRequest) -> dict[str, Any]:
+    """Generate AI-powered educational artifacts from ingested PDF chunks."""
+    file_path = pipeline._resolve_content_path(request.path)
+    chunks = await asyncio.to_thread(pipeline.preview_chunks, file_path)
+
+    if not chunks:
+        raise HTTPException(status_code=404, detail="No chunks found for the given path")
+
+    if request.chapter:
+        for chunk in chunks:
+            chunk.setdefault("metadata", {})["chapter"] = request.chapter
+    if request.subject:
+        for chunk in chunks:
+            chunk.setdefault("metadata", {})["subject"] = request.subject
+    if request.grade is not None:
+        for chunk in chunks:
+            chunk.setdefault("metadata", {})["grade"] = request.grade
+    if request.language:
+        for chunk in chunks:
+            chunk.setdefault("metadata", {})["language"] = request.language
+
+    artifacts = await pipeline._generate_artifacts(chunks)
+    return {
+        "path": str(file_path),
+        "chunk_count": len(chunks),
+        "artifacts": artifacts,
+    }
+
+
+class BuildPackRequest(BaseModel):
+    path: str
+    pack_name: str = "curriculum_pack"
+    chapter: str | None = None
+    subject: str | None = None
+    grade: int | None = None
+    language: str | None = None
+
+
+@app.post("/build/pack")
+async def build_pack(request: BuildPackRequest) -> dict[str, Any]:
+    """Ingest a PDF, generate AI artifacts, and compile into an offline pack."""
+    file_path = pipeline._resolve_content_path(request.path)
+
+    metadata = Metadata(
+        grade=request.grade,
+        subject=request.subject,
+        chapter=request.chapter,
+        language=request.language,
+    )
+
+    result = await pipeline._ingest_and_generate_artifacts(
+        file_path, metadata=metadata, source="build"
+    )
+    chunks = result.get("chunks", [])
+    artifacts = result.get("artifacts", {})
+
+    pack_manifest = pipeline.pack_compiler.compile(
+        pack_name=request.pack_name,
+        chunks=chunks,
+        summaries=artifacts.get("summaries", []),
+        glossary=artifacts.get("glossary", []),
+        quizzes=artifacts.get("quizzes", []),
+        flashcards=artifacts.get("flashcards", []),
+        enrichment=artifacts.get("enrichment", []),
+        chapter_notes=artifacts.get("chapter_notes", []),
+        learning_objectives=artifacts.get("learning_objectives", []),
+        misconceptions=artifacts.get("misconceptions", []),
+        applications=artifacts.get("applications", []),
+    )
+
+    return {
+        "file_name": result.get("file_name"),
+        "chunks_created": result.get("chunks_created"),
+        "collection": result.get("collection"),
+        "artifacts": {
+            k: len(v) for k, v in artifacts.items() if isinstance(v, list)
+        },
+        "pack": pack_manifest,
+    }
+
+
+@app.get("/build/quality/{path:path}")
+async def build_quality(path: str) -> dict[str, Any]:
+    """Evaluate quality of ingested chunks for a given PDF path."""
+    file_path = pipeline._resolve_content_path(path)
+    chunks = await asyncio.to_thread(pipeline.preview_chunks, file_path)
+    if not chunks:
+        raise HTTPException(status_code=404, detail="No chunks found")
+
+    heuristic_glossary = pipeline.glossary_extractor._heuristic_extract(chunks)
+    heuristic_quizzes = await pipeline.quiz_generator._heuristic_generate(chunks, limit=4)
+    quality = pipeline.quality_evaluator.evaluate(chunks, heuristic_quizzes, heuristic_glossary)
+
+    return {
+        "path": str(file_path),
+        "chunk_count": len(chunks),
+        "quality": quality,
+    }
+
+
+class AgenticGenerateRequest(BaseModel):
+    path: str
+    chapter: str | None = None
+    subject: str | None = None
+    grade: int | None = None
+    language: str | None = None
+    skip_critique: bool = False
+    max_iterations: int | None = None
+
+
+@app.post("/build/agentic-artifacts")
+async def build_agentic_artifacts(request: AgenticGenerateRequest) -> dict[str, Any]:
+    """Generate educational artifacts using the agentic orchestrator with
+    self-critique and iterative improvement cycles.
+
+    The agent:
+    1. Analyzes content (category, density, features)
+    2. Plans artifact generation order based on subject
+    3. Generates each artifact with subject-aware prompts
+    4. Self-critiques output (accuracy, educational value, completeness)
+    5. Iteratively improves until quality threshold is met
+    """
+    file_path = pipeline._resolve_content_path(request.path)
+    chunks = await asyncio.to_thread(pipeline.preview_chunks, file_path)
+
+    if not chunks:
+        raise HTTPException(status_code=404, detail="No chunks found")
+
+    if request.chapter:
+        for chunk in chunks:
+            chunk.setdefault("metadata", {})["chapter"] = request.chapter
+    if request.subject:
+        for chunk in chunks:
+            chunk.setdefault("metadata", {})["subject"] = request.subject
+    if request.grade is not None:
+        for chunk in chunks:
+            chunk.setdefault("metadata", {})["grade"] = request.grade
+    if request.language:
+        for chunk in chunks:
+            chunk.setdefault("metadata", {})["language"] = request.language
+
+    result = await pipeline.artifact_agent.generate_artifacts(
+        chunks=chunks,
+        max_iterations=request.max_iterations,
+        skip_critique=request.skip_critique,
+        pdf_path=str(file_path),
+    )
+
+    return {
+        "path": str(file_path),
+        "chunk_count": len(chunks),
+        "analysis": result["analysis"],
+        "plan": result["plan"],
+        "artifacts": result["artifacts"],
+        "images": result.get("images", []),
+        "formulas": result.get("formulas", []),
+        "latex_block": result.get("latex_block", ""),
+        "image_dir": result.get("image_dir", ""),
+    }
+
+
+@dataclass
+class ReportRequest:
+    job_id: str
+    duration: int = 0
+
+
+class EnrichedGenerateRequest(BaseModel):
+    path: str
+    chapter: str | None = None
+    subject: str | None = None
+    grade: int | None = None
+    language: str | None = None
+    skip_critique: bool = False
+    max_iterations: int | None = None
+    max_topics: int = 8
+    include_web: bool = True
+    dedupe_across_subject: bool = True
+    download_media: bool = True
+    persist: bool = True
+    fetch_languages: list[str] | None = None
+
+
+@app.post("/build/enriched-artifacts")
+async def build_enriched_artifacts(request: EnrichedGenerateRequest) -> dict[str, Any]:
+    """Generate textbook artifacts PLUS per-topic enrichment.
+
+    Enrichment features added on top of the base agentic artifacts:
+      1. Related videos (web search: YouTube + open web) per topic.
+      2. Real-world examples with explanations (concept-grounded).
+      3. Interactive simulations discovered from the OPEN WEB (PhET, OLabs,
+         GeoGebra, JavaLab, etc.).
+
+    Topics are the important topics of the chapter, de-duplicated within the
+    chapter and across previously processed chapters of the same subject.
+
+    Supports English and Kannada (and other Indian-script) textbooks — the
+    source language is auto-detected and threaded through generation and
+    resource lookups. This is a NEW agent; ``/build/agentic-artifacts`` and the
+    local PhET catalog / EnrichmentRouter endpoint are unchanged.
+    """
+    file_path = pipeline._resolve_content_path(request.path)
+    chunks = await asyncio.to_thread(pipeline.preview_chunks, file_path)
+
+    if not chunks:
+        raise HTTPException(status_code=404, detail="No chunks found")
+
+    if request.chapter:
+        for chunk in chunks:
+            chunk.setdefault("metadata", {})["chapter"] = request.chapter
+    if request.subject:
+        for chunk in chunks:
+            chunk.setdefault("metadata", {})["subject"] = request.subject
+    if request.grade is not None:
+        for chunk in chunks:
+            chunk.setdefault("metadata", {})["grade"] = request.grade
+    if request.language:
+        for chunk in chunks:
+            chunk.setdefault("metadata", {})["language"] = request.language
+
+    result = await pipeline.enriched_content_agent.generate(
+        chunks=chunks,
+        max_iterations=request.max_iterations,
+        skip_critique=request.skip_critique,
+        pdf_path=str(file_path),
+        max_topics=request.max_topics,
+        include_web=request.include_web,
+        dedupe_across_subject=request.dedupe_across_subject,
+        download_media=request.download_media,
+        persist=request.persist,
+        fetch_languages=request.fetch_languages,
+    )
+
+    return {
+        "path": str(file_path),
+        "chunk_count": len(chunks),
+        "language": result.get("language"),
+        "fetch_languages": result.get("fetch_languages", []),
+        "analysis": result["analysis"],
+        "plan": result["plan"],
+        "artifacts": result["artifacts"],
+        "images": result.get("images", []),
+        "formulas": result.get("formulas", []),
+        "latex_block": result.get("latex_block", ""),
+        "image_dir": result.get("image_dir", ""),
+        "topics": result.get("topics", []),
+        "real_world_examples": result.get("real_world_examples", []),
+        "topic_enrichment": result.get("topic_enrichment", []),
+        "enrichment_summary": result.get("enrichment_summary", {}),
+    }
+
+
+@app.get("/build/report/{job_id}")
+async def build_report(job_id: str, duration: int = 0) -> HTMLResponse:
+    """Render HTML report for a completed pipeline job."""
+    try:
+        html = report_renderer.render_job(job_id, duration=duration)
+        return HTMLResponse(content=html, status_code=200)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail=f"Job not found: {job_id}")
+
+
+@app.get("/reports")
+async def list_reports() -> list[dict]:
+    """List all completed pipeline jobs with their status."""
+    return report_renderer.list_jobs()
