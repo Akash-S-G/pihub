@@ -132,7 +132,7 @@ services:
       - shared_storage:/shared
       - ./voice-service/models:/models/svara
       - ./voice-service/models/gemma4_audio:/models/gemma4_audio
-      - /home/akash/Desktop/voice-benchmark/svara_tts_onnx_benchmark/models/snac_24khz-ONNX/onnx/decoder_model.onnx:/models/svara/snac_24khz-ONNX/onnx/decoder_model.onnx:ro
+      - ./voice-service/models/snac_24khz-ONNX/onnx/decoder_model.onnx:/models/svara/snac_24khz-ONNX/onnx/decoder_model.onnx:ro
       - backend_logs:/logs
     expose:
       - "8050"

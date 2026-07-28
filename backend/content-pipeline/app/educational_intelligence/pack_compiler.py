@@ -8,7 +8,12 @@ from typing import Any
 
 
 class PackCompiler:
-    """Compile generated educational artifacts into an offline pack manifest/archive."""
+    """Compile generated educational artifacts into an offline pack manifest/archive.
+
+    Supports all artifact types: chunks, summaries, glossary, quizzes, flashcards,
+    chapter notes, learning objectives, misconceptions, real-world applications,
+    and enrichment resources.
+    """
 
     def compile(
         self,
@@ -19,6 +24,10 @@ class PackCompiler:
         quizzes: list[dict[str, Any]],
         flashcards: list[dict[str, Any]],
         enrichment: list[dict[str, Any]],
+        chapter_notes: list[dict[str, Any]] | None = None,
+        learning_objectives: list[dict[str, Any]] | None = None,
+        misconceptions: list[dict[str, Any]] | None = None,
+        applications: list[dict[str, Any]] | None = None,
         output_dir: Path | None = None,
     ) -> dict[str, Any]:
         output_root = output_dir or Path(tempfile.gettempdir()) / "pihub_packs"
@@ -29,13 +38,22 @@ class PackCompiler:
         manifest = {
             "pack_id": self._slug(pack_name),
             "pack_name": pack_name,
-            "version": "1.0.0",
+            "version": "2.0.0",
             "chunk_count": len(chunks),
             "summary_count": len(summaries),
             "glossary_count": len(glossary),
             "quiz_count": len(quizzes),
             "flashcard_count": len(flashcards),
             "enrichment_count": len(enrichment),
+            "chapter_notes_count": len(chapter_notes or []),
+            "learning_objectives_count": len(learning_objectives or []),
+            "misconceptions_count": len(misconceptions or []),
+            "applications_count": len(applications or []),
+            "artifact_types": [
+                "content", "summaries", "glossary", "quizzes", "flashcards",
+                "enrichment", "chapter_notes", "learning_objectives",
+                "misconceptions", "applications",
+            ],
         }
 
         artifacts = {
@@ -45,6 +63,10 @@ class PackCompiler:
             "quizzes.json": quizzes,
             "flashcards.json": flashcards,
             "enrichment.json": enrichment,
+            "chapter_notes.json": chapter_notes or [],
+            "learning_objectives.json": learning_objectives or [],
+            "misconceptions.json": misconceptions or [],
+            "applications.json": applications or [],
             "metadata.json": manifest,
         }
         for filename, payload in artifacts.items():

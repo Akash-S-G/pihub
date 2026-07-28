@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PIHUB Pipeline Report — {{ job_id }}</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; color: #1a1a2e; line-height: 1.6; }
+.container { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem; }
+.header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #fff; border-radius: 12px; padding: 2rem; margin-bottom: 2rem; }
+.header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+.header .meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.5rem; font-size: 0.9rem; opacity: 0.85; }
+.header .meta span { background: rgba(255,255,255,0.1); padding: 0.25rem 0.75rem; border-radius: 6px; display: inline-block; }
+.card { background: #fff; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.card h2 { font-size: 1.2rem; margin-bottom: 1rem; color: #1a1a2e; border-bottom: 2px solid #e8edf4; padding-bottom: 0.5rem; }
+.stage-strip { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.stage-item { display: flex; align-items: center; gap: 0.5rem; background: #f0f4f8; padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.85rem; }
+.stage-dot { width: 10px; height: 10px; border-radius: 50%; }
+.stage-dot.pass { background: #22c55e; }
+.stage-dot.fail { background: #ef4444; }
+.stage-dot.pending { background: #f59e0b; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.chart-container { position: relative; height: 300px; }
+table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid #e8edf4; }
+th { font-weight: 600; color: #64748b; font-size: 0.8rem; text-transform: uppercase; }
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; }
+.summary-card { text-align: center; padding: 1rem; background: #f8fafc; border-radius: 8px; }
+.summary-card .value { font-size: 2rem; font-weight: 700; color: #1a1a2e; }
+.summary-card .label { font-size: 0.8rem; color: #64748b; }
+.links a { color: #3b82f6; text-decoration: none; margin-right: 0.75rem; }
+.links a:hover { text-decoration: underline; }
+@media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+<h1>PIHUB Content Pipeline Report</h1>
+<div class="meta">
+<span>Job: {{ job_id }}</span>
+<span>Grade: {{ grade }}</span>
+<span>Subject: {{ subject }}</span>
+<span>Chapter: {{ chapter }}</span>
+<span>Language: {{ language }}</span>
+<span>Duration: {{ duration }}s</span>
+</div>
+</div>
+
+<div class="card">
+<h2>Stage Strip</h2>
+<div class="stage-strip">
+{% for name, ok in stages %}
+<div class="stage-item">
+<span class="stage-dot {{ 'pass' if ok else 'pending' }}"></span>
+{{ name }}
+</div>
+{% endfor %}
+</div>
+</div>
+
+<div class="card">
+<h2>Summary</h2>
+<div class="summary-grid">
+<div class="summary-card"><div class="value">{{ chunk_count }}</div><div class="label">Chunks</div></div>
+<div class="summary-card"><div class="value">{{ artifact_count }}</div><div class="label">Artifacts</div></div>
+<div class="summary-card"><div class="value">{{ quality_score }}</div><div class="label">Quality Score</div></div>
+<div class="summary-card"><div class="value">{{ duration }}s</div><div class="label">Duration</div></div>
+</div>
+</div>
+
+{% if scores %}
+<div class="grid-2">
+<div class="card">
+<h2>Quality Scores (Radar)</h2>
+<div class="chart-container">
+<canvas id="radarChart"></canvas>
+</div>
+</div>
+<div class="card">
+<h2>Artifact Counts</h2>
+<div class="chart-container">
+<canvas id="barChart"></canvas>
+</div>
+</div>
+</div>
+{% endif %}
+
+{% if scores %}
+<div class="card">
+<h2>Per-Artifact Quality Scores</h2>
+<table>
+<thead>
+<tr><th>Artifact</th><th>Accuracy</th><th>Edu Value</th><th>Age Appro.</th><th>Complete</th><th>Clarity</th><th>Overall</th></tr>
+</thead>
+<tbody>
+{% for art_type, sc in scores.items() %}
+<tr>
+<td>{{ art_type }}</td>
+<td>{{ sc.accuracy | default('—') }}</td>
+<td>{{ sc.educational_value | default('—') }}</td>
+<td>{{ sc.age_appropriateness | default('—') }}</td>
+<td>{{ sc.completeness | default('—') }}</td>
+<td>{{ sc.clarity | default('—') }}</td>
+<td>{{ "%.1f" | format(sc.overall) if sc.overall is defined else '—' }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% endif %}
+
+{% if counts %}
+<div class="card">
+<h2>Artifact Inventory</h2>
+<table>
+<thead>
+<tr><th>Type</th><th>Count</th></tr>
+</thead>
+<tbody>
+{% for art_type, count in counts.items() %}
+<tr><td>{{ art_type }}</td><td>{{ count }}</td></tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% endif %}
+
+<div class="card">
+<h2>Downloads</h2>
+<div class="links">
+<a href="00-quality.json">Quality Data</a>
+<a href="01-plan.json">Plan</a>
+<a href="02-artifacts.json">Artifacts</a>
+<a href="05-pack.json">Pack Info</a>
+<a href="report.html">This Report</a>
+</div>
+</div>
+
+</div>
+
+<script>
+{% if scores %}
+const labels = {{ scores.keys() | list | tojson }};
+const axes = ['Accuracy', 'Edu Value', 'Age Appro.', 'Completeness', 'Clarity'];
+const colors = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'];
+
+const radarDatasets = labels.map((label, i) => ({
+  label: label,
+  data: axes.map(a => {
+    const key = a.toLowerCase().replace(/ /g, '_').replace('edu', 'educational');
+    const sc = {{ scores | tojson }}[label];
+    return sc ? (sc[key] || sc[a] || 0) : 0;
+  }),
+  borderColor: colors[i % colors.length],
+  backgroundColor: colors[i % colors.length] + '20',
+  borderWidth: 2,
+  pointRadius: 3,
+}));
+
+new Chart(document.getElementById('radarChart'), {
+  type: 'radar',
+  data: { labels: axes, datasets: radarDatasets },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: { r: { min: 0, max: 10, ticks: { stepSize: 2 } } },
+    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } }
+  }
+});
+
+const countsData = {{ counts | tojson }};
+new Chart(document.getElementById('barChart'), {
+  type: 'bar',
+  data: {
+    labels: Object.keys(countsData),
+    datasets: [{
+      label: 'Count',
+      data: Object.values(countsData),
+      backgroundColor: '#3b82f6',
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+    plugins: { legend: { display: false } }
+  }
+});
+{% endif %}
+</script>
+</body>
+</html>

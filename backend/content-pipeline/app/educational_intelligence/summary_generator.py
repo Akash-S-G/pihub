@@ -3,19 +3,24 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from app.educational_intelligence.artifact_cleaning import clean_text, is_noisy_text, pick_anchor_sentence, sentence_split
+from app.educational_intelligence.artifact_cleaning import clean_text, is_noisy_text, pick_anchor_sentence
+from app.educational_intelligence.inference_client import InferenceClient
 from app.educational_intelligence.multilingual_support import MultilingualSupport
 
 
 class SummaryGenerator:
-    """Generate chapter/topic summaries and revision notes from chunks."""
+    """Generate chapter/topic summaries.
 
-    def __init__(self) -> None:
+    Uses the inference-service AI endpoint as the primary method.
+    Falls back to heuristic sentence extraction when AI is unavailable.
+    """
+
+    def __init__(self, inference_client: InferenceClient | None = None) -> None:
+        self.inference = inference_client or InferenceClient()
         self.multilingual = MultilingualSupport()
 
     def _sentences(self, text: str) -> list[str]:
-        sentences = [segment.strip() for segment in re.split(r"(?<=[.!?।])\s+", text.strip()) if segment.strip()]
-        return sentences
+        return [segment.strip() for segment in re.split(r"(?<=[.!?।])\s+", text.strip()) if segment.strip()]
 
     def _collect_focus_text(self, chunks: list[dict[str, Any]]) -> str:
         parts: list[str] = []
@@ -29,11 +34,10 @@ class SummaryGenerator:
                 parts.append(text)
         return "\n".join(parts)
 
-    def generate(self, chunks: list[dict[str, Any]], chapter: str | None = None, topic: str | None = None) -> dict[str, Any]:
+    def _heuristic_summary(self, chunks: list[dict[str, Any]], chapter: str | None, topic: str | None) -> dict[str, Any]:
         text = self._collect_focus_text(chunks)
-        sentences = [sentence for sentence in self._sentences(text) if sentence and not is_noisy_text(sentence)]
-        summary_sentences = [pick_anchor_sentence(sentence) for sentence in sentences[:4]] if sentences else []
-        summary_sentences = [sentence for sentence in summary_sentences if sentence]
+        sentences = [s for s in self._sentences(text) if s and not is_noisy_text(s)]
+        summary_sentences = [pick_anchor_sentence(s) for s in sentences[:4] if s]
         summary = " ".join(summary_sentences).strip()
         if not summary and chunks:
             summary = clean_text(str(chunks[0].get("text", "")))[:240]
@@ -41,20 +45,20 @@ class SummaryGenerator:
         focus_terms: list[str] = []
         for chunk in chunks:
             for term in (chunk.get("metadata", {}).get("topics") or []):
-                term_clean = clean_text(str(term))
-                if term_clean and term_clean not in focus_terms and not is_noisy_text(term_clean):
-                    focus_terms.append(term_clean)
+                tc = clean_text(str(term))
+                if tc and tc not in focus_terms and not is_noisy_text(tc):
+                    focus_terms.append(tc)
             for term in (chunk.get("metadata", {}).get("concepts") or []):
-                term_clean = clean_text(str(term))
-                if term_clean and term_clean not in focus_terms and not is_noisy_text(term_clean):
-                    focus_terms.append(term_clean)
+                tc = clean_text(str(term))
+                if tc and tc not in focus_terms and not is_noisy_text(tc):
+                    focus_terms.append(term)
 
-        revision_notes = [f"Remember: {sentence}" for sentence in summary_sentences[:3]]
+        revision_notes = [f"Remember: {s}" for s in summary_sentences[:3]]
         profile = self.multilingual.detect_language(text)
         if profile.language == "kn":
-            revision_notes = [note.replace("Remember: ", "ನೆನಪಿಡಿ: ") for note in revision_notes]
+            revision_notes = [n.replace("Remember: ", "ನೆನಪಿಡಿ: ") for n in revision_notes]
         elif profile.language == "hi":
-            revision_notes = [note.replace("Remember: ", "याद रखें: ") for note in revision_notes]
+            revision_notes = [n.replace("Remember: ", "याद रखें: ") for n in revision_notes]
 
         return {
             "chapter": chapter or (chunks[0].get("metadata", {}).get("chapter") if chunks else None),
@@ -64,17 +68,62 @@ class SummaryGenerator:
             "key_points": focus_terms[:8],
             "revision_notes": revision_notes,
             "chunk_count": len(chunks),
+            "generated_by": "heuristic",
         }
 
+    async def generate(
+        self, chunks: list[dict[str, Any]], chapter: str | None = None, topic: str | None = None
+    ) -> dict[str, Any]:
+        text = self._collect_focus_text(chunks)
+        metadata = chunks[0].get("metadata", {}) if chunks else {}
+
+        title = chapter or metadata.get("chapter") or topic or "Untitled"
+        concepts = list(metadata.get("concepts") or metadata.get("topics") or [])
+        grade = metadata.get("grade")
+        subject = metadata.get("subject")
+        language = metadata.get("language")
+
+        ai_result = await self.inference.generate_summary(
+            title=title,
+            content=text[:8000],
+            concepts=concepts[:20],
+            grade=grade,
+            subject=subject,
+            chapter=chapter or metadata.get("chapter"),
+            language=language,
+        )
+        if ai_result:
+            return {
+                "chapter": chapter or metadata.get("chapter"),
+                "topic": topic or (ai_result.get("keyPoints")[:1] if ai_result.get("keyPoints") else None),
+                "language": language or "en",
+                "summary": ai_result.get("summary", ""),
+                "key_points": ai_result.get("keyPoints", concepts)[:8],
+                "important_facts": ai_result.get("importantFacts", []),
+                "revision_notes": [f"Remember: {p}" for p in ai_result.get("keyPoints", [])[:3]],
+                "chunk_count": len(chunks),
+                "generated_by": "inference-service",
+            }
+
+        return self._heuristic_summary(chunks, chapter, topic)
+
     def quick_review(self, chunks: list[dict[str, Any]]) -> dict[str, Any]:
-        generated = self.generate(chunks)
+        text = self._collect_focus_text(chunks)
+        sentences = [s for s in self._sentences(text) if s and not is_noisy_text(s)]
+        summary_sentences = [pick_anchor_sentence(s) for s in sentences[:3] if s]
+        summary = " ".join(summary_sentences).strip() if summary_sentences else ""
+        if not summary and chunks:
+            summary = clean_text(str(chunks[0].get("text", "")))[:200]
+
+        profile = self.multilingual.detect_language(text)
         title = "Quick Review"
-        if generated["language"] == "kn":
+        if profile.language == "kn":
             title = "ತ್ವರಿತ ವಿಮರ್ಶೆ"
-        elif generated["language"] == "hi":
+        elif profile.language == "hi":
             title = "त्वरित समीक्षा"
+
         return {
-            "title": generated["chapter"] or title,
-            "summary": generated["summary"],
-            "bullets": [note.replace("Remember: ", "") for note in generated["revision_notes"]],
+            "title": title,
+            "summary": summary,
+            "bullets": summary_sentences[:3],
         }

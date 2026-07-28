@@ -10,6 +10,7 @@ from app.educational_intelligence.artifact_cleaning import (
     is_noisy_text,
     pick_anchor_sentence,
 )
+from app.educational_intelligence.inference_client import InferenceClient
 
 
 class DefinitionExtractor:
@@ -44,13 +45,66 @@ class FormulaExtractor:
 
 
 class GlossaryExtractor:
-    """Extract glossary terms from educational chunks."""
+    """Extract glossary terms from educational chunks.
 
-    def __init__(self) -> None:
+    Uses inference-service AI endpoint as the primary method for
+    high-quality term-definition extraction. Falls back to regex-based
+    heuristic extraction when AI is unavailable.
+    """
+
+    def __init__(self, inference_client: InferenceClient | None = None) -> None:
+        self.inference = inference_client or InferenceClient()
         self.definition_extractor = DefinitionExtractor()
         self.formula_extractor = FormulaExtractor()
 
-    def extract(self, chunks: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    async def _ai_extract(self, chunks: list[dict[str, Any]]) -> list[dict[str, Any]] | None:
+        text_parts: list[str] = []
+        concepts: list[str] = []
+        metadata = chunks[0].get("metadata", {}) if chunks else {}
+        for chunk in chunks[:10]:
+            text = clean_text(str(chunk.get("text", "")))
+            if text:
+                text_parts.append(text)
+            for c in (chunk.get("metadata", {}).get("concepts") or chunk.get("metadata", {}).get("topics") or []):
+                if c not in concepts:
+                    concepts.append(c)
+
+        content = "\n\n".join(text_parts)[:8000]
+        if not content:
+            return None
+
+        ai_result = await self.inference.generate_glossary(
+            title=metadata.get("chapter") or "Untitled",
+            content=content,
+            concepts=concepts[:20],
+            grade=metadata.get("grade"),
+            subject=metadata.get("subject"),
+            chapter=metadata.get("chapter"),
+            language=metadata.get("language"),
+        )
+        if ai_result and ai_result.get("items"):
+            return [
+                {
+                    "term": clean_text(str(item.get("term", ""))),
+                    "definition": clean_text(str(item.get("definition", ""))),
+                    "chapter": metadata.get("chapter"),
+                    "subject": metadata.get("subject"),
+                    "language": metadata.get("language"),
+                    "source": "inference-service",
+                }
+                for item in ai_result["items"]
+                if clean_text(str(item.get("term", ""))) and clean_text(str(item.get("definition", "")))
+            ]
+        return None
+
+    async def extract(self, chunks: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        ai_terms = await self._ai_extract(chunks)
+        if ai_terms:
+            return ai_terms
+
+        return self._heuristic_extract(chunks)
+
+    def _heuristic_extract(self, chunks: list[dict[str, Any]]) -> list[dict[str, Any]]:
         terms: dict[str, dict[str, Any]] = {}
         for chunk in chunks:
             text = clean_text(str(chunk.get("text", "")))
@@ -62,6 +116,7 @@ class GlossaryExtractor:
                     "definition": item["definition"],
                     "chapter": metadata.get("chapter"),
                     "subject": metadata.get("subject"),
+                    "language": metadata.get("language"),
                     "source": "definition",
                 }
             for item in self.formula_extractor.extract_formulas(text):

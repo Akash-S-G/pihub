@@ -453,6 +453,84 @@ class StructuredTextbookIngest:
         except Exception as exc:
             raise RuntimeError(f"Unable to extract text from {file_path.name}: {exc}") from exc
 
+    def extract_images(
+        self,
+        file_path: Path,
+        *,
+        min_width: int = 200,
+        min_height: int = 200,
+        min_area: int = 40_000,
+    ) -> list[dict[str, Any]]:
+        """Extract 'important' raster images from a PDF and persist them.
+
+        Only images above the size thresholds are kept (skips tiny icons,
+        rule lines and decorative glyphs). Each image is rendered to PNG
+        under ``<upload_dir>/images/<book>/`` and a manifest entry is
+        returned with page number, pixel size and any nearby caption.
+
+        The manifest can be attached to chunk/section metadata so retrieval
+        can surface the relevant figure alongside text.
+        """
+        try:
+            import fitz
+        except Exception as exc:  # pragma: no cover - fitz optional at import
+            logger.debug("fitz unavailable, skipping image extraction: %s", exc)
+            return []
+
+        settings = get_settings()
+        book = file_path.stem
+        image_dir = Path(settings.upload_dir) / "images" / book
+        image_dir.mkdir(parents=True, exist_ok=True)
+
+        # Pre-scan pages for caption text to associate with images.
+        doc = fitz.open(str(file_path))
+        page_texts = [page.get_text("text") for page in doc]
+
+        manifest: list[dict[str, Any]] = []
+        seen_xrefs: set[int] = set()
+        order = 0
+        for page_index, page in enumerate(doc):
+            for img in page.get_images(full=True):
+                xref = img[0]
+                if xref in seen_xrefs:
+                    continue
+                seen_xrefs.add(xref)
+                try:
+                    pix = fitz.Pixmap(doc, xref)
+                    if pix.width < min_width or pix.height < min_height:
+                        continue
+                    if pix.width * pix.height < min_area:
+                        continue
+                    if pix.alpha:
+                        pix = fitz.Pixmap(pix, alpha=False)
+                    caption = self._nearest_caption(page_texts, page_index)
+                    order += 1
+                    fname = f"p{page_index + 1}_{order}.png"
+                    pix.save(str(image_dir / fname))
+                    manifest.append({
+                        "filename": fname,
+                        "path": str(image_dir / fname),
+                        "page": page_index + 1,
+                        "width": pix.width,
+                        "height": pix.height,
+                        "caption": caption,
+                        "book": book,
+                    })
+                except Exception as exc:  # skip unreadable image xrefs
+                    logger.debug("Skipping image xref %s in %s: %s", xref, file_path.name, exc)
+                    continue
+        doc.close()
+        print(f"[ingest] images_extracted {file_path.name} count={len(manifest)}")
+        return manifest
+
+    @staticmethod
+    def _nearest_caption(page_texts: list[str], page_index: int) -> str:
+        """Find a figure caption on this/next page near the bottom/top."""
+        window = [t for t in page_texts[max(0, page_index - 1): page_index + 2] if t]
+        joined = "\n".join(window)
+        m = re.search(r"(figure\s+\d+[\.:]?\s*[^\n]{0,120})", joined, re.IGNORECASE)
+        return m.group(1).strip() if m else ""
+
     def _extract_text_with_docling(self, file_path: Path) -> str:
         try:
             from docling.document_converter import DocumentConverter  # type: ignore
@@ -495,6 +573,22 @@ class StructuredTextbookIngest:
             chunks = self.semantic_chunker.chunk_educational(text_content, metadata)
         else:
             chunks = self.chunker.chunk_educational(text_content, metadata)
+
+        # Extract and persist important figures; tag chunks whose text
+        # references a figure with that image (caption-based association,
+        # since the section chunker does not track page numbers).
+        image_manifest = self.extract_images(file_path)
+        if image_manifest:
+            metadata.setdefault("images", [m["filename"] for m in image_manifest])
+            for chunk in chunks:
+                ctext = chunk.get("text", "")
+                linked = [
+                    img["filename"]
+                    for img in image_manifest
+                    if img["caption"] and img["caption"][:25].lower() in ctext.lower()
+                ]
+                if linked:
+                    chunk.setdefault("metadata", {})["images"] = linked
 
         logger.debug("Ingested %s -> extracted_text_len=%d, chunks=%d", file_path.name, len(text_content or ""), len(chunks))
         print(f"[ingest] chunking_result {file_path.name} extracted_len={len(text_content or '')} chunk_count={len(chunks)}")

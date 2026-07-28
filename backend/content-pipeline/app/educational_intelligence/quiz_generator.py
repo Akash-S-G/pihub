@@ -5,17 +5,67 @@ from typing import Any
 
 from app.educational_intelligence.artifact_cleaning import build_mcq_options, clean_text, is_meaningful_term
 from app.educational_intelligence.glossary_extractor import GlossaryExtractor
+from app.educational_intelligence.inference_client import InferenceClient
 from shared.text_normalization import normalize_language_code
 
 
 class QuizGenerator:
-    """Generate lightweight educational quizzes from chunks and glossary entries."""
+    """Generate lightweight educational quizzes from chunks and glossary entries.
 
-    def __init__(self) -> None:
-        self.glossary_extractor = GlossaryExtractor()
+    Uses inference-service AI endpoint as the primary method for
+    higher-quality questions with proper distractors.
+    Falls back to template-based MCQ generation from glossary terms.
+    """
 
-    def generate(self, chunks: list[dict[str, Any]], limit: int = 8) -> list[dict[str, Any]]:
-        glossary = self.glossary_extractor.extract(chunks)
+    def __init__(self, inference_client: InferenceClient | None = None) -> None:
+        self.inference = inference_client or InferenceClient()
+        self.glossary_extractor = GlossaryExtractor(inference_client=inference_client)
+
+    async def generate(self, chunks: list[dict[str, Any]], limit: int = 8) -> list[dict[str, Any]]:
+        metadata = chunks[0].get("metadata", {}) if chunks else {}
+        text_parts: list[str] = []
+        concepts: list[str] = []
+        for chunk in chunks[:10]:
+            t = clean_text(str(chunk.get("text", "")))
+            if t:
+                text_parts.append(t)
+            for c in (chunk.get("metadata", {}).get("concepts") or chunk.get("metadata", {}).get("topics") or []):
+                if c not in concepts:
+                    concepts.append(c)
+
+        content = "\n\n".join(text_parts)[:8000]
+        title = metadata.get("chapter") or "Untitled"
+
+        ai_result = await self.inference.generate_quiz(
+            title=title,
+            content=content,
+            concepts=concepts[:20],
+            grade=metadata.get("grade"),
+            subject=metadata.get("subject"),
+            chapter=metadata.get("chapter"),
+            language=metadata.get("language"),
+        )
+        if ai_result and ai_result.get("items"):
+            return [
+                {
+                    "question_type": "mcq",
+                    "question": clean_text(str(item.get("question", ""))),
+                    "options": [clean_text(str(o)) for o in item.get("options", [])],
+                    "answer": clean_text(str(item.get("answer", ""))),
+                    "explanation": clean_text(str(item.get("explanation", ""))),
+                    "chapter": metadata.get("chapter"),
+                    "subject": metadata.get("subject"),
+                    "language": metadata.get("language"),
+                    "generated_by": "inference-service",
+                }
+                for item in ai_result["items"]
+                if clean_text(str(item.get("question", "")))
+            ][:limit]
+
+        return await self._heuristic_generate(chunks, limit)
+
+    async def _heuristic_generate(self, chunks: list[dict[str, Any]], limit: int = 8) -> list[dict[str, Any]]:
+        glossary = await self.glossary_extractor.extract(chunks)
         quizzes: list[dict[str, Any]] = []
         language = self._infer_language(chunks, glossary)
         definitions = [
@@ -39,6 +89,7 @@ class QuizGenerator:
                 "chapter": entry.get("chapter"),
                 "subject": entry.get("subject"),
                 "language": entry.get("language") or language,
+                "generated_by": "heuristic",
             })
             quizzes.append({
                 "question_type": "true_false",
@@ -47,6 +98,7 @@ class QuizGenerator:
                 "chapter": entry.get("chapter"),
                 "subject": entry.get("subject"),
                 "language": entry.get("language") or language,
+                "generated_by": "heuristic",
             })
             quizzes.append({
                 "question_type": "fill_blank",
@@ -55,6 +107,7 @@ class QuizGenerator:
                 "chapter": entry.get("chapter"),
                 "subject": entry.get("subject"),
                 "language": entry.get("language") or language,
+                "generated_by": "heuristic",
             })
             if len(quizzes) >= max(limit * 3, 3):
                 break

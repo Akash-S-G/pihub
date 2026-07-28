@@ -45,7 +45,7 @@ class LanguageAdapter:
             f"Final answer language: {language_display_name(language)} ({language}). "
             f"{self.SCRIPT_HINTS[language]} "
             "Do not translate word-for-word; explain naturally as a helpful teacher. "
-            "Preserve important technical terms and mixed-language classroom phrasing when appropriate."
+            "Respond entirely in the target language. Translate all technical terms into the target language and avoid using English words."
         )
 
     async def adapt(self, answer: str, target_language: str, request: Any, completion: CompletionFn) -> tuple[str, float]:
@@ -56,8 +56,8 @@ class LanguageAdapter:
 
         system_prompt = (
             "You are a multilingual school tutor. Rewrite the answer for the student in the target language. "
-            "Keep the meaning faithful to the educational answer and preserve formulas, numbers, and key terms when useful. "
-            "If the answer already contains code-switched terms or local names, keep them natural instead of translating everything. "
+            "Keep the meaning faithful to the educational answer. "
+            "Respond entirely in the target language. Translate all technical terms into the target language and do not use English words unless absolutely necessary for a formula."
             "Do not add new facts."
         )
         user_prompt = (

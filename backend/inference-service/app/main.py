@@ -10,7 +10,7 @@ import subprocess
 import time
 import unicodedata
 from collections import OrderedDict, deque
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from pathlib import Path
 from typing import Any, AsyncIterator
 
@@ -477,9 +477,9 @@ def _language_label(language: str | None) -> str:
 def _language_instruction(language: str | None) -> str:
     code = normalize_language_code(language)
     if code == "kn":
-        return "Use natural Kannada in Kannada script. Preserve code-switched English technical terms when they are commonly used in class."
+        return "Respond entirely in Kannada script and language. Translate all technical terms into Kannada, do not use English words."
     if code == "hi":
-        return "Use natural Hindi in Devanagari script. Preserve English technical terms when useful."
+        return "Respond entirely in Hindi in Devanagari script. Translate all technical terms into Hindi, do not use English words."
     return "Use clear natural English."
 
 
@@ -638,23 +638,26 @@ def _prompt_cache_key(system_prompt: str, user_prompt: str, model: str, params: 
 
 
 def _clean_model_output(answer: str) -> str:
-    """Remove Phi-2 and other model special tokens from output."""
-    # Remove Phi-2 special tokens
-    answer = answer.replace("<|im_end|>", "")
-    answer = answer.replace("<|im_start|>", "")
-    answer = answer.replace("<|endoftext|>", "")
-    
-    # Remove common control characters
-    answer = answer.replace("<s>", "")
-    answer = answer.replace("</s>", "")
-    
-    # Clean up multiple spaces
+    """Remove ChatML and other model special tokens from output."""
+    # Strip any text after ChatML end-of-turn / role-start tokens
+    # (model should stop at these but strip as safety net)
+    for stop_token in ("<|im_end|>", "<|im_start|>", "<|endoftext|>"):
+        idx = answer.find(stop_token)
+        if idx >= 0:
+            answer = answer[:idx]
+
+    # Strip common BOS/EOS tokens
+    answer = answer.replace("<s>", "").replace("</s>", "")
+
+    # Strip Gemma/ChatML role prefixes that leaked through (e.g. "system\n", "user\n")
+    answer = re.sub(r'^(system|user|assistant)\s*\n', '', answer, flags=re.IGNORECASE)
+
+    # Strip instruction-style echo prefixes (e.g. "Instruct:", "Output:")
+    answer = re.sub(r'^(instruct|output|response|answer)[:\s]+', '', answer, flags=re.IGNORECASE)
+
+    # Clean up multiple spaces and leading/trailing whitespace
     answer = " ".join(answer.split())
-    
-    # Remove leading/trailing whitespace
-    answer = answer.strip()
-    
-    return answer
+    return answer.strip()
 
 
 def _strip_stream_labels(answer: str) -> str:
@@ -940,10 +943,14 @@ async def _chat_completion(
     stream: bool = False,
     response_format: dict[str, Any] | None = None,
 ) -> Any:
-    if not manager.model_path.exists():
-        raise HTTPException(status_code=503, detail="No GGUF model mounted at LLAMA_MODEL_PATH")
+    # When the Ollama backend is selected, generation is served by Ollama and
+    # no local GGUF model / llama-server is required. Skip the guard + server
+    # launch in that case so the service runs without docker (Ollama only).
+    if settings.content_generation_backend.lower() != "ollama":
+        if not manager.model_path.exists():
+            raise HTTPException(status_code=503, detail="No GGUF model mounted at LLAMA_MODEL_PATH")
+        manager.start_server()
 
-    manager.start_server()
     base_url = f"http://{settings.llama_server_host}:{settings.llama_server_port}"
     payload = {
         "model": manager.active_model,
@@ -955,6 +962,8 @@ async def _chat_completion(
         "top_p": request.top_p if request.top_p is not None else settings.llama_top_p,
         "max_tokens": request.max_tokens if request.max_tokens is not None else settings.llama_max_tokens,
         "stream": stream,
+        # Stop at ChatML end-of-turn token so the model doesn't generate fake user/assistant turns
+        "stop": ["<|im_end|>", "<|im_start|>", "<|endoftext|>"],
     }
     if response_format:
         payload["response_format"] = response_format
@@ -966,6 +975,12 @@ async def _chat_completion(
             return cached
 
     if not stream:
+        if settings.content_generation_backend.lower() == "ollama":
+            raw = await _ollama_generate(user_prompt, system_prompt)
+            if not raw:
+                raise HTTPException(status_code=502, detail="Ollama returned empty response")
+            manager.prompt_cache.set(cache_key, raw)
+            return raw
         response = await manager.http.post(f"{base_url}/v1/chat/completions", json=payload, timeout=180.0)
         if response.is_error:
             raise HTTPException(status_code=response.status_code, detail=response.text)
@@ -976,7 +991,10 @@ async def _chat_completion(
         return content
 
     async def event_stream() -> AsyncIterator[str]:
-        buffer = ""
+        # Accumulates the full raw response for post-processing
+        full_response = ""
+        # Tracks what has been emitted to compute incremental deltas
+        emitted = ""
         queue: asyncio.Queue[str | None] = asyncio.Queue()
         stream_closed = asyncio.Event()
 
@@ -990,7 +1008,7 @@ async def _chat_completion(
                 await queue.put(None)
 
         reader_task = asyncio.create_task(read_upstream())
-        last_emit = time.monotonic()
+        last_heartbeat = time.monotonic()
 
         try:
             yield f"data: {json.dumps({'chunk': '', 'done': False, 'started': True})}\n\n"
@@ -1000,9 +1018,9 @@ async def _chat_completion(
                 except asyncio.TimeoutError:
                     if stream_closed.is_set():
                         break
-                    if time.monotonic() - last_emit >= 3.0:
+                    if time.monotonic() - last_heartbeat >= 3.0:
                         yield f"data: {json.dumps({'chunk': '', 'done': False, 'heartbeat': True})}\n\n"
-                        last_emit = time.monotonic()
+                        last_heartbeat = time.monotonic()
                     continue
 
                 if line is None:
@@ -1014,30 +1032,40 @@ async def _chat_completion(
 
                 data = line.removeprefix("data: ").strip()
                 if data == "[DONE]":
-                    if buffer:
-                        cleaned = _finalize_tutor_answer(buffer, request)
-                        yield f"data: {json.dumps({'chunk': cleaned, 'done': True})}\n\n"
-                    yield "data: [DONE]\n\n"
-                    return
+                    break
 
                 try:
                     payload_data = json.loads(data)
                 except json.JSONDecodeError:
                     continue
 
-                delta = payload_data.get("choices", [{}])[0].get("delta", {})
-                chunk = delta.get("content") or ""
-                if chunk:
-                    buffer += chunk
-                    if len(buffer) >= settings.stream_batch_chars:
-                        cleaned = _finalize_tutor_answer(buffer, request)
-                        yield f"data: {json.dumps({'chunk': cleaned, 'done': False})}\n\n"
-                        buffer = ""
-                        last_emit = time.monotonic()
+                # Stop if finish_reason is set (e.g. 'stop', 'length')
+                finish_reason = payload_data.get("choices", [{}])[0].get("finish_reason")
+                chunk = payload_data.get("choices", [{}])[0].get("delta", {}).get("content") or ""
 
-            if buffer:
-                cleaned = _finalize_tutor_answer(buffer, request)
-                yield f"data: {json.dumps({'chunk': cleaned, 'done': True})}\n\n"
+                if chunk:
+                    full_response += chunk
+                    # Stream immediately without batching — clean only stop tokens inline
+                    safe_chunk = chunk
+                    for stop_tok in ("<|im_end|>", "<|im_start|>", "<|endoftext|>"):
+                        if stop_tok in safe_chunk:
+                            safe_chunk = safe_chunk[:safe_chunk.index(stop_tok)]
+                    if safe_chunk:
+                        emitted += safe_chunk
+                        yield f"data: {json.dumps({'chunk': safe_chunk, 'done': False})}\n\n"
+                        last_heartbeat = time.monotonic()
+
+                if finish_reason and finish_reason != "null":
+                    break
+
+            # Post-process the complete accumulated response
+            cleaned = _finalize_tutor_answer(full_response, request)
+            # If the cleaned version differs significantly from what was emitted
+            # (e.g. fallback triggered), send a correction chunk
+            if cleaned != emitted and cleaned:
+                yield f"data: {json.dumps({'chunk': cleaned, 'done': True, 'corrected': True})}\n\n"
+            else:
+                yield f"data: {json.dumps({'chunk': '', 'done': True})}\n\n"
             yield "data: [DONE]\n\n"
         finally:
             reader_task.cancel()
@@ -1045,6 +1073,8 @@ async def _chat_completion(
                 await reader_task
 
     return event_stream()
+
+
 
 
 tutor_orchestrator = TutorOrchestrator(

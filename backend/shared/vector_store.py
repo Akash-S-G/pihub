@@ -20,6 +20,8 @@ class StoredChunk:
 
 
 def make_qdrant_client(url: str) -> QdrantClient:
+    if url == ":memory:":
+        return QdrantClient(":memory:")
     return QdrantClient(url=url)
 
 

@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from app.educational_intelligence.artifact_cleaning import clean_text, is_meaningful_term, is_noisy_text, pick_anchor_sentence
+from app.educational_intelligence.glossary_extractor import GlossaryExtractor
 from shared.text_normalization import normalize_language_code
 
 logger = logging.getLogger(__name__)
