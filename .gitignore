@@ -3,6 +3,8 @@
 .vscode/
 graphify-out/
 backend/.env
+.env
+.env.example.bak
 TEXTBOOKS/
 KANNADA_MEDIUM/
 __pycache__/

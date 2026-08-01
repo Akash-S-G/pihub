@@ -103,9 +103,35 @@ class WebResourceFinder:
         self.youtube_api_key = (
             youtube_api_key if youtube_api_key is not None else settings.youtube_api_key
         )
-        self.user_agent = user_agent or settings.enrichment_user_agent
         self.enabled = settings.enable_web_enrichment
+        self.user_agent = user_agent or settings.enrichment_user_agent
+        self.searxng_url = settings.searxng_url.strip().rstrip("/")
+        provider = (settings.web_search_provider or "auto").lower()
+        if provider == "auto":
+            self.search_provider = "searxng" if self.searxng_url else "duckduckgo"
+        elif provider in ("searxng", "ddg", "duckduckgo"):
+            self.search_provider = "searxng" if provider == "searxng" else "duckduckgo"
+        else:
+            self.search_provider = "duckduckgo"
+        if self.search_provider == "searxng" and not self.searxng_url:
+            logger.warning("WEB_SEARCH_PROVIDER=searxng but SEARXNG_URL unset; falling back to DuckDuckGo")
+            self.search_provider = "duckduckgo"
         self._client: httpx.AsyncClient | None = None
+
+    async def _search_web(
+        self, query: str, language: str, resource_type: str = "article", relevance: float = 0.6
+    ) -> list[WebResource]:
+        """Search the web via the configured provider, with graceful fallback.
+
+        Tries SearXNG (if selected); on any failure falls back to DuckDuckGo HTML
+        so enrichment never hard-breaks when one backend is unavailable.
+        """
+        if self.search_provider == "searxng":
+            try:
+                return await self._searxng_search(query, language, resource_type, relevance)
+            except (httpx.HTTPError, Exception) as exc:  # noqa: BLE001 - never break generation
+                logger.warning("SearXNG search failed (%s); falling back to DuckDuckGo", str(exc)[:160])
+        return await self._duckduckgo_search(query, language, resource_type, relevance)
 
     async def _get_client(self) -> httpx.AsyncClient:
         if self._client is None:
@@ -286,7 +312,7 @@ class WebResourceFinder:
     async def _find_articles(self, topic: str, language: str, subject: str | None) -> list[WebResource]:
         suffix = "real world examples applications"
         query = self._query(topic, language, suffix)
-        return await self._duckduckgo_search(query, language, resource_type="article", relevance=0.6)
+        return await self._search_web(query, language, resource_type="article", relevance=0.6)
 
     # ------------------------------------------------------------- simulations
     # Domains that host interactive simulations / virtual labs. Results from
@@ -308,7 +334,7 @@ class WebResourceFinder:
 
     async def _find_simulations(self, topic: str, language: str, subject: str | None) -> list[WebResource]:
         query = self._query(topic, language, "interactive simulation virtual lab")
-        hits = await self._duckduckgo_search(
+        hits = await self._search_web(
             query, language, resource_type="simulation", relevance=0.6
         )
         # Prefer results from known simulation providers; keep others as fallback.
@@ -368,6 +394,48 @@ class WebResourceFinder:
             return resources
         except (httpx.HTTPError, Exception) as exc:  # noqa: BLE001 - never break generation
             logger.warning("DuckDuckGo search failed: %s", str(exc)[:200])
+            return []
+
+    async def _searxng_search(
+        self, query: str, language: str, resource_type: str = "article", relevance: float = 0.6
+    ) -> list[WebResource]:
+        """Self-hosted SearXNG metasearch (JSON API). Stable, keyless, no scraping."""
+        if not self.searxng_url:
+            return []
+        try:
+            client = await self._get_client()
+            # Map language code to SearXNG region (accepts e.g. "kn", "en").
+            params = {
+                "q": query,
+                "format": "json",
+                "language": language if len(language) == 2 else "en",
+            }
+            resp = await client.get(f"{self.searxng_url}/search", params=params)
+            if not resp.is_success:
+                return []
+            data = resp.json()
+            results = data.get("results", [])
+            resources: list[WebResource] = []
+            for item in results[: self.max_per_topic * 3]:
+                url = item.get("url") or ""
+                if not url or not url.startswith("http"):
+                    continue
+                resources.append(
+                    WebResource(
+                        title=(item.get("title") or query).strip()[:160],
+                        url=url,
+                        resource_type=resource_type,
+                        source=self._domain(url),
+                        description=(item.get("content") or "")[:300],
+                        language=language,
+                        relevance=relevance,
+                    )
+                )
+                if len(resources) >= self.max_per_topic:
+                    break
+            return resources
+        except (httpx.HTTPError, Exception) as exc:  # noqa: BLE001 - never break generation
+            logger.warning("SearXNG search failed: %s", str(exc)[:200])
             return []
 
     @staticmethod

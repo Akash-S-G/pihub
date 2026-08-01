@@ -86,6 +86,7 @@ class MediaStore:
         self._enable_mongo = s.enable_mongo_storage
         self._mongo: Any | None = None
         self.cobalt_url = s.cobalt_api_url.rstrip("/")
+        self._media_max_total_gb = float(getattr(s, "media_max_total_gb", 0.0) or 0.0)
         self._has_ffmpeg = shutil.which("ffmpeg") is not None
         if self.enabled:
             self.video_dir.mkdir(parents=True, exist_ok=True)
@@ -130,6 +131,73 @@ class MediaStore:
         except Exception:
             return None
 
+    # ----------------------------------------------------- subject dedup store
+    # Persists the set of "important" topic keys per subject so cross-chapter
+    # dedup survives container restarts (agent's in-memory set resets otherwise).
+    def _dedup_col(self):
+        db = self._mongo
+        return db["seen_topics"] if db is not None else None
+
+    def get_seen_topics(self, subject: str) -> list[str]:
+        col = self._dedup_col()
+        if col is None:
+            return []
+        try:
+            doc = col.find_one({"_id": subject}, {"_id": 0, "topics": 1})
+            return list(doc.get("topics") or []) if doc else []
+        except Exception:
+            return []
+
+    def is_topic_seen(self, subject: str, topic_key: str) -> bool:
+        col = self._dedup_col()
+        if col is None:
+            return False
+        try:
+            doc = col.find_one({"_id": subject}, {"_id": 0, "topics": 1})
+            return bool(doc and topic_key in (doc.get("topics") or []))
+        except Exception:
+            return False
+
+    def mark_topic_seen(self, subject: str, topic_key: str) -> None:
+        col = self._dedup_col()
+        if col is None:
+            return
+        try:
+            col.update_one(
+                {"_id": subject},
+                {"$addToSet": {"topics": topic_key}},
+                upsert=True,
+            )
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("Mongo dedup mark failed: %s", str(exc)[:150])
+
+    def clear_subject_seen(self, subject: str | None = None) -> None:
+        col = self._dedup_col()
+        if col is None:
+            return
+        try:
+            if subject is None:
+                col.delete_many({})
+            else:
+                col.delete_one({"_id": subject})
+        except Exception:
+            pass
+
+    # ----------------------------------------------------------- media budget
+    # Hard cap on total local media size so the offline volume can't fill the
+    # Pi's disk across many enrichment runs. 0 == unbounded.
+    def _budget_ok(self) -> bool:
+        cap_gb = getattr(self, "_media_max_total_gb", 0.0) or 0.0
+        if cap_gb <= 0:
+            return True
+        try:
+            used = sum(
+                f.stat().st_size for f in self.storage_path.rglob("*") if f.is_file()
+            )
+            return used <= cap_gb * 1024**3
+        except Exception:
+            return True
+
     # ------------------------------------------------------------------ public
     async def store_video(self, url: str, title: str = "", source: str = "", language: str = "en", topic: str = "") -> StoredMedia:
         mid = _media_id(url)
@@ -150,6 +218,10 @@ class MediaStore:
 
         if not self.enabled:
             return StoredMedia(mid, url, "video", "", title, source, language, topic, error="media_download_disabled")
+
+        if not self._budget_ok():
+            logger.warning("Media budget reached (%.0f GB cap); skipping download of %s", self._media_max_total_gb, url)
+            return StoredMedia(mid, url, "video", "", title, source, language, topic, error="media_budget_exceeded")
 
         raw = self.video_dir / f"{mid}.raw.mp4"
         try:

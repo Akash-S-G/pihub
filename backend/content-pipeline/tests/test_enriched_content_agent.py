@@ -70,12 +70,13 @@ def _make_agent(tmp_media: Path | None = None):
 
 class _FakeMediaStore:
     """Records store calls, writes a dummy file so local_path is non-empty."""
-    def __init__(self, root: Path | None = None):
+    def __init__(self, root=None):
         self.root = root or Path(tempfile.mkdtemp(prefix="hermes-media-"))
         (self.root / "videos").mkdir(parents=True, exist_ok=True)
         (self.root / "images").mkdir(parents=True, exist_ok=True)
         self.videos = []
         self.images = []
+        self._seen: dict[str, set[str]] = {}
 
     async def store_video(self, url, title="", source="", language="en", topic=""):
         from app.educational_intelligence.media_store import StoredMedia
@@ -94,6 +95,19 @@ class _FakeMediaStore:
         return StoredMedia(media_id="y", source_url=url, media_type="image", local_path=str(p),
                            title=title, source=source, language=language, topic=topic,
                            size_bytes=7, compressed=False)
+
+    # --- durable dedup API (in-memory for tests) ---
+    def get_seen_topics(self, subject: str) -> list[str]:
+        return list(self._seen.get(subject, set()))
+
+    def mark_topic_seen(self, subject: str, topic_key: str) -> None:
+        self._seen.setdefault(subject, set()).add(topic_key)
+
+    def clear_subject_seen(self, subject=None) -> None:
+        if subject is None:
+            self._seen.clear()
+        else:
+            self._seen.pop(subject, None)
 
 
 class EnrichedContentAgentTests(unittest.TestCase):

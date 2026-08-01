@@ -100,6 +100,14 @@ class Settings(BaseSettings):
     # Cobalt API (self-hosted media downloader — replaces yt-dlp)
     cobalt_api_url: str = Field(default="http://cobalt:9000", alias="COBALT_API_URL")
 
+    # Web search provider for enrichment. "auto" (default) tries SearXNG if
+    # SEARXNG_URL is set, otherwise falls back to keyless DuckDuckGo HTML.
+    # "searxng" forces SearXNG (and warns if not configured); "duckduckgo" forces DDG.
+    web_search_provider: str = Field(default="auto", alias="WEB_SEARCH_PROVIDER")
+    searxng_url: str = Field(default="", alias="SEARXNG_URL")
+    # Hard cap on the local media volume (videos+images), GB. 0 = unbounded.
+    media_max_total_gb: float = Field(default=20.0, alias="MEDIA_MAX_TOTAL_GB")
+
     # MongoDB — stores media + enrichment metadata for offline access
     mongo_url: str = Field(default="mongodb://mongo:27017", alias="MONGO_URL")
     mongo_db: str = Field(default="pihub", alias="MONGO_DB")

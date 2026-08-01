@@ -105,6 +105,14 @@ class EnrichedContentAgent:
     def _subject_key(subject: str | None) -> str:
         return (subject or "_default").strip().lower()
 
+    def _collect_existing_seen(self, subject_key: str) -> list[str]:
+        """Union of in-memory seen topics and the durable Mongo store."""
+        seen = set(self._seen_topics_by_subject.get(subject_key, set()))
+        if self.media_store is not None:
+            for t in self.media_store.get_seen_topics(subject_key):
+                seen.add(t)
+        return list(seen)
+
     async def generate(
         self,
         chunks: list[dict[str, Any]],
@@ -158,15 +166,22 @@ class EnrichedContentAgent:
         # chapter and across the subject)
         analysis = self.analyzer.analyze(chunks)
         subject_key = self._subject_key(subject)
-        subject_seen = (
-            self._seen_topics_by_subject.setdefault(subject_key, set())
-            if dedupe_across_subject
-            else set()
-        )
+        # Cross-subject dedup is backed by Mongo (survives restarts) AND an
+        # in-memory set (fast path within a single process run).
+        subject_seen: set[str] = set()
+        if dedupe_across_subject:
+            subject_seen = self._seen_topics_by_subject.setdefault(subject_key, set())
+            if self.media_store is not None:
+                # hydrate from durable store
+                for t in self._collect_existing_seen(subject_key):
+                    subject_seen.add(t)
         topics = self._collect_topics(analysis, base, metadata, max_topics, subject_seen)
         # record the topics we chose so future chapters of this subject skip them
         for t in topics:
-            subject_seen.add(t.lower())
+            tkey = t.lower()
+            subject_seen.add(tkey)
+            if dedupe_across_subject and self.media_store is not None:
+                self.media_store.mark_topic_seen(subject_key, tkey)
         logger.info("Enriching %d topics (lang=%s): %s", len(topics), language, topics)
 
         # 4) real-world examples (chapter-level, reuse ApplicationsGenerator)

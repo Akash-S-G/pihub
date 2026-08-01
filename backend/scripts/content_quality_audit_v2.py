@@ -14,9 +14,9 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from content_pipeline.chunk_cleaner import classify_chunk, clean_chunks, content_hash, word_count
-from content_pipeline.chunk_merger import merge_adjacent_chunks
-from content_pipeline.deduplicate_chunks import deduplicate_chunks, near_duplicate_key
+from scripts.chunk_tools.chunk_cleaner import classify_chunk, clean_chunks, content_hash, word_count
+from scripts.chunk_tools.chunk_merger import merge_adjacent_chunks
+from scripts.chunk_tools.deduplicate_chunks import deduplicate_chunks, near_duplicate_key
 
 
 def load_json(path: Path) -> Any:
