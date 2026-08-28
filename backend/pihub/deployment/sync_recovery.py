@@ -12,6 +12,7 @@ Handles:
 from __future__ import annotations
 
 import json
+import os
 import time
 from pathlib import Path
 from typing import Any
@@ -21,7 +22,7 @@ class PersistentSyncQueue:
     """Persistent synchronization queue that survives reboot"""
 
     def __init__(self, queue_file: Path | None = None) -> None:
-        self.queue_file = queue_file or Path("/storage/sync_queue_persistent.json")
+        self.queue_file = queue_file or Path(os.getenv("STORAGE_DIR", "/storage")) / "sync_queue_persistent.json"
         self.queue_file.parent.mkdir(parents=True, exist_ok=True)
         self.memory_queue: list[dict[str, Any]] = []
         self._load_from_disk()
@@ -71,8 +72,12 @@ class TransferRecoveryCoordinator:
     """Coordinate recovery of interrupted transfers"""
 
     def __init__(self, recovery_file: Path | None = None) -> None:
-        self.recovery_file = recovery_file or Path("/storage/transfer_recovery.json")
-        self.recovery_file.parent.mkdir(parents=True, exist_ok=True)
+        storage_base = Path(os.getenv("STORAGE_DIR")) if os.getenv("STORAGE_DIR") else (Path(__file__).resolve().parents[3] / ".local_run" / "pihub_storage")
+        self.recovery_file = recovery_file or (storage_base / "transfer_recovery.json")
+        try:
+            self.recovery_file.parent.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            pass
         self.recovery_map: dict[str, dict[str, Any]] = {}
         self._load_recovery_state()
 

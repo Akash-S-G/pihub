@@ -15,6 +15,7 @@ from urllib.parse import quote, urlparse
 import httpx
 from fastapi import FastAPI, File, Form, HTTPException, Query, Request, UploadFile, WebSocket, WebSocketDisconnect
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 from starlette.background import BackgroundTask
 
@@ -60,7 +61,11 @@ DEMO_TOPICS: list[dict[str, Any]] = [
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.http = httpx.AsyncClient(timeout=settings.gateway_http_timeout_seconds)
+    limits = httpx.Limits(max_connections=200, max_keepalive_connections=50)
+    app.state.http = httpx.AsyncClient(
+        timeout=settings.gateway_http_timeout_seconds,
+        limits=limits,
+    )
     app.state.experiment_client = ExperimentServiceClient(
         app.state.http,
         settings.experiment_service_url,
@@ -78,6 +83,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title=settings.app_name, lifespan=lifespan)
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 
 def _log_tag(path: str) -> str:
@@ -91,7 +97,7 @@ def _log_tag(path: str) -> str:
         return "RAG"
     if path.startswith("/experiments") or path.startswith("/experiment-templates") or path.startswith("/experiment-runs") or path.startswith("/analytics") or path.startswith("/experiment-metrics"):
         return "EXPERIMENT_GATEWAY"
-    if path.startswith("/api/voice") or path.startswith("/voice"):
+    if settings.voice_service_enabled and (path.startswith("/api/voice") or path.startswith("/voice")):
         return "VOICE"
     if path.startswith("/ai") or path.startswith("/tutor") or path.startswith("/planner") or path.startswith("/metrics/tutor") or path.startswith("/metrics/retrieval"):
         return "TUTOR"
@@ -520,8 +526,8 @@ def _capabilities() -> dict[str, bool]:
         "progress": True,
         "metrics": True,
         "experiments": True,
-        "voice": True,
-        "audio": True,
+        "voice": settings.voice_service_enabled,
+        "audio": settings.voice_service_enabled,
     }
 
 
@@ -568,7 +574,7 @@ def _discovery_payload() -> dict[str, Any]:
         "supports_rag": True,
         "supports_sync": True,
         "supports_assets": True,
-        "supports_voice": True,
+        "supports_voice": settings.voice_service_enabled,
     }
 
 
@@ -859,7 +865,7 @@ async def _send_with_retry(
     retries: int = 3,
 ) -> httpx.Response:
     url = f"{base_url}{path}"
-    retryable = base_url == settings.voice_service_url
+    retryable = settings.voice_service_enabled and base_url == settings.voice_service_url
     delay = 0.25
     last_error: Exception | None = None
 
@@ -992,16 +998,19 @@ async def health() -> dict[str, Any]:
         if settings.experiment_service_required:
             status = "degraded"
 
-    try:
-        voice = await app.state.http.get(f"{settings.voice_service_url}/health")
-        checks["voice_service"] = voice.json()
-        voice_ok = voice.is_success
-        if voice.is_error and settings.voice_service_required:
-            status = "degraded"
-    except Exception as exc:  # pragma: no cover - network failure path
-        checks["voice_service"] = {"healthy": False, "error": str(exc)}
-        if settings.voice_service_required:
-            status = "degraded"
+    if settings.voice_service_enabled:
+        try:
+            voice = await app.state.http.get(f"{settings.voice_service_url}/health")
+            checks["voice_service"] = voice.json()
+            voice_ok = voice.is_success
+            if voice.is_error and settings.voice_service_required:
+                status = "degraded"
+        except Exception as exc:  # pragma: no cover - network failure path
+            checks["voice_service"] = {"healthy": False, "error": str(exc)}
+            if settings.voice_service_required:
+                status = "degraded"
+    else:
+        checks["voice_service"] = {"healthy": True, "disabled": True}
 
     try:
         pihub = await app.state.http.get(f"{settings.pihub_url}/health")
@@ -1038,7 +1047,11 @@ async def health() -> dict[str, Any]:
         "service": "gateway",
         "inference_service": inference_ok,
         "experiment_service": {"healthy": experiment_ok},
-        "voice_service": {"healthy": voice_ok},
+        "voice_service": (
+            {"healthy": True, "disabled": True}
+            if not settings.voice_service_enabled
+            else {"healthy": voice_ok}
+        ),
         "database": database_ok,
         "pack_count": pack_count,
         "chunk_count": chunk_count,
@@ -1284,12 +1297,16 @@ async def ai_health() -> dict[str, Any]:
 @app.post("/voice/query")
 @app.post("/api/voice/query")
 async def voice_query(payload: dict[str, Any]) -> Any:
+    if not settings.voice_service_enabled:
+        raise HTTPException(status_code=503, detail="Voice service disabled")
     return await _proxy_to(settings.voice_service_url, "POST", "/voice/query", payload)
 
 
 @app.post("/voice/tts")
 @app.post("/api/voice/tts")
 async def voice_tts(payload: dict[str, Any]) -> Any:
+    if not settings.voice_service_enabled:
+        raise HTTPException(status_code=503, detail="Voice service disabled")
     return await _proxy_to(settings.voice_service_url, "POST", "/voice/tts", payload)
 
 
@@ -1300,6 +1317,8 @@ async def voice_stt(
     language: str | None = Query(default=None),
     enable_partial_transcripts: bool = Query(default=False),
 ) -> dict[str, Any]:
+    if not settings.voice_service_enabled:
+        raise HTTPException(status_code=503, detail="Voice service disabled")
     return await _post_multipart(
         settings.voice_service_url,
         "/voice/stt",
@@ -1314,6 +1333,8 @@ async def voice_stt(
 @app.get("/voice/audio/{asset_id:path}")
 @app.get("/api/voice/audio/{asset_id:path}")
 async def voice_audio(asset_id: str, request: Request) -> StreamingResponse:
+    if not settings.voice_service_enabled:
+        raise HTTPException(status_code=503, detail="Voice service disabled")
     headers: dict[str, str] = {}
     range_header = request.headers.get("range")
     if range_header:
@@ -1329,6 +1350,8 @@ async def voice_audio(asset_id: str, request: Request) -> StreamingResponse:
 @app.get("/voice/metrics")
 @app.get("/api/voice/metrics")
 async def voice_metrics() -> dict[str, Any]:
+    if not settings.voice_service_enabled:
+        raise HTTPException(status_code=503, detail="Voice service disabled")
     return await _get_json(settings.voice_service_url, "/voice/metrics")
 
 
@@ -1339,6 +1362,10 @@ import websockets
 @app.websocket("/api/v1/voice/stream")
 async def voice_stream_proxy(websocket: WebSocket) -> None:
     await websocket.accept()
+    if not settings.voice_service_enabled:
+        await websocket.send_json({"type": "error", "message": "Voice service disabled"})
+        await websocket.close()
+        return
     target_url = settings.voice_service_url.replace("http://", "ws://").replace("https://", "wss://") + "/voice/stream"
     logger.info(f"[GATEWAY] Proxying WebSocket connection to: {target_url}")
     

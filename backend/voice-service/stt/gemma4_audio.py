@@ -101,7 +101,7 @@ class Gemma4AudioBackend(VoiceBackend):
         self.load_time_ms: float | None = None
         self.model_path: str | None = None
         self._load_lock = asyncio.Lock()
-        self._inference_lock = threading.Lock()
+        self._inference_lock = asyncio.Lock()
         self._processor: Any = None
         self._model: Any = None
 
@@ -292,8 +292,9 @@ class Gemma4AudioBackend(VoiceBackend):
                 if hasattr(inputs, "to"):
                     inputs = inputs.to(self._model.device)  # type: ignore[union-attr]
 
-                with self._inference_lock:
-                    outputs = self._model.generate(  # type: ignore[union-attr]
+                async with self._inference_lock:
+                    outputs = await asyncio.to_thread(
+                        self._model.generate,  # type: ignore[union-attr]
                         **inputs,
                         max_new_tokens=self.max_new_tokens,
                         do_sample=False,

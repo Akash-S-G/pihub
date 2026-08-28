@@ -21,6 +21,9 @@ backend/.local_run/
 backend/.local_run_env
 backend/_depcheck.py
 backend/content-pipeline/_dbgpath.py
+*.sqlite3-shm
+*.sqlite3-wal
+
 
 # Generated audits, validation outputs, and debugging results
 /*_report.json

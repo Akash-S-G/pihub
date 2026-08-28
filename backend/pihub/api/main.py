@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, Request, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, HTMLResponse
 
 from api.schemas import (
     ClassroomUpdateRequest,
@@ -48,24 +48,27 @@ logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 
 class Settings:
     def __init__(self) -> None:
-        self.db_path = os.getenv("PIHUB_DB_PATH", "/storage/pihub.sqlite3")
+        local_base = Path(__file__).resolve().parents[2] / ".local_run"
+        self.db_path = os.getenv("PIHUB_DB_PATH") or str(local_base / "pihub.sqlite3")
         self.admin_token = os.getenv("PIHUB_ADMIN_TOKEN", "change-me")
         self.device_token_secret = os.getenv("PIHUB_DEVICE_TOKEN_SECRET", "change-me-too")
         self.classroom_name = os.getenv("PIHUB_CLASSROOM_NAME", "Classroom A")
         self.backend_url = os.getenv("BACKEND_URL", "http://gateway:8000")
         self.base_dir = Path("/")
-        self.packs_dir = Path("/packs")
-        self.cache_dir = Path("/cache")
-        self.storage_dir = Path("/storage")
-        self.logs_dir = Path("/logs")
+        # Fall back to local writable paths if default Docker mounts (/packs, /cache, etc.) are un-writable.
+        self.packs_dir = Path(os.getenv("PACKS_DIR") or (local_base / "pihub_packs"))
+        self.cache_dir = Path(os.getenv("CACHE_DIR") or (local_base / "pihub_cache"))
+        self.storage_dir = Path(os.getenv("STORAGE_DIR") or (local_base / "pihub_storage"))
+        self.logs_dir = Path(os.getenv("LOGS_DIR") or (local_base / "pihub_logs"))
 
 
 settings = Settings()
 store = PiHubStore(settings.db_path)
-settings.packs_dir.mkdir(parents=True, exist_ok=True)
-settings.cache_dir.mkdir(parents=True, exist_ok=True)
-settings.storage_dir.mkdir(parents=True, exist_ok=True)
-settings.logs_dir.mkdir(parents=True, exist_ok=True)
+for target_dir in (settings.packs_dir, settings.cache_dir, settings.storage_dir, settings.logs_dir):
+    try:
+        target_dir.mkdir(parents=True, exist_ok=True)
+    except Exception:
+        pass
 
 pack_manager = PackManager(store, settings.cache_dir, max_cache_size_mb=500)
 pack_distribution = PackDistributionManager(store, settings.storage_dir)
@@ -715,3 +718,147 @@ def validate_deployment_ready(_: None = Depends(require_admin)) -> dict[str, Any
 @app.get("/deployment/validation/scenarios")
 def validation_scenarios(_: None = Depends(require_admin)) -> dict[str, Any]:
     return {"scenarios": recovery_scenarios.get_all_scenarios()}
+
+
+@app.get("/", response_class=HTMLResponse)
+@app.get("/dashboard", response_class=HTMLResponse)
+def teacher_dashboard() -> str:
+    return """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PiHub Classroom Hub & Teacher Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --accent: #38bdf8;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #22c55e;
+      --warning: #eab308;
+      --border: #334155;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 24px; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    h1 { font-size: 24px; font-weight: 700; color: var(--accent); }
+    .badge { background: #0284c722; color: var(--accent); padding: 6px 12px; border-radius: 20px; font-size: 13px; border: 1px solid #0284c744; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .card { background: var(--card-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border); }
+    .card-title { font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 8px; }
+    .metric { font-size: 32px; font-weight: 700; color: var(--text); }
+    .metric-sub { font-size: 13px; color: var(--success); margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border); font-size: 14px; }
+    th { color: var(--text-muted); font-weight: 500; }
+    .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--success); margin-right: 6px; }
+    .refresh-btn { background: var(--accent); color: #000; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    .refresh-btn:hover { opacity: 0.9; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>PiHub Classroom Dashboard</h1>
+      <p style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">Offline Educational Node & Decentralized Peer Sync</p>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <span class="badge"><span class="status-dot"></span>Online Node</span>
+      <button class="refresh-btn" onclick="fetchDashboardData()">Refresh Data</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card-title">Connected Devices</div>
+      <div class="metric" id="devices-count">--</div>
+      <div class="metric-sub">Registered Student Tablets</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Educational Content Packs</div>
+      <div class="metric" id="packs-count">--</div>
+      <div class="metric-sub">Installable Modules Active</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Qdrant Vector Chunks</div>
+      <div class="metric" id="chunks-count">--</div>
+      <div class="metric-sub">Indexed Offline Knowledge</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Active Sync Sessions</div>
+      <div class="metric" id="sync-count">--</div>
+      <div class="metric-sub">P2P Classroom Queue</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom: 24px;">
+    <div class="card-title">Registered Classroom Devices</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Device Name</th>
+          <th>Student Name</th>
+          <th>Grade</th>
+          <th>Device ID</th>
+          <th>Last Active</th>
+        </tr>
+      </thead>
+      <tbody id="devices-table">
+        <tr><td colspan="5" style="color: var(--text-muted);">Loading devices...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    async function fetchDashboardData() {
+      try {
+        const healthRes = await fetch('/health');
+        if (healthRes.ok) {
+          const health = await healthRes.json();
+          document.getElementById('packs-count').innerText = health.content_packs || 0;
+          document.getElementById('chunks-count').innerText = health.rag_chunks || 0;
+        }
+
+        const devicesRes = await fetch('/devices');
+        if (devicesRes.ok) {
+          const devicesData = await devicesRes.json();
+          const devices = Array.isArray(devicesData) ? devicesData : (devicesData.devices || []);
+          document.getElementById('devices-count').innerText = devices.length;
+
+          const tbody = document.getElementById('devices-table');
+          if (devices.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="color: var(--text-muted);">No student devices registered yet.</td></tr>';
+          } else {
+            tbody.innerHTML = devices.map(d => `
+              <tr>
+                <td><strong>${d.device_name || 'Student Device'}</strong></td>
+                <td>${d.student_name || 'Anonymous Student'}</td>
+                <td>Grade ${d.grade || 6}</td>
+                <td style="font-family: monospace; font-size: 12px; color: var(--text-muted);">${d.device_id || '--'}</td>
+                <td><span class="status-dot"></span>Just now</td>
+              </tr>
+            `).join('');
+          }
+        }
+
+        const syncRes = await fetch('/deployment/metrics/classroom-summary');
+        if (syncRes.ok) {
+          const syncData = await syncRes.json();
+          document.getElementById('sync-count').innerText = syncData.pending_syncs || 0;
+        } else {
+          document.getElementById('sync-count').innerText = '0';
+        }
+      } catch (e) {
+        console.error('Dashboard fetch error:', e);
+      }
+    }
+
+    fetchDashboardData();
+    setInterval(fetchDashboardData, 10000);
+  </script>
+</body>
+</html>"""
+
