@@ -5,7 +5,7 @@ This guide explains how to deploy PIHUB across a two-node architecture: a powerf
 ## Architecture Overview
 
 The system uses two `docker-compose` files:
-1.  **Main Server (`docker-compose.server.yml`)**: Runs `qdrant` (Vector DB), `content-pipeline` (Embeddings), `inference-service` (LLMs), and `voice-service` (STT/TTS).
+1.  **Main Server (`docker-compose.server.yml`)**: Runs `qdrant` (Vector DB), `content-pipeline` (Embeddings), `inference-service` (LLMs).
 2.  **Raspberry Pi (`docker-compose.pi.yml`)**: Runs `pihub` (Node backend), `pack-service` (Textbook Serving), `experiment-service` (PhET Sims), `gateway` (API Router), and `nginx`.
 
 ## Prerequisites
@@ -53,7 +53,6 @@ The Raspberry Pi needs to know where to send heavy requests.
     QDRANT_URL=http://akash-ubuntu.local:6333
     CONTENT_PIPELINE_URL=http://akash-ubuntu.local:8001
     INFERENCE_SERVICE_URL=http://akash-ubuntu.local:8010
-    VOICE_SERVICE_URL=http://akash-ubuntu.local:8050
     ```
 
 ---

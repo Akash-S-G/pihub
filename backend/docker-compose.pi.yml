@@ -39,7 +39,6 @@ services:
       QDRANT_URL: ${QDRANT_URL:-http://akash-ubuntu.local:6333}
       PACK_SERVICE_URL: ${PACK_SERVICE_URL:-http://pack-service:8030}
       EXPERIMENT_SERVICE_URL: ${EXPERIMENT_SERVICE_URL:-http://experiment-service:8040}
-      VOICE_SERVICE_URL: ${VOICE_SERVICE_URL:-http://akash-ubuntu.local:8050}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
     depends_on:
       - pihub

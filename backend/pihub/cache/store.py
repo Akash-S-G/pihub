@@ -15,8 +15,12 @@ class PiHubStore:
         self._init_db()
 
     def _connect(self) -> sqlite3.Connection:
-        connection = sqlite3.connect(self.db_path)
+        connection = sqlite3.connect(self.db_path, timeout=10.0)
         connection.row_factory = sqlite3.Row
+        connection.execute("PRAGMA journal_mode = WAL;")
+        connection.execute("PRAGMA busy_timeout = 10000;")
+        connection.execute("PRAGMA synchronous = NORMAL;")
+        connection.execute("PRAGMA foreign_keys = ON;")
         return connection
 
     def _init_db(self) -> None:
@@ -489,7 +493,7 @@ class PiHubStore:
                     changes.get("status", session["status"]),
                     changes.get("sync_status", session.get("sync_status", "idle")),
                     changes.get("last_heartbeat", now),
-                    json.dumps(changes.get("metadata", json.loads(session.get("metadata", "{}")))),
+                    json.dumps(changes["metadata"] if "metadata" in changes else session.get("metadata", {})),
                     now,
                     session_id,
                 ),

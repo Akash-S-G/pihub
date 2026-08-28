@@ -57,6 +57,8 @@ class Settings(BaseSettings):
     content_generation_allow_fallback: bool = Field(default=True, alias="CONTENT_GENERATION_ALLOW_FALLBACK")
     stream_batch_chars: int = Field(default=120, alias="STREAM_BATCH_CHARS")
     prompt_context_limit: int = Field(default=1800, alias="PROMPT_CONTEXT_LIMIT")
+    max_concurrent_inference: int = Field(default=2, alias="MAX_CONCURRENT_INFERENCE")
+    inference_queue_timeout_seconds: float = Field(default=30.0, alias="INFERENCE_QUEUE_TIMEOUT_SECONDS")
 
 
 class ChatRequest(BaseModel):
@@ -281,18 +283,21 @@ class PromptCache:
     def __init__(self, max_size: int) -> None:
         self.max_size = max_size
         self._store: OrderedDict[str, str] = OrderedDict()
+        self._lock = asyncio.Lock()
 
-    def get(self, key: str) -> str | None:
-        value = self._store.get(key)
-        if value is not None:
+    async def get(self, key: str) -> str | None:
+        async with self._lock:
+            value = self._store.get(key)
+            if value is not None:
+                self._store.move_to_end(key)
+            return value
+
+    async def set(self, key: str, value: str) -> None:
+        async with self._lock:
+            self._store[key] = value
             self._store.move_to_end(key)
-        return value
-
-    def set(self, key: str, value: str) -> None:
-        self._store[key] = value
-        self._store.move_to_end(key)
-        while len(self._store) > self.max_size:
-            self._store.popitem(last=False)
+            while len(self._store) > self.max_size:
+                self._store.popitem(last=False)
 
 
 class ModelManager:
@@ -303,6 +308,7 @@ class ModelManager:
         self.http = httpx.AsyncClient(timeout=180.0)
         self.prompt_cache = PromptCache(settings.llama_prompt_cache_size)
         self.active_model = self.model_path.name
+        self.semaphore = asyncio.Semaphore(settings.max_concurrent_inference)
 
     def is_ready(self) -> bool:
         return self.server_process is not None and self.server_process.poll() is None
@@ -902,7 +908,7 @@ async def _generate_content_json(
     schema_hint: str,
 ) -> Any:
     cache_key = _content_section_hash(request, artifact)
-    cached = manager.prompt_cache.get(cache_key)
+    cached = await manager.prompt_cache.get(cache_key)
     if cached is not None:
         return schema_model.model_validate_json(cached)
 
@@ -910,7 +916,7 @@ async def _generate_content_json(
         logger.warning("[CONTENT_GENERATION_FALLBACK] artifact=%s reason=llama_backend_disabled_for_artifacts", artifact)
         fallback = _fallback_content_artifact(request, artifact)
         model = schema_model.model_validate(fallback)
-        manager.prompt_cache.set(cache_key, model.model_dump_json())
+        await manager.prompt_cache.set(cache_key, model.model_dump_json())
         return model
 
     system_prompt = _content_system_prompt(schema_hint, request.language)
@@ -924,7 +930,7 @@ async def _generate_content_json(
             raw = await _content_completion(system_prompt, prompt)
             parsed = _extract_json_object(raw)
             model = schema_model.model_validate(parsed)
-            manager.prompt_cache.set(cache_key, model.model_dump_json())
+            await manager.prompt_cache.set(cache_key, model.model_dump_json())
             return model
         except Exception as exc:
             last_error = str(exc)
@@ -932,7 +938,7 @@ async def _generate_content_json(
     logger.warning("[CONTENT_GENERATION_FALLBACK] artifact=%s reason=%s", artifact, last_error[:300])
     fallback = _fallback_content_artifact(request, artifact)
     model = schema_model.model_validate(fallback)
-    manager.prompt_cache.set(cache_key, model.model_dump_json())
+    await manager.prompt_cache.set(cache_key, model.model_dump_json())
     return model
 
 
@@ -970,25 +976,33 @@ async def _chat_completion(
 
     cache_key = _prompt_cache_key(system_prompt, user_prompt, manager.active_model, payload)
     if not stream:
-        cached = manager.prompt_cache.get(cache_key)
+        cached = await manager.prompt_cache.get(cache_key)
         if cached is not None:
             return cached
 
-    if not stream:
-        if settings.content_generation_backend.lower() == "ollama":
-            raw = await _ollama_generate(user_prompt, system_prompt)
-            if not raw:
-                raise HTTPException(status_code=502, detail="Ollama returned empty response")
-            manager.prompt_cache.set(cache_key, raw)
-            return raw
-        response = await manager.http.post(f"{base_url}/v1/chat/completions", json=payload, timeout=180.0)
-        if response.is_error:
-            raise HTTPException(status_code=response.status_code, detail=response.text)
-        body = response.json()
-        content = body["choices"][0]["message"]["content"]
-        content = _finalize_tutor_answer(content, request)
-        manager.prompt_cache.set(cache_key, content)
-        return content
+    try:
+        async with asyncio.timeout(settings.inference_queue_timeout_seconds):
+            async with manager.semaphore:
+                if not stream:
+                    if settings.content_generation_backend.lower() == "ollama":
+                        raw = await _ollama_generate(user_prompt, system_prompt)
+                        if not raw:
+                            raise HTTPException(status_code=502, detail="Ollama returned empty response")
+                        await manager.prompt_cache.set(cache_key, raw)
+                        return raw
+                    response = await manager.http.post(f"{base_url}/v1/chat/completions", json=payload, timeout=180.0)
+                    if response.is_error:
+                        raise HTTPException(status_code=response.status_code, detail=response.text)
+                    body = response.json()
+                    content = body["choices"][0]["message"]["content"]
+                    content = _finalize_tutor_answer(content, request)
+                    await manager.prompt_cache.set(cache_key, content)
+                    return content
+    except TimeoutError:
+        raise HTTPException(
+            status_code=530,
+            detail="Inference server busy: max concurrent request limit reached or queue timeout exceeded",
+        )
 
     async def event_stream() -> AsyncIterator[str]:
         # Accumulates the full raw response for post-processing

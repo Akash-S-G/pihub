@@ -20,11 +20,6 @@ This document lists all the API endpoints available in the backend.
 
 ## Api
 
-- **POST** `/api/voice/query` - Voice Query
-- **POST** `/api/voice/tts` - Voice Tts
-- **POST** `/api/voice/stt` - Voice Stt
-- **GET** `/api/voice/audio/{asset_id:path}` - Voice Audio
-- **GET** `/api/voice/metrics` - Voice Metrics
 - **GET** `/api/v1/pdf/catalog` - Pdf Catalog
 - **GET** `/api/v1/pdf/resolve` - Pdf Resolve
 - **GET** `/api/v1/pdf/book/{grade}/{subject}` - Pdf Book
@@ -180,6 +175,3 @@ This document lists all the API endpoints available in the backend.
 - **POST** `/upload` - Upload Content
 
 ## Websocket
-
-- **WS** `/api/voice/stream` - Voice Stream Proxy
-- **WS** `/voice/stream` - Voice Stream Proxy

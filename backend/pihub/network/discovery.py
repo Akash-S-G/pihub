@@ -12,6 +12,7 @@ Handles:
 from __future__ import annotations
 
 import json
+import os
 import socket
 import subprocess
 import time
@@ -55,7 +56,7 @@ class NetworkDiscovery:
     """Classroom network discovery and management"""
 
     def __init__(self, state_dir: Path | None = None) -> None:
-        self.state_dir = state_dir or Path("/storage/network")
+        self.state_dir = state_dir or Path(os.getenv("STORAGE_DIR", "/storage")) / "network"
         self.state_dir.mkdir(parents=True, exist_ok=True)
         self.session_file = self.state_dir / "classroom_session.json"
         self.interfaces_file = self.state_dir / "interfaces.json"

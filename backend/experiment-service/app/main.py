@@ -42,6 +42,11 @@ app.include_router(sharing_router)
 app.include_router(classroom_router)
 app.include_router(maintenance_router)
 
+
+@app.get("/health")
+async def health() -> HealthResponse:
+    return HealthResponse(status="ok", service="experiment-service")
+
 import os
 from pathlib import Path
 if Path("/shared/packs/phet_simulations_v1/simulations").exists():

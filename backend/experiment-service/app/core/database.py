@@ -9,7 +9,7 @@ from typing import Iterator
 
 logger = logging.getLogger("experiment-service.database")
 
-SQLITE_BUSY_TIMEOUT_MS = 5000
+SQLITE_BUSY_TIMEOUT_MS = 10000
 
 
 def connect_sqlite(db_path: Path) -> sqlite3.Connection:
@@ -66,6 +66,7 @@ def ensure_columns(db_path: Path, table_name: str, columns: dict[str, str]) -> N
 def _apply_pragmas(connection: sqlite3.Connection) -> None:
     connection.execute("pragma journal_mode = wal")
     connection.execute(f"pragma busy_timeout = {SQLITE_BUSY_TIMEOUT_MS}")
+    connection.execute("pragma synchronous = normal")
     connection.execute("pragma foreign_keys = on")
 
 
