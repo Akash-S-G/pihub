@@ -1,0 +1,25 @@
+# Pinned lockfile for the content-pipeline service.
+# Generated from the active .venv (July 2026). Use this for reproducible release
+# builds. The heavy ML libs (docling/torch/sentence-transformers/transformers) are
+# kept as >= (CPU/CUDA variant and size make hard pins fragile in the Dockerfile);
+# pin them explicitly in CI if you need byte-reproducible images.
+fastapi==0.133.1
+uvicorn[standard]==0.41.0
+httpx==0.28.1
+pydantic==2.13.4
+pydantic-settings==2.13.1
+python-multipart==0.0.27
+qdrant-client==1.7.3
+pymupdf==1.27.2.3
+watchdog==6.0.0
+pytesseract==0.3.13
+pillow==12.2.0
+beautifulsoup4==4.15.0
+lxml==6.1.1
+pymongo==4.17.0
+
+# Heavy / environment-specific — keep flexible:
+docling>=2.15.0
+sentence-transformers>=3.0.1
+torch>=2.3.0
+transformers>=4.44.0

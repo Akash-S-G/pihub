@@ -12,6 +12,7 @@ Handles:
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import time
 from pathlib import Path
@@ -22,8 +23,12 @@ class StartupValidator:
     """Validate deployment readiness at startup"""
 
     def __init__(self, checks_dir: Path | None = None) -> None:
-        self.checks_dir = checks_dir or Path("/storage/startup_checks")
-        self.checks_dir.mkdir(parents=True, exist_ok=True)
+        storage_base = Path(os.getenv("STORAGE_DIR")) if os.getenv("STORAGE_DIR") else (Path(__file__).resolve().parents[3] / ".local_run" / "pihub_storage")
+        self.checks_dir = checks_dir or (storage_base / "startup_checks")
+        try:
+            self.checks_dir.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            pass
         self.last_check_time = 0
         self.check_results: dict[str, dict[str, Any]] = {}
 
@@ -74,7 +79,7 @@ class StartupValidator:
         import sqlite3
 
         try:
-            db_path = Path("/storage/pihub.sqlite3")
+            db_path = Path(os.getenv("PIHUB_DB_PATH", "/storage/pihub.sqlite3"))
             if db_path.exists():
                 conn = sqlite3.connect(str(db_path))
                 cursor = conn.cursor()

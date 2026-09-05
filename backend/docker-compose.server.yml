@@ -1,0 +1,89 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.13.4
+    container_name: pihub-qdrant
+    restart: unless-stopped
+    environment:
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__SERVICE__GRPC_PORT: 6334
+    volumes:
+      - qdrant_data:/qdrant/storage
+      - backend_logs:/var/log/qdrant
+    expose:
+      - "6333"
+      - "6334"
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+
+  content-pipeline:
+    build:
+      context: .
+      dockerfile: content-pipeline/Dockerfile
+      network: host
+    container_name: pihub-content-pipeline
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      QDRANT_URL: ${QDRANT_URL:-http://qdrant:6333}
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION:-educational_chunks}
+      EMBEDDING_MODEL_NAME: ${EMBEDDING_MODEL_NAME:-BAAI/bge-small-en-v1.5}
+      EMBEDDING_DEVICE: ${EMBEDDING_DEVICE:-cpu}
+      EMBEDDING_CACHE_DIR: ${EMBEDDING_CACHE_DIR:-/shared/models/sentence-transformers/embedding}
+      LOCAL_RETRIEVAL_MODEL_NAME: ${LOCAL_RETRIEVAL_MODEL_NAME:-BAAI/bge-small-en-v1.5}
+      LOCAL_RETRIEVAL_DEVICE: ${LOCAL_RETRIEVAL_DEVICE:-cpu}
+      LOCAL_RETRIEVAL_CACHE_DIR: ${LOCAL_RETRIEVAL_CACHE_DIR:-/shared/models/sentence-transformers/retrieval}
+      UPLOAD_DIR: ${UPLOAD_DIR:-/shared/uploads}
+      WORK_DIR: ${WORK_DIR:-/shared/work}
+    depends_on:
+      - qdrant
+    volumes:
+      - shared_storage:/shared
+      - ../generated_pack:/shared/generated_pack:ro
+      - backend_logs:/logs
+    expose:
+      - "8001"
+    ports:
+      - "8001:8001"
+
+  inference-service:
+    build:
+      context: .
+      dockerfile: inference-service/Dockerfile
+      network: host
+    container_name: pihub-inference-service
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      CONTENT_PIPELINE_URL: ${CONTENT_PIPELINE_URL:-http://content-pipeline:8001}
+      LLAMA_SERVER_HOST: ${LLAMA_SERVER_HOST:-127.0.0.1}
+      LLAMA_SERVER_PORT: ${LLAMA_SERVER_PORT:-8081}
+      LLAMA_MODEL_PATH: ${LLAMA_MODEL_PATH:-/models/model.gguf}
+      LLAMA_CONTEXT_SIZE: ${LLAMA_CONTEXT_SIZE:-2048}
+      LLAMA_MAX_TOKENS: ${LLAMA_MAX_TOKENS:-256}
+      LLAMA_TEMPERATURE: ${LLAMA_TEMPERATURE:-0.4}
+      LLAMA_TOP_P: ${LLAMA_TOP_P:-0.9}
+      LLAMA_PROMPT_CACHE_SIZE: ${LLAMA_PROMPT_CACHE_SIZE:-128}
+      CONTENT_GENERATION_BACKEND: ${CONTENT_GENERATION_BACKEND:-ollama}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
+      GEMMA_CONTENT_MODEL: ${GEMMA_CONTENT_MODEL:-gemma4}
+      CONTENT_GENERATION_TEMPERATURE: ${CONTENT_GENERATION_TEMPERATURE:-0.2}
+      CONTENT_GENERATION_TOP_P: ${CONTENT_GENERATION_TOP_P:-0.9}
+      CONTENT_GENERATION_RETRIES: ${CONTENT_GENERATION_RETRIES:-3}
+    depends_on:
+      - content-pipeline
+    volumes:
+      - shared_storage:/shared
+      - backend_logs:/logs
+      - ./inference-service/models:/models
+    expose:
+      - "8010"
+    ports:
+      - "8010:8010"
+
+volumes:
+  qdrant_data:
+  backend_logs:
+  shared_storage:

@@ -83,7 +83,7 @@ def report_markdown(
         "## Scope",
         "",
         "FACT: This report runs the new semantic educational knowledge pipeline against sampled runtime pack archives through the backend pack contract.",
-        "FACT: It does not mutate Qdrant, the frontend, discovery, marketplace, voice, or experiment engine.",
+        "FACT: It does not mutate Qdrant, the frontend, discovery, marketplace, or experiment engine.",
         "",
         "## Before Metrics",
         "",

@@ -16,6 +16,17 @@ seen_sessions = set()
 router = APIRouter()
 
 
+def _normalize_language_code(language: str | None) -> str:
+    value = str(language or "").strip().lower().replace("_", "-")
+    if value.startswith("kn") or value in {"kan", "kannada"}:
+        return "kn"
+    if value.startswith("hi") or value in {"hin", "hindi"}:
+        return "hi"
+    if value.startswith("en") or value in {"eng", "english"}:
+        return "en"
+    return value or "en"
+
+
 def _chunk_text(text: str, max_chars: int = 80) -> list[str]:
     text = " ".join(text.split())
     if not text:
@@ -55,7 +66,7 @@ def _normalize_transcript(result: Transcript | dict[str, object], language: str 
         return result
     return Transcript(
         text=str(result.get("transcript") or result.get("text") or ""),
-        language=str(result.get("language") or language or "en"),
+        language=_normalize_language_code(str(result.get("language") or language or "en")),
         confidence=result.get("confidence"),
         latency_ms=float(result.get("latency_ms") or 0.0),
         partial_transcripts=[str(item) for item in list(result.get("partial_transcripts") or [])],
@@ -161,7 +172,7 @@ async def voice_stream(websocket: WebSocket) -> None:
             # session_start or audio_start (accepted for backward compat)
             if msg_type in ("session_start", "audio_start"):
                 session_id = data.get("session_id") or data.get("sessionId") or "unknown"
-                language_state = data.get("language") or "en"
+                language_state = _normalize_language_code(data.get("language"))
                 session_audio_chunks.clear()
                 if session_id in seen_sessions:
                     metrics.increment("reconnects")
@@ -193,7 +204,7 @@ async def voice_stream(websocket: WebSocket) -> None:
                     await websocket.close()
                     break
                     
-                language_state = data.get("language") or language_state
+                language_state = _normalize_language_code(data.get("language")) or language_state
                 roundtrip_start = time.perf_counter()
                 
                 # STT stage

@@ -3,15 +3,27 @@
 .vscode/
 graphify-out/
 backend/.env
+.env
+.env.example.bak
 TEXTBOOKS/
 KANNADA_MEDIUM/
 __pycache__/
 # AI Models
 backend/inference-service/models/
+backend/voice-service/models/
 *.gguf
 *.onnx
 *.pt
 *.pth
+
+# Local run/debug scratch
+backend/.local_run/
+backend/.local_run_env
+backend/_depcheck.py
+backend/content-pipeline/_dbgpath.py
+*.sqlite3-shm
+*.sqlite3-wal
+
 
 # Generated audits, validation outputs, and debugging results
 /*_report.json
@@ -71,3 +83,6 @@ idp_curriculum_generation/
 /*.log
 venv/
 textbook_artifacts/
+.generated_pack_storage/
+.runtime_merged_pack_storage_v2/
+textbook_artifacts_chunks/

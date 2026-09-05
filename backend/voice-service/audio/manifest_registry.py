@@ -19,7 +19,7 @@ class AudioManifestRegistry:
         data = json.loads(Path(path).read_text(encoding="utf-8"))
         records = data if isinstance(data, list) else data.get("chapters", [])
         for item in records:
-            manifest = AudioManifest.model_validate(item)
+            manifest = _model_validate(AudioManifest, item)
             self._manifests[manifest.chapter_id] = manifest
 
     def get(self, chapter_id: str | None) -> AudioManifest | None:
@@ -41,3 +41,9 @@ class AudioManifestRegistry:
                 if normalized in asset_id.lower():
                     return asset_id
         return None
+
+
+def _model_validate(model_cls, data):
+    if hasattr(model_cls, "model_validate"):
+        return model_cls.model_validate(data)
+    return model_cls.parse_obj(data)

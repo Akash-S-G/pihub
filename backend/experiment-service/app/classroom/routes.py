@@ -1,5 +1,4 @@
-from __future__ import annotations
-
+import asyncio
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
@@ -32,14 +31,15 @@ def _parse_model(model_type: Any, payload: dict[str, Any]) -> Any:
 async def create_classroom_session(payload: dict[str, Any]) -> dict[str, Any]:
     try:
         request = _parse_model(CreateSessionRequest, payload)
-        return _dump(classroom_service.create_session(request))
+        result = await asyncio.to_thread(classroom_service.create_session, request)
+        return _dump(result)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @router.get("/classroom/sessions")
 async def list_classroom_sessions(page: int = page_query(), page_size: int = page_size_query()) -> dict[str, Any]:
-    sessions = classroom_service.list_sessions()
+    sessions = await asyncio.to_thread(classroom_service.list_sessions)
     paged = paginate(sessions, page, page_size)
     return {
         "sessions": [_dump(session) for session in paged["items"]],
@@ -53,7 +53,8 @@ async def list_classroom_sessions(page: int = page_query(), page_size: int = pag
 async def create_classroom_assignment(session_id: str, payload: dict[str, Any]) -> dict[str, Any]:
     try:
         request = _parse_model(CreateAssignmentRequest, payload)
-        return _dump(classroom_service.create_assignment(session_id, request))
+        result = await asyncio.to_thread(classroom_service.create_assignment, session_id, request)
+        return _dump(result)
     except ClassroomNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except ClassroomValidationError as exc:
@@ -69,7 +70,7 @@ async def list_classroom_assignments(
     page_size: int = page_size_query(),
 ) -> dict[str, Any]:
     try:
-        assignments = classroom_service.list_assignments(session_id)
+        assignments = await asyncio.to_thread(classroom_service.list_assignments, session_id)
     except ClassroomNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     paged = paginate(assignments, page, page_size)
@@ -80,7 +81,8 @@ async def list_classroom_assignments(
 async def submit_classroom_assignment(assignment_id: str, payload: dict[str, Any]) -> dict[str, Any]:
     try:
         request = _parse_model(SubmitAssignmentRequest, payload)
-        return _dump(classroom_service.submit_assignment(assignment_id, request))
+        result = await asyncio.to_thread(classroom_service.submit_assignment, assignment_id, request)
+        return _dump(result)
     except ClassroomNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except ClassroomValidationError as exc:
@@ -96,7 +98,7 @@ async def list_classroom_submissions(
     page_size: int = page_size_query(),
 ) -> dict[str, Any]:
     try:
-        submissions = classroom_service.list_submissions(assignment_id)
+        submissions = await asyncio.to_thread(classroom_service.list_submissions, assignment_id)
     except ClassroomNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     paged = paginate(submissions, page, page_size)
@@ -105,4 +107,6 @@ async def list_classroom_submissions(
 
 @router.get("/classroom/analytics")
 async def classroom_analytics() -> dict[str, Any]:
-    return _dump(classroom_service.analytics())
+    result = await asyncio.to_thread(classroom_service.analytics)
+    return _dump(result)
+
