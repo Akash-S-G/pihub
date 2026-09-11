@@ -25,10 +25,11 @@ from shared.topic_normalization import normalize_subject, normalize_topic, shoul
 from app.services.experiment_service_client import ExperimentGatewayMetrics, ExperimentServiceClient
 
 
+from app.middleware.structlog_middleware import StructuredLoggingMiddleware
+
 settings = get_settings()
 logging.basicConfig(level=getattr(logging, settings.log_level.upper(), logging.INFO))
 logger = logging.getLogger(__name__)
-retrieval_metrics: deque[dict[str, Any]] = deque(maxlen=200)
 experiment_gateway_metrics = ExperimentGatewayMetrics()
 
 DEMO_TOPICS: list[dict[str, Any]] = [
@@ -84,6 +85,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title=settings.app_name, lifespan=lifespan)
 app.add_middleware(GZipMiddleware, minimum_size=1000)
+app.add_middleware(StructuredLoggingMiddleware)
 
 
 def _log_tag(path: str) -> str:

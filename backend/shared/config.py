@@ -22,7 +22,19 @@ class Settings(BaseSettings):
     voice_service_required: bool = Field(default=False, alias="VOICE_SERVICE_REQUIRED")
     voice_service_enabled: bool = Field(default=False, alias="VOICE_SERVICE_ENABLED")
     gateway_http_timeout_seconds: float = Field(default=900.0, alias="GATEWAY_HTTP_TIMEOUT_SECONDS")
+    jwt_secret_key: str = Field(default="change-me-super-secret-jwt-key-min32chars", alias="JWT_SECRET_KEY")
+    database_url: str = Field(default="postgresql+asyncpg://postgres:postgres@db:5432/pihub", alias="DATABASE_URL")
+    redis_url: str = Field(default="", alias="REDIS_URL")
+    
+    # MinIO Object Storage
+    minio_endpoint: str = Field(default="minio:9000", alias="MINIO_ENDPOINT")
+    minio_access_key: str = Field(default="minioadmin", alias="MINIO_ACCESS_KEY")
+    minio_secret_key: str = Field(default="minioadmin", alias="MINIO_SECRET_KEY")
+    minio_bucket: str = Field(default="educational-packs", alias="MINIO_BUCKET")
+    minio_secure: bool = Field(default=False, alias="MINIO_SECURE")
+
     qdrant_url: str = Field(default="http://qdrant:6333", alias="QDRANT_URL")
+    qdrant_api_key: str = Field(default="", alias="QDRANT_API_KEY")
     qdrant_collection: str = Field(default="educational_chunks_bge_m3", alias="QDRANT_COLLECTION")
 
     embedding_model_name: str = Field(default="BAAI/bge-m3", alias="EMBEDDING_MODEL_NAME")

@@ -705,10 +705,10 @@ class Pipeline:
 
     def _ingest_textbook_path(self, file_path: Path, metadata: Metadata | None = None, source: str | None = None) -> dict[str, Any]:
         self.ensure_ready()
-        raw_text = self.textbook_ingestor.extract_text_from_pdf(file_path)
-        logger.info("Extracted text length for %s: %d", file_path.name, len(raw_text or ""))
+        raw_text, extraction_tier = self.textbook_ingestor.extract_text_from_pdf(file_path)
+        logger.info("Extracted text length for %s: %d (tier=%s)", file_path.name, len(raw_text or ""), extraction_tier)
         base_metadata = self._merge_metadata(file_path, metadata, raw_text, source=source or "textbook")
-        chunks = self.textbook_ingestor.ingest_from_path(file_path, raw_text)
+        chunks = self.textbook_ingestor.ingest_from_path(file_path, raw_text, extraction_tier=extraction_tier)
         logger.info("Detected %d raw chunks from chunker for %s", len(chunks), file_path.name)
         enriched_chunks = self._enrich_chunks(chunks, base_metadata)
         self._store_chunks(enriched_chunks)
@@ -1113,22 +1113,23 @@ class Pipeline:
         }
 
     def debug_metadata(self, file_path: Path) -> dict[str, Any]:
-        raw_text = self.textbook_ingestor.extract_text_from_pdf(file_path)
+        raw_text, extraction_tier = self.textbook_ingestor.extract_text_from_pdf(file_path)
         base_metadata = self._merge_metadata(file_path, None, raw_text, source="debug")
-        chunks = self.textbook_ingestor.ingest_from_path(file_path, raw_text)
+        chunks = self.textbook_ingestor.ingest_from_path(file_path, raw_text, extraction_tier=extraction_tier)
         return {
             "file_name": file_path.name,
             "source_path": str(file_path),
             "metadata": base_metadata,
             "chunk_count": len(chunks),
+            "extraction_tier": extraction_tier,
             "preview_topics": self.curriculum_graph.infer_topics_for_query(raw_text),
             "preview_concepts": self.curriculum_graph.infer_concepts_for_text(raw_text),
         }
 
     def preview_chunks(self, file_path: Path) -> list[dict[str, Any]]:
-        raw_text = self.textbook_ingestor.extract_text_from_pdf(file_path)
+        raw_text, extraction_tier = self.textbook_ingestor.extract_text_from_pdf(file_path)
         base_metadata = self._merge_metadata(file_path, None, raw_text, source="preview")
-        chunks = self.textbook_ingestor.ingest_from_path(file_path, raw_text)
+        chunks = self.textbook_ingestor.ingest_from_path(file_path, raw_text, extraction_tier=extraction_tier)
         enriched = self._enrich_chunks(chunks, base_metadata)
         return [{"text": chunk["text"][:500], "metadata": chunk["metadata"]} for chunk in enriched]
 
@@ -1213,10 +1214,10 @@ class Pipeline:
         ]
         return {"manifest": manifest.model_dump(), "metadata": metadata.model_dump(), "resources": resources}
 
-    def build_learning_pack_preview(self, chunks: list[dict[str, Any]], pack_name: str = "curriculum_pack") -> dict[str, Any]:
+    async def build_learning_pack_preview(self, chunks: list[dict[str, Any]], pack_name: str = "curriculum_pack") -> dict[str, Any]:
         pack_preview = self.build_pack_preview(chunks, pack_name)
         if not chunks:
-            empty_summary = self.summary_generator.generate([], chapter=None, topic=None)
+            empty_summary = await self.summary_generator.generate([], chapter=None, topic=None)
             empty_glossary: list[dict[str, Any]] = []
             empty_quizzes: list[dict[str, Any]] = []
             empty_flashcards: list[dict[str, Any]] = []
@@ -1237,10 +1238,10 @@ class Pipeline:
         first_metadata = chunks[0].get("metadata", {})
         chapter = first_metadata.get("chapter") or pack_name
         topic = (first_metadata.get("topics") or [first_metadata.get("topic") or None])[0]
-        summary = self.summary_generator.generate(chunks, chapter=chapter, topic=topic)
-        glossary = self.glossary_extractor.extract(chunks)
-        quizzes = self.quiz_generator.generate(chunks)
-        flashcards = self.flashcard_generator.generate(chunks)
+        summary = await self.summary_generator.generate(chunks, chapter=chapter, topic=topic)
+        glossary = await self.glossary_extractor.extract(chunks)
+        quizzes = await self.quiz_generator.generate(chunks)
+        flashcards = await self.flashcard_generator.generate(chunks)
         enrichment_context = self.enrichment_router.route(
             topic=topic or chapter,
             grade=first_metadata.get("grade"),
@@ -1438,7 +1439,7 @@ async def debug_pack_preview(path: str, pack_name: str = "curriculum_pack") -> d
 async def debug_learning_pack_preview(path: str, pack_name: str = "curriculum_pack") -> dict[str, Any]:
     file_path = pipeline._resolve_content_path(path)
     chunks = await asyncio.to_thread(pipeline.preview_chunks, file_path)
-    return await asyncio.to_thread(pipeline.build_learning_pack_preview, chunks, pack_name)
+    return await pipeline.build_learning_pack_preview(chunks, pack_name)
 
 
 # ── AI-Powered Artifact Generation Endpoints ──────────────────────────────
