@@ -3,10 +3,12 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Install system dependencies
+# NOTE: poppler-utils / tesseract / fitz are intentionally absent.
+#   PDF extraction is handled exclusively by content-pipeline (:8001).
+#   This container is a lean distribution engine.
 RUN apt-get update && apt-get install -y \
     build-essential \
     curl \
-    poppler-utils \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install

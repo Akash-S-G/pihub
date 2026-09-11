@@ -1,23 +1,33 @@
 """
-Structured textbook ingestion for curriculum-aware pipeline.
+Structured textbook ingestion — content-pipeline sole PDF processing service.
 
-Supports:
-- Directory-based curriculum hierarchy (grade/subject/chapter structure)
-- Automatic metadata extraction from file paths
-- Chapter detection from PDF content
-- Educational semantic chunking
-- Multi-language support
+This module is the **authoritative, sole owner** of all raw PDF extraction
+logic in the PIHUB backend. ``pack-service`` (:8030) does NOT perform PDF
+parsing of any kind; it exclusively reads pre-generated packs written by
+this pipeline to ``/shared/generated_pack``.
 
-Directory structure:
-content/
-  class_6/
-    science/
-      photosynthesis.pdf
-      respiration.pdf
-    maths/
-    social/
-  class_7/
-  ...
+Extraction Tier Hierarchy (applied in order):
+  Tier 1 — IBM Docling  (structured layout parsing, formula/table detection)
+  Tier 2 — PyMuPDF fitz (native text layer extraction)
+  Tier 3 — Tesseract OCR via fitz pixmap rendering (image-only / scanned PDFs)
+
+Pipeline outputs per textbook:
+  • Vector embeddings  → Qdrant collection
+  • content.json       → /shared/generated_pack/<pack_id>/
+  • quizzes.json       → /shared/generated_pack/<pack_id>/
+  • flashcards.json    → /shared/generated_pack/<pack_id>/
+  • summaries.json     → /shared/generated_pack/<pack_id>/
+
+Directory structure expected for batch ingestion:
+  content/
+    class_6/
+      science/
+        photosynthesis.pdf
+        respiration.pdf
+      maths/
+      social/
+    class_7/
+    ...
 """
 
 from __future__ import annotations
@@ -400,8 +410,23 @@ class EducationalChunker:
 
 
 class StructuredTextbookIngest:
-    """Main API for structured textbook ingestion."""
-    
+    """Main API for structured textbook ingestion on content-pipeline.
+
+    Enforces a strict 3-tier PDF extraction hierarchy:
+      Tier 1 — IBM Docling   : primary structured parser (layout, tables, formulas).
+      Tier 2 — PyMuPDF fitz  : native text-layer extraction fallback.
+      Tier 3 — Tesseract OCR : OCR fallback for scanned / image-only PDFs.
+
+    The ``extract_text_from_pdf`` method attempts each tier in order and
+    returns on the first tier that produces >40 characters of text.  The
+    ``extraction_tier`` attribute on the returned metadata records which
+    tier was ultimately used ("docling" | "pymupdf" | "tesseract" | "none").
+
+    NOTE: pack-service (:8030) must NEVER call this class or import fitz /
+    docling.  All PDF processing happens here and finished artifacts are
+    written to /shared/generated_pack for pack-service to serve.
+    """
+
     def __init__(self):
         settings = get_settings()
         self.metadata_extractor = TextbookMetadataExtractor()
@@ -409,17 +434,38 @@ class StructuredTextbookIngest:
         self.semantic_chunker = EducationalChunkerV2()
         self.enable_semantic_educational_chunking = settings.enable_semantic_educational_chunking
 
-    def extract_text_from_pdf(self, file_path: Path) -> str:
-        """Extract text from PDF with Docling first, then OCR-capable fallback."""
+    def extract_text_from_pdf(self, file_path: Path) -> tuple[str, str]:
+        """Extract text from PDF using the 3-tier hierarchy.
+
+        Returns:
+            (text, extraction_tier) where extraction_tier is one of
+            ``"docling"`` | ``"pymupdf"`` | ``"tesseract"`` | ``"none"``.
+
+        Tier 1 — IBM Docling
+            Full layout analysis: detects headings, tables, formulas, and
+            reading order.  Preferred for well-structured digital textbooks.
+
+        Tier 2 — PyMuPDF (fitz) native text layer
+            Fast native text extraction from PDF internal text streams.
+            Used when Docling is unavailable or returns <40 chars.
+
+        Tier 3 — Tesseract OCR (via fitz pixmap rendering)
+            Renders each page to a 2× resolution image and runs Tesseract.
+            Used for scanned / image-only PDFs where the text layer is absent.
+        """
+        # ── Tier 1: IBM Docling ──────────────────────────────────────────────
         docling_text = self._extract_text_with_docling(file_path)
         if docling_text and len(docling_text) > 40:
-            logger.debug("Docling extracted text length from %s: %d", file_path.name, len(docling_text))
-            print(f"[ingest] docling_extracted_text_length {file_path.name} {len(docling_text)}")
-            return docling_text
+            logger.debug("[Tier1/Docling] extracted %d chars from %s", len(docling_text), file_path.name)
+            print(f"[ingest] tier=docling file={file_path.name} chars={len(docling_text)}")
+            return docling_text, "docling"
+
         try:
             import fitz
 
             document = fitz.open(str(file_path))
+
+            # ── Tier 2: PyMuPDF native text layer ────────────────────────────
             pages: list[str] = []
             for page in document:
                 page_text = page.get_text("text").strip()
@@ -427,16 +473,18 @@ class StructuredTextbookIngest:
                     pages.append(page_text)
 
             extracted = "\n".join(pages).strip()
-            logger.debug("Extracted text length from %s: %d", file_path.name, len(extracted))
-            print(f"[ingest] extracted_text_length {file_path.name} {len(extracted)}")
+            logger.debug("[Tier2/PyMuPDF] extracted %d chars from %s", len(extracted), file_path.name)
+            print(f"[ingest] tier=pymupdf file={file_path.name} chars={len(extracted)}")
             if extracted and len(extracted) > 40:
-                return extracted
+                return extracted, "pymupdf"
 
+            # ── Tier 3: Tesseract OCR (image-only / scanned PDFs) ────────────
             try:
                 import pytesseract
                 from PIL import Image
             except Exception:
-                return extracted
+                logger.debug("[Tier3/Tesseract] unavailable for %s; returning Tier 2 result", file_path.name)
+                return extracted, "pymupdf" if extracted else "none"
 
             ocr_pages: list[str] = []
             for page in document:
@@ -446,10 +494,12 @@ class StructuredTextbookIngest:
                 if ocr_text:
                     ocr_pages.append(ocr_text)
 
-            ocr_text = "\n".join(ocr_pages).strip()
-            logger.debug("OCR extracted text length from %s: %d", file_path.name, len(ocr_text))
-            print(f"[ingest] ocr_extracted_text_length {file_path.name} {len(ocr_text)}")
-            return ocr_text or extracted
+            ocr_result = "\n".join(ocr_pages).strip()
+            logger.debug("[Tier3/Tesseract] extracted %d chars from %s", len(ocr_result), file_path.name)
+            print(f"[ingest] tier=tesseract file={file_path.name} chars={len(ocr_result)}")
+            if ocr_result:
+                return ocr_result, "tesseract"
+            return extracted, "pymupdf" if extracted else "none"
         except Exception as exc:
             raise RuntimeError(f"Unable to extract text from {file_path.name}: {exc}") from exc
 
@@ -532,6 +582,12 @@ class StructuredTextbookIngest:
         return m.group(1).strip() if m else ""
 
     def _extract_text_with_docling(self, file_path: Path) -> str:
+        """Tier 1 extractor: IBM Docling structured layout parser.
+
+        Produces Markdown-structured text preserving headings, tables, and
+        formulas.  Returns an empty string on any failure so the caller can
+        fall through to Tier 2 (PyMuPDF).
+        """
         try:
             from docling.document_converter import DocumentConverter  # type: ignore
 
@@ -542,13 +598,17 @@ class StructuredTextbookIngest:
             if hasattr(document, "export_to_text"):
                 return str(document.export_to_text()).strip()
         except Exception as exc:
-            logger.debug("Docling extraction unavailable for %s: %s", file_path.name, exc)
+            logger.debug("[Tier1/Docling] unavailable for %s: %s", file_path.name, exc)
         return ""
 
     def ingest_pdf(self, file_path: Path) -> list[dict[str, Any]]:
-        """Ingest a PDF file directly from disk."""
-        raw_text = self.extract_text_from_pdf(file_path)
-        return self.ingest_from_path(file_path, raw_text)
+        """Ingest a PDF file directly from disk.
+
+        Applies the 3-tier extraction hierarchy and passes the extracted text
+        and tier label into ``ingest_from_path`` for metadata tagging.
+        """
+        raw_text, extraction_tier = self.extract_text_from_pdf(file_path)
+        return self.ingest_from_path(file_path, raw_text, extraction_tier=extraction_tier)
 
     def ingest_directory(self, directory: Path, recursive: bool = True) -> list[dict[str, Any]]:
         """Ingest all PDFs from a directory tree."""
@@ -558,15 +618,30 @@ class StructuredTextbookIngest:
             chunks.extend(self.ingest_pdf(file_path))
         return chunks
     
-    def ingest_from_path(self, file_path: Path, text_content: str) -> list[dict[str, Any]]:
+    def ingest_from_path(
+        self,
+        file_path: Path,
+        text_content: str,
+        *,
+        extraction_tier: str = "unknown",
+    ) -> list[dict[str, Any]]:
         """
         Full ingestion pipeline:
         1. Extract metadata from path
         2. Detect chapters
-        3. Create semantic chunks
+        3. Create semantic chunks with extraction tier tagged in metadata
+
+        Args:
+            file_path: Source PDF path (used for metadata extraction only).
+            text_content: Pre-extracted text from extract_text_from_pdf().
+            extraction_tier: Which tier produced the text
+                ("docling" | "pymupdf" | "tesseract" | "none" | "unknown").
         """
-        # Extract metadata from path
-        metadata = self.metadata_extractor.merge_text_metadata(self.metadata_extractor.extract_from_path(file_path), text_content)
+        # Extract metadata from path and merge with text-derived metadata
+        metadata = self.metadata_extractor.merge_text_metadata(
+            self.metadata_extractor.extract_from_path(file_path), text_content
+        )
+        metadata["extraction_tier"] = extraction_tier
 
         # Chunk educational content. Keep legacy chunker available for compatibility.
         if self.enable_semantic_educational_chunking:

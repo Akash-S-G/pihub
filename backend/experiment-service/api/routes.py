@@ -166,8 +166,18 @@ async def create_experiment_run(payload: dict[str, Any]) -> dict[str, Any]:
     return {"run_id": run.run_id, "status": run.status.value}
 
 
+from fastapi import APIRouter, Header, HTTPException, Query
+
 @router.get("/experiment-runs/student/{student_id}")
-async def list_student_experiment_runs(student_id: str) -> list[dict[str, Any]]:
+async def list_student_experiment_runs(
+    student_id: str,
+    x_user_id: str | None = Header(None, alias="x-user-id"),
+    x_user_role: str | None = Header(None, alias="x-user-role"),
+) -> list[dict[str, Any]]:
+    # IDOR Protection: Enforce caller identity matches student_id or role is admin/teacher
+    if x_user_id and x_user_id != student_id and x_user_role not in {"admin", "teacher"}:
+        logger.warning("[SECURITY] IDOR attempt: user %s requested runs for student %s", x_user_id, student_id)
+        raise HTTPException(status_code=403, detail="Forbidden: Access to specified student runs is unauthorized.")
     runs = await run_service.list_student_runs(student_id)
     return [_dump(run) for run in runs]
 
